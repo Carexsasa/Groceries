@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THD Health Informatics — Study Planner (PO 217B)</title>
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --bg:#f6f6f4;
+  --panel:#ffffff;
+  --ink:#1c1d1f;
+  --ink-2:#54585f;
+  --ink-3:#83888f;
+  --line:#dcdcd7;
+  --line-2:#ebebe6;
+  --accent:#2f5d8a;
+  --accent-soft:#e8f0f7;
+  --green:#1f7a4d;
+  --green-bg:#e6f4ec;
+  --amber:#8a5a00;
+  --amber-bg:#fdf1dc;
+  --red:#a12020;
+  --red-bg:#fbe9e9;
+  --info-bg:#eef2f7;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif;
+  font-size:13.5px;line-height:1.45;color:var(--ink);background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-0.01em}
+h1{font-size:18px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-2)}
+h3{font-size:13px}
+a{color:var(--accent)}
+.wrap{max-width:1500px;margin:0 auto;padding:0 18px 60px}
+
+/* ---------- header ---------- */
+header.top{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 0 12px;margin-bottom:16px}
+.top .wrap{padding-bottom:0}
+.idline{color:var(--ink-2);font-size:12.5px;margin-top:3px}
+.idline strong{color:var(--ink);font-weight:600}
+
+/* ---------- stats ---------- */
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:7px 11px;min-width:118px}
+.stat .k{font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3)}
+.stat .v{font-size:17px;font-weight:650;font-variant-numeric:tabular-nums}
+.stat .s{font-size:11px;color:var(--ink-3)}
+.bar{height:6px;background:var(--line-2);border-radius:3px;overflow:hidden;margin-top:8px;display:flex}
+.bar i{display:block;height:100%}
+.bar .earned{background:var(--accent)}
+.bar .planned{background:#9dbcd6}
+
+/* ---------- toolbar ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:14px 0}
+button{
+  font:inherit;font-size:12.5px;font-weight:550;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line);border-radius:5px;
+  padding:6px 11px;cursor:pointer;
+}
+button:hover{border-color:var(--ink-3)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#26506f}
+button.danger{color:var(--red);border-color:#e3c4c4}
+.sep{width:1px;height:22px;background:var(--line);margin:0 3px}
+.filters{margin-left:auto;display:flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+.filters select,.filters input{font:inherit;font-size:12.5px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink)}
+
+/* ---------- panels ---------- */
+section{margin:18px 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.panel-head{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line-2)}
+.panel-head .hint{font-size:11.5px;color:var(--ink-3);font-weight:400;text-transform:none;letter-spacing:0}
+.panel-body{padding:12px}
+
+/* ---------- warnings ---------- */
+.msg{border:1px solid var(--line);border-left-width:4px;border-radius:4px;padding:7px 10px;margin-bottom:6px;font-size:12.5px}
+.msg:last-child{margin-bottom:0}
+.msg.err{background:var(--red-bg);border-color:#eccaca;border-left-color:var(--red)}
+.msg.warn{background:var(--amber-bg);border-color:#efdcb6;border-left-color:var(--amber)}
+.msg.info{background:var(--info-bg);border-color:#d6dee8;border-left-color:var(--accent)}
+.msg.ok{background:var(--green-bg);border-color:#c9e5d5;border-left-color:var(--green)}
+.msg b{font-weight:650}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:1px 5px;border-radius:3px;margin-right:7px;vertical-align:1px}
+.tag.err{background:var(--red);color:#fff}
+.tag.warn{background:var(--amber);color:#fff}
+.tag.info{background:var(--accent);color:#fff}
+.tag.ok{background:var(--green);color:#fff}
+
+/* ---------- term summary ---------- */
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:9px}
+.term{border:1px solid var(--line);border-radius:5px;padding:9px 10px;background:var(--panel)}
+.term .t-name{font-weight:650;font-size:12.5px}
+.term .t-sem{font-size:11px;color:var(--ink-3);font-weight:400}
+.term .t-ects{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;margin:2px 0 1px}
+.term .t-ects span{font-size:11px;font-weight:500;color:var(--ink-3)}
+.term .t-line{font-size:11.5px;color:var(--ink-2)}
+.term .t-band{margin-top:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+.term.green{background:var(--green-bg);border-color:#c9e5d5}
+.term.green .t-band{color:var(--green)}
+.term.amber{background:var(--amber-bg);border-color:#efdcb6}
+.term.amber .t-band{color:var(--amber)}
+.term.red{background:var(--red-bg);border-color:#eccaca}
+.term.red .t-band{color:var(--red)}
+.term.empty{background:var(--panel);opacity:0.75}
+.term.empty .t-band{color:var(--ink-3)}
+.term.past{border-style:dashed}
+
+/* ---------- table ---------- */
+.table-scroll{overflow-x:auto}
+table.mods{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+table.mods th{
+  position:sticky;top:0;z-index:3;background:#f0f0ec;text-align:left;
+  font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-2);
+  padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+table.mods td{padding:5px 8px;border-bottom:1px solid var(--line-2);vertical-align:middle;height:38px}
+table.mods tr:hover td{background:#fafaf8}
+tr.st-passed td:first-child{border-left:3px solid var(--green)}
+tr.st-failed td:first-child{border-left:3px solid var(--red)}
+tr.st-planned td:first-child{border-left:3px solid var(--accent)}
+tr.st-nottaken td:first-child{border-left:3px solid var(--line)}
+tr.st-passed{background:#fbfdfb}
+tr.st-failed{background:#fdf6f6}
+tr.st-failed td{font-weight:550}
+td.c-name{min-width:280px}
+td.c-num{width:74px}
+td.c-cycle{width:132px}
+td.c-exam{width:180px}
+td.c-status{width:150px}
+td.c-term{width:150px}
+td.c-grade{width:74px}
+td.c-del{width:34px;text-align:center}
+input.cell,select.cell{
+  font:inherit;font-size:12.5px;color:var(--ink);width:100%;
+  background:transparent;border:1px solid transparent;border-radius:4px;padding:4px 5px;
+}
+input.cell:hover,select.cell:hover{border-color:var(--line)}
+input.cell:focus,select.cell:focus{border-color:var(--accent);background:#fff;outline:2px solid var(--accent-soft)}
+select.cell{background:#fff;border-color:var(--line-2);cursor:pointer}
+input.cell.num{text-align:right;font-variant-numeric:tabular-nums;width:56px}
+.nom{font-size:10px;color:var(--ink-3);margin-left:2px;white-space:nowrap}
+.offcycle{color:var(--amber);font-weight:700}
+.del{border:none;background:transparent;color:var(--ink-3);font-size:15px;line-height:1;padding:2px 5px;border-radius:4px;cursor:pointer}
+.del:hover{background:var(--red-bg);color:var(--red)}
+.rowlock{font-size:10px;color:var(--ink-3)}
+.grp-head td{background:#f0f0ec;font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-2);font-weight:700;height:26px;padding:3px 8px}
+
+/* ---------- report blocks ---------- */
+.report{font-size:12.5px}
+.report table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.5px}
+.report th,.report td{border:1px solid var(--line-2);padding:5px 8px;text-align:right;font-variant-numeric:tabular-nums}
+.report th:first-child,.report td:first-child{text-align:left;font-variant-numeric:normal}
+.report thead th{background:#f0f0ec;font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em}
+.report tr.total td{font-weight:650;background:#fafaf8}
+.report .verdict{padding:9px 11px;border-radius:5px;margin:9px 0;font-size:13px}
+.report .verdict.no{background:var(--red-bg);border:1px solid #eccaca}
+.report .verdict.yes{background:var(--green-bg);border:1px solid #c9e5d5}
+.report .verdict.maybe{background:var(--amber-bg);border:1px solid #efdcb6}
+.report ul{margin:6px 0 6px 18px;padding:0}
+.report li{margin:2px 0}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:0.04em}
+.pill.green{background:var(--green-bg);color:var(--green)}
+.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red{background:var(--red-bg);color:var(--red)}
+.slider-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.slider-row input[type=range]{width:190px}
+.slider-row .lab{font-weight:650}
+.muted{color:var(--ink-3)}
+.small{font-size:11.5px}
+footer.note{margin-top:26px;padding:12px 14px;background:#fffdf5;border:1px solid #eadfbe;border-radius:6px;font-size:12px;color:#5c4b1f}
+footer.note b{color:#3f3413}
+.hidden{display:none!important}
+
+/* ---------- print ---------- */
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:14mm 13mm}
+  html,body{background:#fff;font-size:10.5pt}
+  .screen,header.top,.toolbar,footer.note{display:none!important}
+  #printArea{display:block}
+  .p-head{margin-bottom:10mm}
+  .p-head h1{font-size:15pt;margin-bottom:2mm}
+  .p-head .p-meta{font-size:10pt;color:#000}
+  .p-head table{width:100%;border-collapse:collapse;margin-top:4mm;font-size:10pt}
+  .p-head td{border:0.5pt solid #999;padding:2mm 3mm}
+  .p-term{page-break-before:always;break-before:page}
+  .p-term:first-of-type{page-break-before:auto;break-before:auto}
+  .p-term h2{font-size:13pt;text-transform:none;letter-spacing:0;color:#000;margin-bottom:1mm}
+  .p-term .p-sub{font-size:9.5pt;color:#333;margin-bottom:3mm}
+  table.p-list{width:100%;border-collapse:collapse;font-size:10pt}
+  table.p-list th{text-align:left;border-bottom:1pt solid #000;padding:1.5mm 2mm;font-size:8.5pt;text-transform:uppercase;letter-spacing:0.05em}
+  table.p-list td{border-bottom:0.5pt solid #bbb;padding:2.6mm 2mm;vertical-align:middle}
+  table.p-list td.box{width:8mm}
+  table.p-list td.box span{display:inline-block;width:4.2mm;height:4.2mm;border:0.9pt solid #000}
+  table.p-list td.ects,table.p-list th.ects{width:16mm;text-align:right}
+  table.p-list td.type,table.p-list th.type{width:42mm}
+  table.p-list tfoot td{border-top:1pt solid #000;border-bottom:none;font-weight:700;padding-top:2mm}
+  .p-foot{margin-top:5mm;font-size:8.5pt;color:#333;border-top:0.5pt solid #999;padding-top:2mm}
+  .p-warn{margin-top:3mm;font-size:9pt}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>Study Planner — Health Informatics B.Sc.</h1>
+    <div class="idline">
+      <strong>Abdulrahman Hassan</strong> · THD / European Campus Rottal-Inn, Pfarrkirchen ·
+      Examination regulations <strong>PO 217B</strong> · total required <strong>210 ECTS</strong> ·
+      first-attempt deadline <strong>WT 2028/29 (sem 9)</strong>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="bar" id="progressBar"><i class="earned" style="width:0"></i><i class="planned" style="width:0"></i></div>
+  </div>
+</header>
+
+<div class="wrap screen">
+
+  <div class="toolbar">
+    <button class="primary" id="btnFeas">Can I finish in 2 years?</button>
+    <button id="btnAuto">Auto-plan</button>
+    <span class="sep"></span>
+    <button id="btnPrint">Print / Save as PDF</button>
+    <button id="btnExport">Export JSON</button>
+    <button id="btnImport">Import JSON</button>
+    <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
+    <span class="sep"></span>
+    <button id="btnAdd">+ Add module</button>
+    <button id="btnClearTerms">Clear all term assignments</button>
+    <button class="danger" id="btnReset">Reset to transcript data</button>
+    <div class="filters">
+      <label>Status
+        <select id="fStatus">
+          <option value="all">all</option>
+          <option value="remaining">remaining only</option>
+          <option value="passed">passed</option>
+          <option value="failed">retake due</option>
+          <option value="planned">planned</option>
+          <option value="nottaken">not taken</option>
+          <option value="unassigned">unassigned</option>
+        </select>
+      </label>
+      <input type="search" id="fSearch" placeholder="search module…" style="width:150px">
+    </div>
+  </div>
+
+  <section id="warnSection">
+    <div class="panel">
+      <div class="panel-head"><h2>Validation</h2><span class="hint" id="warnCount"></span></div>
+      <div class="panel-body" id="warnings"></div>
+    </div>
+  </section>
+
+  <section id="reportSection" class="hidden">
+    <div class="panel">
+      <div class="panel-head"><h2 id="reportTitle">Report</h2><span class="hint">recomputed from the table below</span>
+        <button id="btnCloseReport" style="margin-left:auto">Close</button></div>
+      <div class="panel-body report" id="report"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <div class="panel-head"><h2>Term summary</h2><span class="hint">green ≤ 30 · amber 31–35 · red &gt; 35 ECTS</span></div>
+      <div class="panel-body"><div class="terms" id="termCards"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <div class="panel-head"><h2>Modules</h2><span class="hint">every field is editable — cycle data is a hint, not a rule</span></div>
+      <div class="table-scroll">
+        <table class="mods">
+          <thead>
+            <tr>
+              <th>Module</th><th>ECTS</th><th>Cycle</th><th>Exam type</th>
+              <th>Status</th><th>Term</th><th>Grade</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="note">
+    <b>Confirm before you rely on this plan.</b> Cycle assignments (which module actually runs in which term) and the
+    entry requirements for the internship block are this planner's best reconstruction of the transcript, not official data.
+    Verify every term assignment against the current <b>PO 217B Studienverlaufsplan</b> and the published timetable, and confirm
+    the internship prerequisites and registration deadlines with the <b>ECRI Studienberatung</b> before registering for exams.
+    Retake windows (Foundations of Informatics → WT 2026/27, Innovation and Complexity Management → ST 2027) and the
+    first-attempt deadline (WT 2028/29) are the only fixed dates modelled here.
+  </footer>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   Terms
+   ========================================================================= */
+const PAST_TERMS = ["WT 2024/25","ST 2025","WT 2025/26","ST 2026"];
+const PLAN_TERMS = ["WT 2026/27","ST 2027","WT 2027/28","ST 2028","WT 2028/29","ST 2029"];
+const SEMESTER = {"WT 2026/27":5,"ST 2027":6,"WT 2027/28":7,"ST 2028":8,"WT 2028/29":9,"ST 2029":10};
+const ALL_TERMS = PAST_TERMS.concat(PLAN_TERMS);
+const DEADLINE_TERM = "WT 2028/29";              // last term for a FIRST attempt
+const DEADLINE_IDX  = PLAN_TERMS.indexOf(DEADLINE_TERM);
+const TOTAL_REQUIRED = 210;
+const NORMAL_LOAD = 30, AMBER_MAX = 35;
+
+const seasonOf = t => t && t.startsWith("WT") ? "winter" : (t && t.startsWith("ST") ? "summer" : null);
+const planIdx  = t => PLAN_TERMS.indexOf(t);
+
+/* =========================================================================
+   Seed data — exactly the transcript data, nothing invented
+   ========================================================================= */
+function seed(){
+  const P = (name,ects,grade,term)=>({name,ects,cycle:"either",nominal:null,exam:"—",cat:"other",status:"passed",term,grade,kind:"module"});
+  const W = (name,ects,exam,cat)=>({name,ects,cycle:"either",nominal:"winter",exam,cat,status:"nottaken",term:"unassigned",grade:"",kind:"module"});
+  const S = (name,ects,exam,cat)=>({name,ects,cycle:"either",nominal:"summer",exam,cat,status:"nottaken",term:"unassigned",grade:"",kind:"module"});
+
+  const list = [
+    /* ---- passed: 49 ECTS ---- */
+    P("German B1 (admission requirement)",0,"passed","ST 2025"),
+    P("Foundations of Medicine",5,"4.0","WT 2024/25"),
+    P("Foundations of Sciences",5,"3.0","WT 2025/26"),
+    P("General Business Management and Accounting",5,"3.7","ST 2026"),
+    P("English Competences and Research Training (B2/C1)",4,"2.3","ST 2025"),
+    P("Software Development",5,"2.3","ST 2025"),
+    P("Databases",5,"1.7","ST 2025"),
+    P("Compliance and Risk Management",5,"2.7","ST 2025"),
+    P("Application Systems of Health Informatics",5,"2.3","ST 2026"),
+    P("Medical Technology",5,"3.3","ST 2026"),
+    P("ERP-Systems",5,"1.0","ST 2026"),
+
+    /* ---- failed, retake in a FIXED window ---- */
+    {name:"Foundations of Informatics",ects:5,cycle:"winter",nominal:"winter",exam:"2nd attempt — format t.b.c.",
+     cat:"written",status:"failed",term:"WT 2026/27",grade:"5.0",kind:"module",fixed:"WT 2026/27",attempt:"2nd"},
+    {name:"Innovation and Complexity Management",ects:5,cycle:"summer",nominal:"summer",exam:"2nd attempt — format t.b.c.",
+     cat:"written",status:"failed",term:"ST 2027",grade:"5.0",kind:"module",fixed:"ST 2027",attempt:"2nd"},
+
+    /* ---- not yet attempted, nominally winter (53 ECTS) ---- */
+    W("Foundation of Mathematics and Statistics",5,"written 90 min","written"),
+    W("Medical Documentation",5,"written 90 min","written"),
+    W("Information Systems in Health Care",5,"written 90 min","written"),
+    W("Media Management",5,"assignment","assignment"),
+    W("WPF Fremdsprache III",4,"written 90 min","written"),
+    W("Managed Care",5,"written 90 min","written"),
+    W("IT-Organisation and Computer Center Management",5,"written 90 min","written"),
+    W("Seminar: Management and IT-Consulting in Health Service",5,"assignment","assignment"),
+    W("Business Game: Medical Information Systems",2,"written 90 min","written"),
+    Object.assign(W("Bachelor's Thesis",12,"thesis","thesis"),{kind:"thesis"}),
+
+    /* ---- not yet attempted, nominally summer (68 ECTS) ---- */
+    S("Foundations of Law",5,"written 90 min","written"),
+    S("Foundation of Health Informatics",5,"written 90 min","written"),
+    S("Mathematics and Statistics",5,"written 90 min","written"),
+    S("WPF Fremdsprache II",2,"written 60 min","written"),
+    S("WPF Fremdsprache IV",2,"written 60 min","written"),
+    S("AWP modules (open account, 4 points total)",4,"course assessment","assignment"),
+    S("Operations Research",5,"written 90 min","written"),
+    S("Practice of Programming",5,"written 90 min","written"),
+    S("Seminar: Current Aspects of Health Economy",5,"written 90 min","written"),
+    S("Social Processes and Communication",5,"assignment","assignment"),
+    S("Knowledge-based Systems",5,"written 90 min","written"),
+    S("IT-Project Management",5,"written 90 min","written"),
+    S("Logistics in Healthcare",5,"written 90 min","written"),
+    S("Collaborative Systems",5,"written 90 min","written"),
+    S("FWP — pick ONE: Evidence-based Medicine / Telematics in Health Economy / Data Analysis and Data-Mining",5,"assignment","assignment"),
+
+    /* ---- internship block: one indivisible 30-ECTS term ---- */
+    {name:"Internship block — 18 weeks + Block Seminar PLV 1 + Block Seminar PLV 2",ects:30,cycle:"either",nominal:null,
+     exam:"internship + 2 block seminars",cat:"internship",status:"nottaken",term:"unassigned",grade:"",kind:"internship"}
+  ];
+  return list.map((m,i)=>Object.assign({id:"m"+i},m));
+}
+
+/* =========================================================================
+   State
+   ========================================================================= */
+const LSKEY = "thd-po217b-planner-v1";
+let state = load() || {modules:seed(), targetTerms:5, filterStatus:"all", search:""};
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LSKEY);
+    if(!raw) return null;
+    const o = JSON.parse(raw);
+    if(!o || !Array.isArray(o.modules) || !o.modules.length) return null;
+    o.filterStatus = o.filterStatus || "all";
+    o.search = o.search || "";
+    o.targetTerms = o.targetTerms || 5;
+    return o;
+  }catch(e){ return null; }
+}
+let saveTimer=null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ try{ localStorage.setItem(LSKEY, JSON.stringify(state)); }catch(e){} }, 120);
+}
+
+const mods       = () => state.modules;
+const remaining  = () => mods().filter(m=>m.status!=="passed");
+const num        = v => { const n=parseFloat(v); return isFinite(n)?n:0; };
+const byId       = id => mods().find(m=>m.id===id);
+const isRetake   = m => !!m.fixed;
+const esc        = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt        = n => (Math.round(n*10)/10).toString().replace(/\.0$/,"");
+
+function inferCat(text){
+  const t = String(text||"").toLowerCase();
+  if(t.includes("internship")) return "internship";
+  if(t.includes("thesis")) return "thesis";
+  if(t.includes("written")||t.includes("klausur")||t.includes("attempt")||t.includes("exam")||t.includes("retake")) return "written";
+  if(t.includes("assignment")||t.includes("seminar")||t.includes("assessment")||t.includes("presentation")||t.includes("project")) return "assignment";
+  return "other";
+}
+
+/* =========================================================================
+   Aggregation
+   ========================================================================= */
+function totals(){
+  let earned=0, planned=0, unassigned=0, gradePts=0, gradeEcts=0;
+  mods().forEach(m=>{
+    const e = num(m.ects);
+    if(m.status==="passed"){
+      earned += e;
+      const g = parseFloat(m.grade);
+      if(isFinite(g) && g>0 && g<=4.0 && e>0){ gradePts += g*e; gradeEcts += e; }
+    }else if(PLAN_TERMS.includes(m.term)){ planned += e; }
+    else{ unassigned += e; }
+  });
+  const avg = gradeEcts ? gradePts/gradeEcts : null;
+  let grad = null;
+  remaining().forEach(m=>{ if(PLAN_TERMS.includes(m.term) && (grad===null || planIdx(m.term)>planIdx(grad))) grad = m.term; });
+  return {earned, planned, unassigned, avg, grad, complete: unassigned===0,
+          allRemaining: remaining().reduce((s,m)=>s+num(m.ects),0)};
+}
+
+function termLoad(term, assignment){
+  // assignment: optional {id:term} override map (used for previews)
+  const out = {ects:0, written:0, assignments:0, other:0, mods:[]};
+  mods().forEach(m=>{
+    const t = assignment ? (m.status==="passed" ? m.term : assignment[m.id]) : m.term;
+    if(t!==term) return;
+    out.ects += num(m.ects);
+    out.mods.push(m);
+    const c = m.cat;
+    if(c==="written") out.written++;
+    else if(c==="assignment"||c==="thesis") out.assignments++;
+    else out.other++;
+  });
+  return out;
+}
+function band(e){ return e===0?"empty" : e<=NORMAL_LOAD?"green" : e<=AMBER_MAX?"amber":"red"; }
+function bandLabel(e){ return e===0?"empty" : e<=NORMAL_LOAD?"within full load" : e<=AMBER_MAX?"over full load":"overloaded"; }
+
+/* =========================================================================
+   Validation
+   ========================================================================= */
+function validate(){
+  const out = [];
+  const push=(lvl,html)=>out.push({lvl,html});
+
+  // fixed retake windows
+  mods().filter(isRetake).forEach(m=>{
+    if(m.term!==m.fixed)
+      push("err",`<b>${esc(m.name)}</b> (${m.attempt} attempt) is not assigned to its fixed retake window <b>${m.fixed}</b>` +
+                 (m.term==="unassigned"?" — it is unassigned.":` — currently ${esc(m.term)}.`) +
+                 " This window cannot be moved.");
+  });
+
+  // first-attempt deadline
+  const late=[], none=[];
+  remaining().forEach(m=>{
+    if(isRetake(m)) return;                       // first attempt already used
+    if(m.term==="unassigned" || !PLAN_TERMS.includes(m.term)) none.push(m);
+    else if(planIdx(m.term) > DEADLINE_IDX) late.push(m);
+  });
+  if(none.length)
+    push("err",`<b>${none.length} module${none.length>1?"s":""} (${fmt(none.reduce((s,m)=>s+num(m.ects),0))} ECTS) have no term assigned.</b> ` +
+               `Every main-examination subject must be <b>first attempted by ${DEADLINE_TERM} (sem 9)</b>: ` +
+               esc(none.map(m=>m.name).join(", ")));
+  if(late.length)
+    push("err",`<b>${late.length} module${late.length>1?"s":""} scheduled after the first-attempt deadline (${DEADLINE_TERM}).</b> ` +
+               `ST 2029 may only carry <i>retakes</i>, never a first attempt: ` +
+               esc(late.map(m=>m.name+" → "+m.term).join(", ")));
+
+  // internship
+  const intern = mods().filter(m=>m.kind==="internship" && m.status!=="passed");
+  const internTerms = [...new Set(intern.filter(m=>PLAN_TERMS.includes(m.term)).map(m=>m.term))];
+  if(intern.length && internTerms.length===0)
+    push("err","<b>Internship block (30 ECTS) is not assigned to a term.</b> It is indivisible and occupies one whole term.");
+  if(internTerms.length>1)
+    push("err",`<b>Internship block is split across ${internTerms.length} terms</b> (${esc(internTerms.join(", "))}). It must sit in exactly one term.`);
+  internTerms.forEach(t=>{
+    const load = termLoad(t);
+    const other = load.mods.filter(m=>m.kind!=="internship" && m.status!=="passed");
+    const otherEcts = other.reduce((s,m)=>s+num(m.ects),0);
+    if(otherEcts>0)
+      push("err",`<b>${t} carries the internship plus ${fmt(otherEcts)} ECTS of coursework</b> ` +
+                 `(${esc(other.map(m=>m.name).join(", "))}). The internship term must contain nothing else.`);
+  });
+
+  // thesis after internship
+  const thesis = mods().filter(m=>m.kind==="thesis" && m.status!=="passed");
+  thesis.forEach(th=>{
+    if(!PLAN_TERMS.includes(th.term) || !internTerms.length) return;
+    const iMax = Math.max(...internTerms.map(planIdx));
+    if(planIdx(th.term) < iMax)
+      push("err",`<b>Bachelor's Thesis is scheduled in ${esc(th.term)}, before the internship term (${PLAN_TERMS[iMax]}).</b> The thesis must come after the internship.`);
+    else if(planIdx(th.term) === iMax)
+      push("err",`<b>Bachelor's Thesis shares ${esc(th.term)} with the internship block.</b> Move the thesis to a later term.`);
+  });
+
+  // per-term load
+  PLAN_TERMS.forEach(t=>{
+    const l = termLoad(t);
+    if(l.ects>AMBER_MAX){
+      push("err",`<b>${t}: ${fmt(l.ects)} ECTS — overloaded.</b> That is ${l.written} written exam${l.written===1?"":"s"} ` +
+                 `and ${l.assignments} assignment/seminar deliverable${l.assignments===1?"":"s"} in one exam period, against a normal full load of ${NORMAL_LOAD} ECTS (roughly 6 exams).`);
+    }else if(l.ects>NORMAL_LOAD){
+      push("warn",`<b>${t}: ${fmt(l.ects)} ECTS — above the ${NORMAL_LOAD}-ECTS full load</b> ` +
+                  `(${l.written} written exam${l.written===1?"":"s"}, ${l.assignments} assignment/seminar deliverable${l.assignments===1?"":"s"}).`);
+    }
+  });
+
+  // off-cycle: information only
+  const off=[];
+  remaining().forEach(m=>{
+    if(!PLAN_TERMS.includes(m.term)) return;
+    const nominal = m.cycle!=="either" ? m.cycle : m.nominal;
+    if(!nominal) return;
+    if(seasonOf(m.term)!==nominal) off.push({m,nominal});
+  });
+  if(off.length)
+    push("info",`<b>${off.length} module${off.length>1?"s are":" is"} planned off the nominal cycle.</b> ` +
+                `Modules are not locked to a season here — just confirm each one is on the timetable that term: ` +
+                esc(off.map(o=>`${o.m.name} (nominally ${o.nominal}) → ${o.m.term}`).join("; ")));
+
+  if(!out.length) push("ok","No validation problems: retake windows respected, every remaining module is scheduled before the first-attempt deadline, the internship has its own term, the thesis follows it, and no term exceeds 35 ECTS.");
+  return out;
+}
+
+/* =========================================================================
+   Auto-plan
+   ========================================================================= */
+function computePlan(n){
+  const terms = PLAN_TERMS.slice(0,n);
+  const assign = {};                               // id -> term
+  const load = {}; terms.forEach(t=>load[t]={ects:0,written:0,assignments:0});
+  const put = (m,t)=>{
+    assign[m.id]=t;
+    load[t].ects += num(m.ects);
+    if(m.cat==="written") load[t].written++;
+    else if(m.cat==="assignment"||m.cat==="thesis") load[t].assignments++;
+  };
+
+  const items = remaining();
+  const retakes  = items.filter(isRetake);
+  const internship = items.filter(m=>m.kind==="internship");
+  const thesis   = items.filter(m=>m.kind==="thesis");
+  const rest     = items.filter(m=>!isRetake(m) && m.kind!=="internship" && m.kind!=="thesis");
+
+  // 1. fixed retake windows first
+  retakes.forEach(m=>{ const t = terms.includes(m.fixed)?m.fixed:terms[0]; put(m,t); });
+
+  // 2. internship gets its own term (second-to-last), thesis the last term
+  const internTerm = terms[n-2];
+  const thesisTerm = terms[n-1];
+  internship.forEach(m=>put(m,internTerm));
+  thesis.forEach(m=>put(m,thesisTerm));
+
+  // 3. everything else spreads over the non-internship terms, interleaving
+  //    written exams with assignment-style deliverables
+  //    Largest module first (longest-processing-time first): this is what keeps the
+  //    terms level. Ties — and with 5-ECTS modules almost everything ties — are broken
+  //    by whichever term holds fewest deliverables of the same kind, so written exams
+  //    and assignment-based modules stay mixed instead of clustering in one period.
+  const courseTerms = terms.filter(t=>t!==internTerm);
+  const pool = rest.slice().sort((a,b)=> num(b.ects)-num(a.ects) || a.name.localeCompare(b.name));
+  pool.forEach(m=>{
+    const cat = m.cat==="written" ? "written" : "assignments";
+    const target = courseTerms.slice().sort((a,b)=>
+      (load[a].ects-load[b].ects) || (load[a][cat]-load[b][cat]) || (planIdx(a)-planIdx(b))
+    )[0];
+    put(m,target);
+  });
+
+  const maxLoad = Math.max(...terms.map(t=>load[t].ects));
+  const lateTerms = terms.slice(DEADLINE_IDX+1);
+  return {n, terms, assign, load, internTerm, thesisTerm, maxLoad, gradTerm: terms[n-1],
+          breachesDeadline: items.some(m=>!isRetake(m) && lateTerms.includes(assign[m.id]))};
+}
+
+function applyPlan(p){
+  remaining().forEach(m=>{
+    if(p.assign[m.id]){
+      m.term = p.assign[m.id];
+      if(m.status==="nottaken") m.status="planned";
+    }
+  });
+  state.targetTerms = p.n;
+  save(); renderAll();
+}
+
+/* =========================================================================
+   Reports
+   ========================================================================= */
+function showReport(title, html){
+  document.getElementById("reportTitle").textContent = title;
+  document.getElementById("report").innerHTML = html;
+  document.getElementById("reportSection").classList.remove("hidden");
+  document.getElementById("reportSection").scrollIntoView({block:"start"});
+}
+
+function feasibilityReport(){
+  const items = remaining();
+  const total = items.reduce((s,m)=>s+num(m.ects),0);
+  const internEcts = items.filter(m=>m.kind==="internship").reduce((s,m)=>s+num(m.ects),0);
+  const course = total - internEcts;
+  const courseMods = items.filter(m=>m.kind!=="internship");
+  const nWritten = courseMods.filter(m=>m.cat==="written").length;
+  const nPapers  = courseMods.filter(m=>m.cat==="assignment"||m.cat==="thesis").length;
+
+  const twoYearTerms = PLAN_TERMS.slice(0,4);              // WT 26/27 … ST 2028 (sem 8)
+  const courseTerms4 = twoYearTerms.length - (internEcts>0?1:0);
+  const per4 = course/courseTerms4;
+  const exams4 = nWritten/courseTerms4, papers4 = nPapers/courseTerms4;
+
+  // Earliest graduation term whose per-period load stays under the 35-ECTS ceiling.
+  // Only terms up to the first-attempt deadline may carry new subjects, so the search
+  // stops at sem 9 — ST 2029 exists for retakes, not for first attempts.
+  const maxFirstAttemptTerms = DEADLINE_IDX + 1;                 // 5 terms: WT 26/27 … WT 2028/29
+  let earliest=null;
+  for(let n=2;n<=maxFirstAttemptTerms;n++){
+    const ct = n - (internEcts>0?1:0);                           // exam periods, internship takes one
+    if(ct<1) continue;
+    const per = course/ct;
+    if(per<=AMBER_MAX){ earliest={n,per,ct}; break; }
+  }
+  // the hard floor: everything must be first-attempted inside the deadline window
+  const floorPeriods = maxFirstAttemptTerms - (internEcts>0?1:0);
+  const floorLoad = course/floorPeriods;
+
+  const p4 = computePlan(4);
+  let rows = "";
+  p4.terms.forEach(t=>{
+    const l = p4.load[t];
+    rows += `<tr><td>${t} <span class="muted small">(sem ${SEMESTER[t]})</span></td><td>${fmt(l.ects)}</td>` +
+            `<td>${l.written}</td><td>${l.assignments}</td>` +
+            `<td><span class="pill ${band(l.ects)}">${bandLabel(l.ects)}</span></td></tr>`;
+  });
+
+  let verdict;
+  if(per4>AMBER_MAX){
+    verdict = `<div class="verdict no"><b>No — graduating by ST 2028 (sem 8) is not realistic.</b><br>
+      ${fmt(course)} ECTS of coursework spread over ${courseTerms4} exam periods is
+      <b>${fmt(per4)} ECTS per term</b> — about <b>${Math.round(exams4)} written exams plus ${Math.round(papers4)} assignments/seminars
+      in every single exam period</b>, against a normal full load of ${NORMAL_LOAD} ECTS (roughly 6 exams).
+      That is ${fmt(per4/NORMAL_LOAD)}× a full-time semester, sustained for three consecutive terms, with the internship
+      term in between offering no relief. One failed module in that plan has nowhere to go.</div>`;
+  }else{
+    verdict = `<div class="verdict maybe"><b>Arithmetically it fits</b> at ${fmt(per4)} ECTS per term — but check the exam counts below before committing.</div>`;
+  }
+
+  const earliestHtml = earliest
+    ? `<div class="verdict maybe">
+        <b>Earliest defensible graduation: ${PLAN_TERMS[earliest.n-1]} (sem ${SEMESTER[PLAN_TERMS[earliest.n-1]]}) — ${earliest.n} terms from now, one more than your goal.</b><br>
+        ${fmt(course)} ECTS over ${earliest.ct} exam periods = <b>${fmt(earliest.per)} ECTS per term</b>
+        (~${Math.round(nWritten/earliest.ct)} written exams + ${Math.round(nPapers/earliest.ct)} assignments/seminars each),
+        plus one full term for the internship. Still above the ${NORMAL_LOAD}-ECTS full load, so it is demanding — but it is
+        arithmetically survivable, unlike the two-year plan.</div>`
+    : `<div class="verdict no">Even using every term up to the first-attempt deadline, the load stays above ${AMBER_MAX} ECTS per exam period.</div>`;
+
+  const deadlineHtml = `<div class="verdict no">
+      <b>The first-attempt deadline sets a hard floor of ${fmt(floorLoad)} ECTS per exam period — you cannot plan your way below it.</b><br>
+      Every main-examination subject must be <b>first attempted by ${DEADLINE_TERM} (sem 9)</b>, so the usable window is
+      ${maxFirstAttemptTerms} terms wide; the internship consumes one of them, leaving ${floorPeriods} exam periods for
+      ${fmt(course)} ECTS. Stretching to ST 2029 (sem 10) does not reduce that: ST 2029 may carry <i>retakes only</i>,
+      never a first attempt. Two consequences worth planning around:
+      <ul>
+        <li>Sem 9 is simultaneously the earliest realistic finish and the last legal term for a first attempt — there is no spare term.</li>
+        <li>A single failed module in sem 9 pushes its retake into ST 2029, so graduation slips to sem 10 even if everything else lands.</li>
+      </ul>
+      If the deadline on your transcript is a per-subject clock rather than a single date, or if the Bachelor's Thesis is
+      exempt from it, this floor changes — confirm the exact wording with the ECRI Studienberatung.</div>`;
+
+  showReport("Can I finish in 2 years? (by ST 2028, sem 8)", `
+    <table>
+      <tbody>
+        <tr class="total"><td>Remaining ECTS</td><td>${fmt(total)}</td></tr>
+        <tr><td>… internship block (indivisible, one whole term)</td><td>${fmt(internEcts)}</td></tr>
+        <tr><td>… coursework + thesis to distribute</td><td>${fmt(course)}</td></tr>
+        <tr><td>Terms available to ST 2028</td><td>${twoYearTerms.length}</td></tr>
+        <tr><td>… of which usable exam periods (internship takes one)</td><td>${courseTerms4}</td></tr>
+        <tr class="total"><td>Required load per exam period</td><td>${fmt(per4)} ECTS</td></tr>
+        <tr><td>Modules still to sit: written exams / assignments &amp; seminars</td><td>${nWritten} / ${nPapers}</td></tr>
+      </tbody>
+    </table>
+    ${verdict}
+    <h3 style="margin-top:12px">Best possible 4-term distribution (auto-planned, load-balanced)</h3>
+    <table>
+      <thead><tr><th>Term</th><th>ECTS</th><th>Written exams</th><th>Assignments</th><th>Band</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${earliestHtml}
+    ${deadlineHtml}
+    <p class="small muted">All figures come straight from the module table — nothing is rounded down to make a target reachable.
+    Change any ECTS value or status and press the button again.</p>
+  `);
+}
+
+function autoPlanReport(){
+  const plans = [4,5,6].map(computePlan);
+  const target = state.targetTerms || 5;
+  let head = "<tr><th>Term</th>";
+  plans.forEach(p=>head += `<th>${p.n} terms → ${p.gradTerm}</th>`);
+  head += "</tr>";
+  let rows="";
+  PLAN_TERMS.forEach(t=>{
+    rows += `<tr><td>${t} <span class="muted small">(sem ${SEMESTER[t]})</span></td>`;
+    plans.forEach(p=>{
+      if(!p.terms.includes(t)){ rows += `<td class="muted">—</td>`; return; }
+      const l=p.load[t];
+      const note = t===p.internTerm ? " internship" : (t===p.thesisTerm ? " incl. thesis" : "");
+      rows += `<td><span class="pill ${band(l.ects)}">${fmt(l.ects)} ECTS</span><br>` +
+              `<span class="small muted">${l.written} exam${l.written===1?"":"s"} · ` +
+              `${l.assignments} paper${l.assignments===1?"":"s"}${note}</span></td>`;
+    });
+    rows += "</tr>";
+  });
+  let foot = `<tr class="total"><td>Heaviest term</td>`;
+  plans.forEach(p=>foot += `<td><span class="pill ${band(p.maxLoad)}">${fmt(p.maxLoad)} ECTS</span></td>`);
+  foot += "</tr><tr><td>First-attempt deadline</td>";
+  plans.forEach(p=>foot += `<td>${p.breachesDeadline?'<span class="pill red">breached</span>':'<span class="pill green">respected</span>'}</td>`);
+  foot += "</tr>";
+
+  showReport("Auto-plan — load per term for 4, 5 and 6 remaining terms", `
+    <div class="slider-row">
+      <span class="lab">Target terms</span>
+      <input type="range" id="planSlider" min="4" max="6" step="1" value="${target}">
+      <span id="planSliderVal" class="lab">${target} → ${PLAN_TERMS[target-1]} (sem ${SEMESTER[PLAN_TERMS[target-1]]})</span>
+      <button class="primary" id="btnApplyPlan">Apply this plan</button>
+    </div>
+    <p class="small muted">Retakes are pinned to their fixed windows first, the internship gets a term of its own,
+    the thesis sits in the final term after it, and the rest is balanced by ECTS while keeping written exams and
+    assignment-based modules mixed rather than clustered.</p>
+    <table><thead>${head}</thead><tbody>${rows}${foot}</tbody></table>
+    <p class="small muted">6 terms (ST 2029) is shown for completeness only: anything <i>first attempted</i> there breaks the
+    PO 217B deadline of ${DEADLINE_TERM}. ST 2029 is available for retakes, not for new subjects.</p>
+  `);
+
+  const slider = document.getElementById("planSlider");
+  const valEl  = document.getElementById("planSliderVal");
+  slider.addEventListener("input",()=>{
+    const n = +slider.value;
+    state.targetTerms = n; save();
+    valEl.textContent = `${n} → ${PLAN_TERMS[n-1]} (sem ${SEMESTER[PLAN_TERMS[n-1]]})`;
+  });
+  document.getElementById("btnApplyPlan").addEventListener("click",()=>{
+    applyPlan(computePlan(+slider.value));
+    autoPlanReport();
+  });
+}
+
+/* =========================================================================
+   Rendering
+   ========================================================================= */
+function renderStats(){
+  const t = totals();
+  const done = t.earned, plan = t.planned, left = TOTAL_REQUIRED - done - plan;
+  const el = document.getElementById("stats");
+  el.innerHTML = `
+    <div class="stat"><div class="k">Earned</div><div class="v">${fmt(done)}</div><div class="s">of ${TOTAL_REQUIRED} ECTS</div></div>
+    <div class="stat"><div class="k">Planned</div><div class="v">${fmt(plan)}</div><div class="s">assigned to a term</div></div>
+    <div class="stat"><div class="k">Earned + planned</div><div class="v">${fmt(done+plan)}</div><div class="s">${fmt(Math.max(0,left))} ECTS still unaccounted</div></div>
+    <div class="stat"><div class="k">Unassigned</div><div class="v">${fmt(t.unassigned)}</div><div class="s">no term yet</div></div>
+    <div class="stat"><div class="k">Remaining</div><div class="v">${fmt(t.allRemaining)}</div><div class="s">ECTS to earn</div></div>
+    <div class="stat"><div class="k">Average mark</div><div class="v">${t.avg?t.avg.toFixed(2):"—"}</div><div class="s">ECTS-weighted</div></div>
+    <div class="stat"><div class="k">Projected graduation</div>
+      <div class="v" style="font-size:14px">${t.complete && t.grad ? esc(t.grad) : "incomplete"}</div>
+      <div class="s">${t.complete && t.grad ? ("sem "+SEMESTER[t.grad]+" · everything scheduled")
+        : (t.grad ? "last scheduled term "+esc(t.grad)+" · "+fmt(t.unassigned)+" ECTS unplanned"
+                  : "nothing scheduled yet")}</div></div>`;
+  const bar = document.getElementById("progressBar");
+  bar.children[0].style.width = (100*done/TOTAL_REQUIRED)+"%";
+  bar.children[1].style.width = (100*Math.min(plan,TOTAL_REQUIRED-done)/TOTAL_REQUIRED)+"%";
+}
+
+function renderWarnings(){
+  const list = validate();
+  const box = document.getElementById("warnings");
+  const errs = list.filter(w=>w.lvl==="err").length;
+  const warns = list.filter(w=>w.lvl==="warn").length;
+  document.getElementById("warnCount").textContent =
+    errs||warns ? `${errs} blocking · ${warns} load warning${warns===1?"":"s"}` : "all clear";
+  const label = {err:"error",warn:"load",info:"note",ok:"ok"};
+  box.innerHTML = list.map(w=>`<div class="msg ${w.lvl}"><span class="tag ${w.lvl}">${label[w.lvl]}</span>${w.html}</div>`).join("");
+}
+
+function renderTerms(){
+  const el = document.getElementById("termCards");
+  const cards = [];
+  PAST_TERMS.forEach(t=>{
+    const l = termLoad(t);
+    if(!l.ects && !l.mods.length) return;
+    cards.push(`<div class="term past empty"><div class="t-name">${t} <span class="t-sem">passed</span></div>
+      <div class="t-ects">${fmt(l.ects)}<span> ECTS</span></div>
+      <div class="t-line">${l.mods.length} module${l.mods.length===1?"":"s"} completed</div>
+      <div class="t-band">history</div></div>`);
+  });
+  PLAN_TERMS.forEach(t=>{
+    const l = termLoad(t);
+    const b = band(l.ects);
+    const intern = l.mods.some(m=>m.kind==="internship");
+    cards.push(`<div class="term ${b}">
+      <div class="t-name">${t} <span class="t-sem">sem ${SEMESTER[t]}${t===DEADLINE_TERM?" · deadline":""}</span></div>
+      <div class="t-ects">${fmt(l.ects)}<span> ECTS</span></div>
+      <div class="t-line">${l.written} written exam${l.written===1?"":"s"} · ${l.assignments} assignment${l.assignments===1?"":"s"}/seminar${l.assignments===1?"":"s"}${intern?" · internship":""}</div>
+      <div class="t-band">${bandLabel(l.ects)}</div></div>`);
+  });
+  el.innerHTML = cards.join("");
+}
+
+function termOptions(sel){
+  let o = `<option value="unassigned"${sel==="unassigned"?" selected":""}>— unassigned —</option>`;
+  o += `<optgroup label="planning terms">` + PLAN_TERMS.map(t=>
+        `<option value="${t}"${sel===t?" selected":""}>${t} (sem ${SEMESTER[t]})</option>`).join("") + `</optgroup>`;
+  o += `<optgroup label="past terms">` + PAST_TERMS.map(t=>
+        `<option value="${t}"${sel===t?" selected":""}>${t}</option>`).join("") + `</optgroup>`;
+  if(sel && sel!=="unassigned" && !ALL_TERMS.includes(sel)) o += `<option value="${esc(sel)}" selected>${esc(sel)}</option>`;
+  return o;
+}
+
+const STATUS_LABEL = {passed:"passed", planned:"planned", failed:"failed — retake due", nottaken:"not taken"};
+
+function rowHtml(m){
+  const nominal = m.cycle!=="either" ? m.cycle : m.nominal;
+  const off = nominal && PLAN_TERMS.includes(m.term) && seasonOf(m.term)!==nominal;
+  const nomHint = m.nominal ? `<span class="nom${off?" offcycle":""}" title="nominal cycle from the Studienverlaufsplan">nom. ${m.nominal==="winter"?"W":"S"}${off?" ⚠":""}</span>` : "";
+  return `<tr class="st-${m.status}" data-id="${m.id}">
+    <td class="c-name"><input class="cell" data-f="name" value="${esc(m.name)}">
+      ${m.fixed?`<span class="rowlock">retake window fixed: ${m.fixed}</span>`:""}</td>
+    <td class="c-num"><input class="cell num" data-f="ects" type="number" min="0" step="1" value="${num(m.ects)}"></td>
+    <td class="c-cycle"><select class="cell" data-f="cycle" style="width:auto">
+        <option value="either"${m.cycle==="either"?" selected":""}>either</option>
+        <option value="winter"${m.cycle==="winter"?" selected":""}>winter</option>
+        <option value="summer"${m.cycle==="summer"?" selected":""}>summer</option>
+      </select>${nomHint}</td>
+    <td class="c-exam"><input class="cell" data-f="exam" value="${esc(m.exam)}"></td>
+    <td class="c-status"><select class="cell" data-f="status">
+        ${Object.keys(STATUS_LABEL).map(k=>`<option value="${k}"${m.status===k?" selected":""}>${STATUS_LABEL[k]}</option>`).join("")}
+      </select></td>
+    <td class="c-term"><select class="cell" data-f="term">${termOptions(m.term)}</select></td>
+    <td class="c-grade"><input class="cell" data-f="grade" value="${esc(m.grade||"")}" placeholder="—"></td>
+    <td class="c-del"><button class="del" data-act="del" title="delete module">×</button></td>
+  </tr>`;
+}
+
+function visibleModules(){
+  const f = state.filterStatus, q = (state.search||"").trim().toLowerCase();
+  return mods().filter(m=>{
+    if(q && !m.name.toLowerCase().includes(q)) return false;
+    if(f==="all") return true;
+    if(f==="remaining") return m.status!=="passed";
+    if(f==="unassigned") return m.status!=="passed" && !PLAN_TERMS.includes(m.term);
+    return m.status===f;
+  });
+}
+
+function renderTable(){
+  const vis = visibleModules();
+  const groups = [
+    ["Retake due — fixed window", vis.filter(m=>m.status==="failed")],
+    ["Remaining", vis.filter(m=>m.status!=="failed" && m.status!=="passed")],
+    ["Passed", vis.filter(m=>m.status==="passed")]
+  ];
+  let html="";
+  groups.forEach(([label,list])=>{
+    if(!list.length) return;
+    const ects = list.reduce((s,m)=>s+num(m.ects),0);
+    html += `<tr class="grp-head"><td colspan="8">${label} — ${list.length} modules, ${fmt(ects)} ECTS</td></tr>`;
+    html += list.map(rowHtml).join("");
+  });
+  if(!html) html = `<tr><td colspan="8" class="muted" style="padding:14px">No modules match this filter.</td></tr>`;
+  document.getElementById("tbody").innerHTML = html;
+}
+
+function renderAll(){ renderStats(); renderWarnings(); renderTerms(); renderTable(); }
+function renderLive(){ renderStats(); renderWarnings(); renderTerms(); }
+
+/* =========================================================================
+   Events
+   ========================================================================= */
+document.getElementById("tbody").addEventListener("input", e=>{
+  const tr = e.target.closest("tr[data-id]"); if(!tr) return;
+  const m = byId(tr.dataset.id); if(!m) return;
+  const f = e.target.dataset.f; if(!f) return;
+  if(f==="ects") m.ects = num(e.target.value);
+  else if(f==="exam"){ m.exam = e.target.value; m.cat = inferCat(e.target.value); }
+  else m[f] = e.target.value;
+  save(); renderLive();
+});
+
+document.getElementById("tbody").addEventListener("change", e=>{
+  const tr = e.target.closest("tr[data-id]"); if(!tr) return;
+  const m = byId(tr.dataset.id); if(!m) return;
+  const f = e.target.dataset.f; if(!f) return;
+  m[f] = e.target.value;
+  if(f==="status"){
+    if(m.status==="planned" && m.term==="unassigned") { /* leave unassigned, validation will flag it */ }
+    if(m.status!=="passed" && m.grade==="passed") m.grade="";
+    save(); renderAll(); return;
+  }
+  if(f==="term" && m.status==="nottaken" && PLAN_TERMS.includes(m.term)){ m.status="planned"; save(); renderAll(); return; }
+  save(); renderLive();
+});
+
+document.getElementById("tbody").addEventListener("click", e=>{
+  if(e.target.dataset.act!=="del") return;
+  const tr = e.target.closest("tr[data-id]");
+  const m = byId(tr.dataset.id);
+  if(!confirm(`Delete "${m.name}" (${fmt(num(m.ects))} ECTS) from the plan?`)) return;
+  state.modules = mods().filter(x=>x.id!==m.id);
+  save(); renderAll();
+});
+
+document.getElementById("btnAdd").addEventListener("click",()=>{
+  state.modules.push({id:"m"+Date.now(), name:"New module", ects:5, cycle:"either", nominal:null,
+    exam:"written 90 min", cat:"written", status:"nottaken", term:"unassigned", grade:"", kind:"module"});
+  state.filterStatus="all"; document.getElementById("fStatus").value="all";
+  save(); renderAll();
+  const rows = document.querySelectorAll("#tbody tr[data-id]");
+  const last = [...rows].find(r=>r.dataset.id.startsWith("m1"));
+  if(last) last.querySelector('input[data-f="name"]').focus();
+});
+
+document.getElementById("btnClearTerms").addEventListener("click",()=>{
+  if(!confirm("Clear the term assignment of every module that is not yet passed? Fixed retake windows are kept.")) return;
+  remaining().forEach(m=>{ m.term = m.fixed || "unassigned"; if(m.status==="planned") m.status="nottaken"; });
+  save(); renderAll();
+});
+
+document.getElementById("btnReset").addEventListener("click",()=>{
+  if(!confirm("Reset everything back to the seeded transcript data? Your current plan will be lost.")) return;
+  state = {modules:seed(), targetTerms:5, filterStatus:"all", search:""};
+  document.getElementById("fStatus").value="all";
+  document.getElementById("fSearch").value="";
+  document.getElementById("reportSection").classList.add("hidden");
+  save(); renderAll();
+});
+
+document.getElementById("fStatus").addEventListener("change",e=>{ state.filterStatus=e.target.value; save(); renderTable(); });
+document.getElementById("fSearch").addEventListener("input",e=>{ state.search=e.target.value; save(); renderTable(); });
+
+document.getElementById("btnFeas").addEventListener("click", feasibilityReport);
+document.getElementById("btnAuto").addEventListener("click", autoPlanReport);
+document.getElementById("btnCloseReport").addEventListener("click",()=>document.getElementById("reportSection").classList.add("hidden"));
+
+document.getElementById("btnExport").addEventListener("click",()=>{
+  const blob = new Blob([JSON.stringify({app:"thd-po217b-planner",version:1,saved:new Date().toISOString(),
+      student:"Abdulrahman Hassan",po:"217B",modules:state.modules,targetTerms:state.targetTerms},null,2)],
+      {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "thd-study-plan-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+});
+
+document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("fileImport").click());
+document.getElementById("fileImport").addEventListener("change",e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const o = JSON.parse(r.result);
+      const list = Array.isArray(o) ? o : o.modules;
+      if(!Array.isArray(list) || !list.length) throw new Error("no modules array in this file");
+      state.modules = list.map((m,i)=>Object.assign({id:"m"+i,cycle:"either",nominal:null,exam:"—",
+        cat:inferCat(m.exam), status:"nottaken", term:"unassigned", grade:"", kind:"module"}, m));
+      state.targetTerms = o.targetTerms || state.targetTerms;
+      save(); renderAll();
+      alert("Imported "+state.modules.length+" modules.");
+    }catch(err){ alert("Could not import this file: "+err.message); }
+    e.target.value="";
+  };
+  r.readAsText(f);
+});
+
+/* =========================================================================
+   Print / PDF
+   ========================================================================= */
+function buildPrint(){
+  const t = totals();
+  const errs = validate().filter(w=>w.lvl==="err");
+  let html = `
+    <div class="p-head">
+      <h1>Study plan — checklist</h1>
+      <div class="p-meta">
+        <b>Abdulrahman Hassan</b><br>
+        Health Informatics B.Sc. — THD / European Campus Rottal-Inn, Pfarrkirchen<br>
+        Examination regulations PO 217B · 210 ECTS required · first attempt of every subject by WT 2028/29 (sem 9)
+      </div>
+      <table>
+        <tr><td>ECTS earned</td><td>${fmt(t.earned)}</td><td>Average mark (ECTS-weighted)</td><td>${t.avg?t.avg.toFixed(2):"—"}</td></tr>
+        <tr><td>ECTS remaining</td><td>${fmt(t.allRemaining)}</td><td>of which unassigned</td><td>${fmt(t.unassigned)}</td></tr>
+        <tr><td>ECTS planned into terms</td><td>${fmt(t.planned)}</td><td>Projected graduation</td><td>${t.grad?t.grad+" (sem "+SEMESTER[t.grad]+")":"—"}</td></tr>
+      </table>
+      ${errs.length?`<div class="p-warn"><b>${errs.length} unresolved planning problem${errs.length>1?"s":""}</b> — see the Validation panel on screen.</div>`:""}
+      <div class="p-warn">Printed ${new Date().toLocaleDateString()}. Confirm cycles, timetable and internship entry requirements
+      against the current PO 217B Studienverlaufsplan and with the ECRI Studienberatung.</div>
+    </div>`;
+
+  const sections = PLAN_TERMS.map(t2=>({title:t2+" — semester "+SEMESTER[t2], list:termLoad(t2).mods.filter(m=>m.status!=="passed")}));
+  const unassigned = remaining().filter(m=>!PLAN_TERMS.includes(m.term));
+  if(unassigned.length) sections.push({title:"Not yet assigned to a term", list:unassigned, warn:true});
+
+  sections.forEach(sec=>{
+    if(!sec.list.length) return;
+    const ects = sec.list.reduce((s,m)=>s+num(m.ects),0);
+    const written = sec.list.filter(m=>m.cat==="written").length;
+    const papers  = sec.list.filter(m=>m.cat==="assignment"||m.cat==="thesis").length;
+    html += `<div class="p-term">
+      <h2>${esc(sec.title)}</h2>
+      <div class="p-sub">${sec.list.length} module${sec.list.length===1?"":"s"} · ${written} written exam${written===1?"":"s"} · ${papers} assignment/seminar deliverable${papers===1?"":"s"}${sec.warn?" · these still need a term before WT 2028/29":""}</div>
+      <table class="p-list">
+        <thead><tr><th></th><th>Module</th><th class="type">Exam type</th><th class="ects">ECTS</th></tr></thead>
+        <tbody>
+          ${sec.list.map(m=>`<tr><td class="box"><span></span></td><td>${esc(m.name)}${m.fixed?" — retake, fixed window "+m.fixed:""}</td>
+            <td class="type">${esc(m.exam)}</td><td class="ects">${fmt(num(m.ects))}</td></tr>`).join("")}
+        </tbody>
+        <tfoot><tr><td></td><td>Term total</td><td class="type"></td><td class="ects">${fmt(ects)}</td></tr></tfoot>
+      </table>
+      <div class="p-foot">Abdulrahman Hassan · Health Informatics B.Sc. · PO 217B · ${esc(sec.title)}</div>
+    </div>`;
+  });
+  document.getElementById("printArea").innerHTML = html;
+}
+document.getElementById("btnPrint").addEventListener("click",()=>{ buildPrint(); window.print(); });
+window.addEventListener("beforeprint", buildPrint);
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+// restore the filter controls so the table and the toolbar never disagree after a reload
+document.getElementById("fStatus").value = state.filterStatus || "all";
+document.getElementById("fSearch").value = state.search || "";
+renderAll();
+</script>
+</body>
+</html>
