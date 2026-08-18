@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>140-Arbeitstage-Konto</title>
+<style>
+:root{
+  --bg:#0e1116; --bg2:#161b22; --bg3:#1c232c; --line:#2a323d;
+  --fg:#e6edf3; --fg2:#9aa7b4; --fg3:#6e7c8a;
+  --acc:#4c9aff; --acc2:#1f6feb;
+  --ok:#3fb950; --warn:#e3a008; --orange:#f0883e; --bad:#f85149;
+  --r:14px;
+}
+[data-theme="light"]{
+  --bg:#f4f6f8; --bg2:#ffffff; --bg3:#eef1f5; --line:#d8dee6;
+  --fg:#1a1f26; --fg2:#54606d; --fg3:#7c8792;
+  --acc:#1f6feb; --acc2:#1f6feb;
+  --ok:#1a7f37; --warn:#9a6700; --orange:#bc4c00; --bad:#cf222e;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust:100%;
+}
+header{
+  position:sticky;top:0;z-index:30;background:var(--bg2);border-bottom:1px solid var(--line);
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px;
+}
+header h1{font-size:16px;margin:0;flex:1;font-weight:650;letter-spacing:.2px}
+header .sub{display:block;font-size:11px;color:var(--fg3);font-weight:400}
+main{padding:14px 14px 24px;max-width:760px;margin:0 auto}
+section[hidden]{display:none!important}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}
+.card h2{font-size:13px;margin:0 0 10px;color:var(--fg2);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.card h3{font-size:14px;margin:14px 0 8px;font-weight:650}
+.en{color:var(--fg3);font-weight:400}
+.muted{color:var(--fg2)}
+.tiny{font-size:12px;line-height:1.4}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+label{display:block;font-size:12.5px;color:var(--fg2);margin:0 0 5px}
+input,select,textarea,button{font:inherit;color:var(--fg);font-size:16px}
+input[type=date],input[type=number],input[type=text],select,textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;min-height:46px;appearance:none
+}
+textarea{min-height:110px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.4}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px;border-color:var(--acc)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--line);border-radius:10px;
+  padding:11px 14px;min-height:46px;cursor:pointer;font-weight:600;font-size:14.5px;width:100%
+}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.btn.ghost{background:transparent}
+.btn.sm{min-height:38px;padding:7px 10px;font-size:13px;width:auto}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.row{display:flex;gap:8px}
+.row>*{flex:1;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stack>*+*{margin-top:10px}
+
+/* bottom nav */
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+  background:var(--bg2);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom)
+}
+nav button{
+  flex:1;background:none;border:0;padding:9px 2px 10px;color:var(--fg3);
+  font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer
+}
+nav button .ic{font-size:19px;line-height:1}
+nav button[aria-current="true"]{color:var(--acc)}
+
+/* dashboard */
+.big{font-size:40px;font-weight:750;line-height:1;letter-spacing:-1px}
+.big small{font-size:15px;font-weight:600;color:var(--fg2);letter-spacing:0}
+.bar{height:12px;border-radius:99px;background:var(--bg3);overflow:hidden;margin:12px 0 8px;display:flex}
+.bar i{display:block;height:100%}
+.bar i.used{background:var(--acc)}
+.bar i.proj{background:var(--warn);opacity:.55}
+.kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.kpi{background:var(--bg3);border-radius:10px;padding:10px 8px;text-align:center}
+.kpi b{display:block;font-size:19px;line-height:1.25}
+.kpi span{font-size:10.5px;color:var(--fg2);display:block;line-height:1.25}
+
+/* week list */
+.wk{border:1px solid var(--line);border-radius:12px;margin:0 0 8px;background:var(--bg2);overflow:hidden}
+.wk.flag{border-color:var(--orange)}
+.wk.pre{opacity:.62}
+.wk>summary{list-style:none;cursor:pointer;padding:11px 12px;display:flex;gap:10px;align-items:center}
+.wk>summary::-webkit-details-marker{display:none}
+.wk .wkmain{flex:1;min-width:0}
+.wk .wkt{font-weight:650;font-size:14.5px}
+.wk .wks{font-size:11.5px;color:var(--fg2);margin-top:2px}
+.wk .wkr{text-align:right;flex:0 0 auto}
+.wk .wkr b{display:block;font-size:18px;line-height:1.15}
+.wk .wkr span{font-size:10.5px;color:var(--fg3)}
+.wkbody{padding:0 12px 12px;border-top:1px solid var(--line);margin-top:2px;padding-top:10px}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:99px;border:1px solid var(--line);color:var(--fg2);vertical-align:middle}
+.pill.in{color:var(--acc);border-color:var(--acc)}
+.pill.out{color:var(--ok);border-color:var(--ok)}
+.pill.m1{color:var(--fg);border-color:var(--fg3)}
+.pill.m2{color:var(--ok);border-color:var(--ok)}
+.note{border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.45;border:1px solid}
+.note.orange{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 13%,transparent);color:var(--fg)}
+.note.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent)}
+.note.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 13%,transparent)}
+.note.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.note.info{border-color:var(--line);background:var(--bg3);color:var(--fg2)}
+table.dbg{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+table.dbg td,table.dbg th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+table.dbg th{color:var(--fg3);font-weight:600;font-size:11px}
+table.dbg td.n{text-align:right;font-family:ui-monospace,Menlo,monospace}
+
+/* week editor rows */
+.dayrow{display:grid;grid-template-columns:78px 1fr auto;gap:7px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.dayrow:last-child{border-bottom:0}
+.dayrow .dl{font-size:12.5px;line-height:1.2}
+.dayrow .dl b{display:block;font-size:13.5px}
+.dayrow .dl span{color:var(--fg3);font-size:10.5px}
+.dayrow input{min-height:42px;padding:8px 10px}
+.dayrow.off input{opacity:.35}
+.seg{display:flex;gap:4px}
+.seg button{
+  background:var(--bg3);border:1px solid var(--line);border-radius:8px;min-width:38px;min-height:42px;
+  cursor:pointer;font-size:12px;font-weight:700;color:var(--fg2)
+}
+.seg button[aria-pressed="true"]{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.seg button.u[aria-pressed="true"]{background:var(--ok);border-color:var(--ok)}
+.seg button.k[aria-pressed="true"]{background:var(--orange);border-color:var(--orange)}
+.lp-in{color:var(--acc)} .lp-out{color:var(--ok)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.modal .box{
+  background:var(--bg2);border:1px solid var(--line);border-radius:16px 16px 0 0;width:100%;max-width:760px;
+  padding:16px 14px calc(16px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto
+}
+@media(min-width:700px){.modal{align-items:center}.modal .box{border-radius:16px}}
+.modal h3{margin:0 0 10px;font-size:17px}
+ul.alts{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.55}
+ul.alts li+li{margin-top:6px}
+.toast{
+  position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13.5px;font-weight:600;
+  z-index:70;opacity:0;pointer-events:none;transition:opacity .18s;max-width:90vw;text-align:center
+}
+.toast.on{opacity:1}
+.per{display:grid;grid-template-columns:1fr 1fr auto auto;gap:6px;align-items:center;margin-bottom:6px}
+.per input,.per select{min-height:42px;padding:8px;font-size:14px}
+.per .x{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--bad);min-width:40px;min-height:42px;cursor:pointer;font-size:16px}
+hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="flex:1">
+    <h1>140-Arbeitstage-Konto</h1>
+    <span class="sub">§16b AufenthG · Werkstudent · <span class="en">work-day account</span></span>
+  </div>
+  <button class="btn sm ghost" id="themeBtn" title="Design wechseln">🌙</button>
+</header>
+
+<main>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<section id="v-dash">
+  <div class="card">
+    <div class="row" style="align-items:center;gap:10px;margin-bottom:12px">
+      <div style="flex:0 0 auto">
+        <label style="margin:0">Jahr <span class="en">(year)</span></label>
+      </div>
+      <div><select id="yearSel"></select></div>
+    </div>
+    <div class="big"><span id="dUsed">0</span><small> / <span id="dLimit">140</span> Tage verbraucht</small></div>
+    <div class="tiny muted" style="margin-top:4px"><span class="en">days used</span></div>
+    <div class="bar"><i class="used" id="barUsed"></i><i class="proj" id="barProj"></i></div>
+    <div class="tiny muted"><span id="barLegend"></span></div>
+    <div class="kpis">
+      <div class="kpi"><b id="dLeft" style="color:var(--ok)">—</b><span>Rest<br><span class="en">remaining</span></span></div>
+      <div class="kpi"><b id="dProj">—</b><span>Prognose<br><span class="en">projected</span></span></div>
+      <div class="kpi"><b id="dWeeks">—</b><span>KW erfasst<br><span class="en">weeks logged</span></span></div>
+    </div>
+    <div id="dashNote" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Rechenweg <span class="en">(how this number is built)</span></h2>
+    <div id="dashMath" class="mono" style="color:var(--fg2);line-height:1.7"></div>
+  </div>
+
+  <div class="card" id="siCard">
+    <h2>Werkstudentenprivileg · 26-Wochen-Regel</h2>
+    <div class="tiny muted" style="margin:-4px 0 10px">
+      Wochen mit <b>mehr als 20 h</b> in den letzten 12 Monaten.
+      <span class="en">Weeks over 20 h in a rolling 12 months — over 26 you lose the student social-insurance exemption.</span>
+    </div>
+    <div class="big"><span id="siNow">0</span><small> / <span id="siLimit">26</span> Wochen</small></div>
+    <div class="bar"><i class="used" id="siBar"></i></div>
+    <div id="siNote" style="margin-top:8px"></div>
+    <details style="margin-top:10px">
+      <summary class="tiny muted" style="cursor:pointer">Fenster &amp; betroffene Wochen anzeigen <span class="en">(window &amp; weeks)</span></summary>
+      <div id="siDetail" class="tiny" style="margin-top:8px"></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Regeln <span class="en">(the rules this app applies)</span></h2>
+    <div class="tiny muted" style="line-height:1.6">
+      <p style="margin:0 0 8px"><b>Günstigkeitsprüfung – pro ISO-Kalenderwoche (Mo–So), nie pro Monat.</b>
+      Beide Methoden werden berechnet, es zählt die <b>niedrigere</b>.</p>
+      <p style="margin:0 0 8px"><b>Methode 1 (taggenau):</b> Arbeitstag ≤ 4 h = 0,5 Tage · Arbeitstag &gt; 4 h = 1,0 Tage.</p>
+      <p style="margin:0 0 8px"><b>Methode 2 (Pauschale 2,5):</b> nur verfügbar, wenn die Woche
+      <b>außerhalb der Vorlesungszeit</b> liegt (beliebig viele Stunden) <b>oder</b>
+      in der Vorlesungszeit liegt und <b>≤ 20 h</b> gearbeitet wurde.</p>
+      <p style="margin:0 0 8px">Woche ohne Arbeitstag = <b>0</b> Tage (nie 2,5).
+      Urlaub und Krankheit sind keine Arbeitstage — sie zählen weder als Tag noch in die Wochenstunden.
+      Enthält eine Woche <b>einen einzigen</b> Vorlesungstag, gilt die <b>ganze</b> Woche als Vorlesungszeit.</p>
+      <p style="margin:0">Das Jahr läuft 1. Jan – 31. Dez und startet am 1. Januar wieder bei 0.
+      Jede Woche wird dem <b>ISO-Wochenjahr</b> zugeordnet (dem Jahr, in dem ihr Donnerstag liegt), damit eine
+      Woche nie über den Jahreswechsel zerschnitten wird.
+      <span class="en">Weeks belong to their ISO week-year so a week is never split across two years.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ ERFASSEN ══════════════ -->
+<section id="v-add" hidden>
+  <div class="card">
+    <h2>Schnelleintrag <span class="en">(quick entry — one day)</span></h2>
+    <div class="stack">
+      <div>
+        <label for="qDate">Datum <span class="en">(date)</span></label>
+        <input type="date" id="qDate">
+        <div class="tiny muted" id="qInfo" style="margin-top:5px"></div>
+      </div>
+      <div>
+        <label for="qHours">Stunden <span class="en">(hours)</span></label>
+        <input type="number" id="qHours" inputmode="decimal" step="0.25" min="0" max="24" placeholder="z. B. 4">
+      </div>
+      <button class="btn pri" id="qSave">Arbeitstag speichern <span class="en">(save work day)</span></button>
+      <div class="grid3">
+        <button class="btn" id="qUrlaub">🏖️ Urlaub</button>
+        <button class="btn" id="qKrank">🤒 Krank</button>
+        <button class="btn danger" id="qDel">✕ Löschen</button>
+      </div>
+      <div class="tiny muted">Urlaub <span class="en">(vacation)</span> · Krank <span class="en">(sick)</span> · Löschen <span class="en">(delete entry)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ganze Woche <span class="en">(whole week at once)</span></h2>
+    <div class="stack">
+      <div>
+        <label for="wDate">Woche wählen (beliebiger Tag) <span class="en">(pick any day in the week)</span></label>
+        <input type="date" id="wDate">
+      </div>
+      <div class="row">
+        <button class="btn sm" id="wPrev" style="flex:0 0 auto">‹ KW</button>
+        <div id="wLabel" style="text-align:center;align-self:center;font-weight:650;font-size:14px"></div>
+        <button class="btn sm" id="wNext" style="flex:0 0 auto">KW ›</button>
+      </div>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:2">
+          <label for="wFill">Alle Mo–Fr auf … h setzen <span class="en">(fill Mon–Fri)</span></label>
+          <input type="number" id="wFill" inputmode="decimal" step="0.25" min="0" max="24" placeholder="4">
+        </div>
+        <div style="flex:1"><button class="btn sm" id="wFillBtn" style="width:100%">Füllen</button></div>
+        <div style="flex:1"><button class="btn sm ghost" id="wClear" style="width:100%">Leeren</button></div>
+      </div>
+      <div id="wRows"></div>
+      <div id="wPreview"></div>
+      <button class="btn pri" id="wSave">Woche speichern <span class="en">(save week)</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ WOCHEN ══════════════ -->
+<section id="v-weeks" hidden>
+  <div class="card">
+    <div class="row" style="align-items:center;gap:10px">
+      <div style="flex:0 0 auto"><label style="margin:0">Jahr</label></div>
+      <div><select id="yearSel2"></select></div>
+      <div style="flex:0 0 auto"><button class="btn sm ghost" id="toggleEmpty">Leere KW</button></div>
+    </div>
+    <div class="tiny muted" style="margin-top:8px">
+      Tippe eine Woche an, um den kompletten Rechenweg zu sehen.
+      <span class="en">Tap a week to see the full arithmetic.</span>
+    </div>
+  </div>
+  <div id="weekList"></div>
+</section>
+
+<!-- ══════════════ EINSTELLUNGEN ══════════════ -->
+<section id="v-set" hidden>
+  <div class="card">
+    <h2>Startsaldo <span class="en">(starting balance)</span></h2>
+    <div class="stack">
+      <div>
+        <label for="sBal">Bereits verbrauchte Tage <span class="en">(days already used)</span></label>
+        <input type="number" id="sBal" inputmode="decimal" step="0.5" min="0">
+      </div>
+      <div class="grid2">
+        <div>
+          <label for="sBalYear">Stand: Jahr</label>
+          <input type="number" id="sBalYear" inputmode="numeric" step="1">
+        </div>
+        <div>
+          <label for="sBalWeek">Stand: ab KW</label>
+          <input type="number" id="sBalWeek" inputmode="numeric" step="1" min="1" max="53">
+        </div>
+      </div>
+      <div class="tiny muted">
+        Der Startsaldo deckt alles <b>vor</b> dieser KW ab. Ab dieser KW zählt nur noch, was du hier erfasst.
+        <span class="en">The balance covers everything before that week; logged weeks from that week on are added on top.</span>
+      </div>
+      <div class="grid2">
+        <div>
+          <label for="sLimit">Jahreslimit <span class="en">(annual limit)</span></label>
+          <input type="number" id="sLimit" inputmode="decimal" step="0.5" min="1">
+        </div>
+        <div>
+          <label for="sSi">26-Wochen-Limit</label>
+          <input type="number" id="sSi" inputmode="numeric" step="1" min="1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Vorlesungszeiten <span class="en">(lecture periods)</span></h2>
+    <div class="tiny muted" style="margin:-4px 0 10px">
+      Spätere Zeilen überschreiben frühere bei Überschneidung. Nicht abgedeckte Tage gelten als
+      <b>vorlesungsfrei</b>. <span class="en">Later rows override earlier ones where they overlap; uncovered days count as outside.</span>
+    </div>
+    <div id="perList"></div>
+    <div class="grid2" style="margin-top:10px">
+      <button class="btn sm" id="perAdd" style="width:100%">+ Zeitraum</button>
+      <button class="btn sm ghost" id="perReset" style="width:100%">Standard wiederherstellen</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Sicherung <span class="en">(backup: export / import)</span></h2>
+    <div class="stack">
+      <div class="grid2">
+        <button class="btn" id="expFile">⬇︎ JSON-Datei</button>
+        <button class="btn" id="expCopy">⧉ Kopieren</button>
+      </div>
+      <div>
+        <label for="ioText">JSON (Export ansehen / Import einfügen)</label>
+        <textarea id="ioText" placeholder='{"version":1,...}'></textarea>
+      </div>
+      <div class="grid2">
+        <button class="btn" id="impText">⬆︎ Aus Textfeld importieren</button>
+        <button class="btn" id="impFileBtn">📂 Datei wählen</button>
+      </div>
+      <input type="file" id="impFile" accept="application/json,.json" hidden>
+      <div class="tiny muted">Import ersetzt alle vorhandenen Daten. <span class="en">Import replaces all current data.</span></div>
+      <hr class="sep">
+      <button class="btn danger" id="wipe">Alle Daten löschen <span class="en">(erase everything)</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Über <span class="en">(about)</span></h2>
+    <div class="tiny muted">
+      Alles läuft offline im Browser, alle Daten liegen ausschließlich in <span class="mono">localStorage</span> dieses Geräts.
+      Keine Server, keine Netzwerkzugriffe.<br><br>
+      Diese App rechnet nach den oben dokumentierten Regeln — sie ist keine Rechtsberatung.
+      Prüfe die Zahlen gegen deine Lohnabrechnungen; der Rechenweg jeder Woche ist dafür einzeln aufklappbar.
+      <span class="en">Not legal advice — check against your payslips.</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav>
+  <button data-view="dash"   aria-current="true"><span class="ic">📊</span>Übersicht</button>
+  <button data-view="add"><span class="ic">➕</span>Erfassen</button>
+  <button data-view="weeks"><span class="ic">🗓️</span>Wochen</button>
+  <button data-view="set"><span class="ic">⚙️</span>Einstell.</button>
+</nav>
+
+<div class="modal" id="modal" hidden>
+  <div class="box">
+    <h3 id="mTitle">Hinweis</h3>
+    <div id="mBody"></div>
+    <div class="grid2" style="margin-top:14px">
+      <button class="btn ghost" id="mCancel">Abbrechen</button>
+      <button class="btn pri" id="mOk">Trotzdem speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════════════════
+   Datum-Helfer — alles in UTC, damit Sommerzeit nie stört.
+   Date helpers, all UTC so DST can never shift a week boundary.
+   ══════════════════════════════════════════════════════════════════ */
+const DAY = 86400000;
+const ymd  = s => { const [y,m,d] = s.split('-').map(Number); return new Date(Date.UTC(y, m-1, d)); };
+const iso  = dt => dt.toISOString().slice(0,10);
+const addD = (dt,n) => new Date(dt.getTime() + n*DAY);
+const deDate = dt => String(dt.getUTCDate()).padStart(2,'0')+'.'+String(dt.getUTCMonth()+1).padStart(2,'0')+'.'+dt.getUTCFullYear();
+const deShort = dt => String(dt.getUTCDate()).padStart(2,'0')+'.'+String(dt.getUTCMonth()+1).padStart(2,'0')+'.';
+const DOW = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+
+function isoWeekOf(dt){                       // {year, week} nach ISO 8601
+  const t = new Date(dt.getTime());
+  const dn = (t.getUTCDay()+6)%7;             // Mo=0 … So=6
+  t.setUTCDate(t.getUTCDate() - dn + 3);      // Donnerstag dieser Woche
+  const y = t.getUTCFullYear();
+  const jan4 = new Date(Date.UTC(y,0,4));
+  const w1mon = addD(jan4, -((jan4.getUTCDay()+6)%7));
+  const w1thu = addD(w1mon, 3);
+  return { year:y, week: 1 + Math.round((t - w1thu)/(7*DAY)) };
+}
+function mondayOfWeek(year, week){
+  const jan4 = new Date(Date.UTC(year,0,4));
+  const w1mon = addD(jan4, -((jan4.getUTCDay()+6)%7));
+  return addD(w1mon, (week-1)*7);
+}
+const mondayOf = dt => addD(dt, -((dt.getUTCDay()+6)%7));
+const weeksInYear = y => isoWeekOf(new Date(Date.UTC(y,11,28))).week;   // 52 oder 53
+const todayUTC = () => { const n = new Date(); return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())); };
+
+const fmt = n => (Math.round(n*100)/100).toFixed(n % 1 === 0 ? 0 : (Math.abs(n*10 % 1) < 1e-9 ? 1 : 2)).replace('.', ',');
+const fmtH = n => (Math.round(n*100)/100).toString().replace('.', ',');
+
+/* ══════════════════════════════════════════════════════════════════
+   Zustand / State
+   ══════════════════════════════════════════════════════════════════ */
+const KEY = 'arbeitstage140.v1';
+const DEFAULT_PERIODS = [
+  { start:'2025-12-24', end:'2026-01-06', type:'outside' },
+  { start:'2026-01-07', end:'2026-01-23', type:'inside'  },
+  { start:'2026-01-24', end:'2026-03-15', type:'outside' },
+  { start:'2026-03-16', end:'2026-07-10', type:'inside'  },
+  { start:'2026-07-13', end:'2026-09-30', type:'outside' },
+  { start:'2026-10-01', end:'2027-01-22', type:'inside'  },
+  { start:'2026-12-24', end:'2027-01-06', type:'outside' }
+];
+const DEFAULT_STATE = {
+  version: 1,
+  theme: 'dark',
+  settings: {
+    startBalance: 87.5,
+    balanceYear: 2026,
+    balanceWeek: 34,
+    limit: 140,
+    siLimit: 26,
+    periods: DEFAULT_PERIODS.map(p => ({...p}))
+  },
+  entries: {}     // "YYYY-MM-DD" -> {type:'work'|'urlaub'|'krank', hours:Number}
+};
+let S = load();
+
+function load(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return structuredClone(DEFAULT_STATE);
+    const o = JSON.parse(raw);
+    return normalise(o);
+  } catch(e){ return structuredClone(DEFAULT_STATE); }
+}
+function normalise(o){
+  const s = structuredClone(DEFAULT_STATE);
+  if (o && typeof o === 'object'){
+    if (o.theme === 'light' || o.theme === 'dark') s.theme = o.theme;
+    if (o.settings && typeof o.settings === 'object'){
+      const t = o.settings;
+      if (isFinite(t.startBalance)) s.settings.startBalance = +t.startBalance;
+      if (isFinite(t.balanceYear))  s.settings.balanceYear  = +t.balanceYear;
+      if (isFinite(t.balanceWeek))  s.settings.balanceWeek  = +t.balanceWeek;
+      if (isFinite(t.limit))        s.settings.limit        = +t.limit;
+      if (isFinite(t.siLimit))      s.settings.siLimit      = +t.siLimit;
+      if (Array.isArray(t.periods)) {
+        const ps = t.periods
+          .filter(p => p && /^\d{4}-\d{2}-\d{2}$/.test(p.start||'') && /^\d{4}-\d{2}-\d{2}$/.test(p.end||''))
+          .map(p => ({ start:p.start, end:p.end, type: p.type === 'inside' ? 'inside' : 'outside' }));
+        if (ps.length) s.settings.periods = ps;
+      }
+    }
+    if (o.entries && typeof o.entries === 'object'){
+      for (const [k,v] of Object.entries(o.entries)){
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !v || typeof v !== 'object') continue;
+        if (v.type === 'urlaub' || v.type === 'krank') s.entries[k] = { type:v.type, hours:0 };
+        else if (v.type === 'work' && isFinite(v.hours) && +v.hours > 0)
+          s.entries[k] = { type:'work', hours: Math.min(24, Math.max(0, +v.hours)) };
+      }
+    }
+  }
+  return s;
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ toast('Speichern fehlgeschlagen'); } }
+
+/* ══════════════════════════════════════════════════════════════════
+   Vorlesungszeit / lecture period lookup
+   ══════════════════════════════════════════════════════════════════ */
+function lectureStatus(dateStr){
+  let st = 'outside';                       // nicht abgedeckt ⇒ vorlesungsfrei
+  for (const p of S.settings.periods)       // spätere Einträge gewinnen
+    if (dateStr >= p.start && dateStr <= p.end) st = p.type;
+  return st;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wochenberechnung — das Herz der App
+   computeWeek(): every number the UI shows comes from here.
+   ══════════════════════════════════════════════════════════════════ */
+function computeWeek(mon, entries){
+  entries = entries || S.entries;
+  const days = [];
+  let inside = false, totalHours = 0, m1 = 0, workedDays = 0, halfs = 0, fulls = 0;
+
+  for (let i = 0; i < 7; i++){
+    const d = addD(mon, i), k = iso(d);
+    const lp = lectureStatus(k);
+    if (lp === 'inside') inside = true;
+    const e = entries[k] || null;
+    let charge = 0;
+    if (e && e.type === 'work' && e.hours > 0){
+      workedDays++; totalHours += e.hours;
+      charge = e.hours > 4 ? 1 : 0.5;
+      if (charge === 0.5) halfs++; else fulls++;
+      m1 += charge;
+    }
+    days.push({ date:k, d, lp, entry:e, charge });
+  }
+  totalHours = Math.round(totalHours*100)/100;
+
+  const m2Reason = !inside
+        ? 'vorlesungsfreie Woche'
+        : (totalHours <= 20 ? '≤ 20 h in der Vorlesungszeit' : 'Vorlesungszeit + ' + fmtH(totalHours) + ' h > 20 h');
+  const m2Available = workedDays > 0 && (!inside || totalHours <= 20);
+
+  let charged = 0, method = 'keine', why;
+  if (workedDays === 0){
+    charged = 0; method = 'keine';
+    why = 'Keine Arbeitstage in dieser Woche ⇒ 0 Tage (die Pauschale von 2,5 gilt nie für eine leere Woche).';
+  } else if (m2Available){
+    if (m1 < 2.5){ charged = m1; method = 'M1'; why = 'Methode 1 (' + fmt(m1) + ') ist günstiger als die Pauschale 2,5.'; }
+    else if (m1 > 2.5){ charged = 2.5; method = 'M2'; why = 'Pauschale 2,5 ist günstiger als Methode 1 (' + fmt(m1) + ').'; }
+    else { charged = 2.5; method = 'M1=M2'; why = 'Beide Methoden ergeben 2,5 Tage.'; }
+  } else {
+    charged = m1; method = 'M1';
+    why = 'Pauschale nicht verfügbar (' + m2Reason + ') ⇒ es zählt zwingend Methode 1.';
+  }
+
+  const blocked = workedDays > 0 && inside && totalHours > 20;   // orange-Fall
+  const wouldCost = Math.min(m1, 2.5);                            // Kosten bei ≤ 20 h
+  return {
+    mon, iso: isoWeekOf(mon), days, inside, totalHours, workedDays, halfs, fulls,
+    m1, m2Available, m2Reason, charged, method, why,
+    blocked, wouldCost, saving: Math.round((m1 - wouldCost)*100)/100,
+    over20: workedDays > 0 && totalHours > 20
+  };
+}
+
+/* Alle Wochen mit Einträgen, plus optional leere Wochen des Jahres */
+function weeksOfYear(year, includeEmpty){
+  const n = weeksInYear(year), out = [];
+  for (let w = 1; w <= n; w++){
+    const r = computeWeek(mondayOfWeek(year, w));
+    if (includeEmpty || r.workedDays > 0 || r.days.some(d => d.entry)) out.push(r);
+  }
+  return out;
+}
+function trackedYears(){
+  const set = new Set([S.settings.balanceYear, isoWeekOf(todayUTC()).year]);
+  for (const k of Object.keys(S.entries)) set.add(isoWeekOf(ymd(k)).year);
+  return [...set].sort((a,b) => a-b);
+}
+
+/* Startsaldo greift nur im Saldo-Jahr und nur vor der Stichwoche */
+function preBalance(week){ return { covered: week.iso.year === S.settings.balanceYear && week.iso.week < S.settings.balanceWeek }; }
+
+function yearSummary(year){
+  const st = S.settings;
+  const base = year === st.balanceYear ? st.startBalance : (year > st.balanceYear ? 0 : 0);
+  const startWeek = year === st.balanceYear ? st.balanceWeek : 1;
+  const all = weeksOfYear(year, false);
+  let logged = 0, loggedWeeks = 0, preWeeks = 0, preCharged = 0;
+  for (const w of all){
+    if (preBalance(w).covered){ preWeeks++; preCharged += w.charged; continue; }
+    logged += w.charged;
+    if (w.workedDays > 0) loggedWeeks++;
+  }
+  logged = Math.round(logged*100)/100;
+  const used = Math.round((base + logged)*100)/100;
+
+  // Prognose: Schnitt der bereits abgelaufenen Wochen seit Zählbeginn,
+  // hochgerechnet auf die noch nicht erfassten Restwochen des Jahres.
+  const today = todayUTC(), tIso = isoWeekOf(today), nWeeks = weeksInYear(year);
+  let curWeek;
+  if (tIso.year === year) curWeek = tIso.week;
+  else if (year < tIso.year) curWeek = nWeeks;
+  else curWeek = 0;
+  const elapsed = Math.max(0, curWeek - startWeek + 1);
+  let past = 0, futureLogged = 0;
+  for (const w of all){
+    if (preBalance(w).covered) continue;
+    if (w.iso.week <= curWeek) past += w.charged; else futureLogged++;
+  }
+  const remaining = Math.max(0, nWeeks - curWeek - futureLogged);   // noch offene KW
+  const avg = elapsed > 0 ? past / elapsed : 0;
+  const projected = Math.round((used + avg*remaining)*100)/100;
+
+  return { year, base, startWeek, logged, used, loggedWeeks, preWeeks,
+           preCharged: Math.round(preCharged*100)/100,
+           left: Math.round((st.limit - used)*100)/100,
+           elapsed, remaining, avg, projected, nWeeks, curWeek, weeks: all };
+}
+
+/* Werkstudent: Wochen > 20 h im rollierenden 12-Monats-Fenster */
+function siWeeks(){
+  const out = [];
+  const seen = new Set();
+  for (const k of Object.keys(S.entries)){
+    const mon = mondayOf(ymd(k)), key = iso(mon);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const r = computeWeek(mon);
+    if (r.over20) out.push(r);
+  }
+  return out.sort((a,b) => a.mon - b.mon);
+}
+function siStats(){
+  const all = siWeeks(), today = todayUTC();
+  const winStart = new Date(Date.UTC(today.getUTCFullYear()-1, today.getUTCMonth(), today.getUTCDate()+1));
+  const current = all.filter(w => w.mon >= winStart && w.mon <= today);
+  // schlimmstes 12-Monats-Fenster über alle Daten
+  let worst = { count:0, from:null, to:null };
+  for (const a of all){
+    const end = new Date(Date.UTC(a.mon.getUTCFullYear()+1, a.mon.getUTCMonth(), a.mon.getUTCDate()-1));
+    const inWin = all.filter(w => w.mon >= a.mon && w.mon <= end);
+    if (inWin.length > worst.count) worst = { count: inWin.length, from: a.mon, to: end, weeks: inWin };
+  }
+  return { all, current, winStart, winEnd: today, worst };
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   UI-Grundgerüst
+   ══════════════════════════════════════════════════════════════════ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200);
+}
+function applyTheme(){
+  document.documentElement.dataset.theme = S.theme === 'light' ? 'light' : 'dark';
+  $('#themeBtn').textContent = S.theme === 'light' ? '☀️' : '🌙';
+}
+$('#themeBtn').onclick = () => { S.theme = S.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
+
+let view = 'dash';
+function show(v){
+  view = v;
+  for (const id of ['dash','add','weeks','set']) $('#v-'+id).hidden = (id !== v);
+  $$('nav button').forEach(b => b.setAttribute('aria-current', String(b.dataset.view === v)));
+  window.scrollTo(0,0);
+  render();
+}
+$$('nav button').forEach(b => b.onclick = () => show(b.dataset.view));
+
+/* Modal-Helfer */
+let modalResolve = null;
+function ask(title, html, okLabel){
+  $('#mTitle').textContent = title;
+  $('#mBody').innerHTML = html;
+  $('#mOk').textContent = okLabel || 'Trotzdem speichern';
+  $('#modal').hidden = false;
+  return new Promise(res => { modalResolve = res; });
+}
+$('#mOk').onclick     = () => { $('#modal').hidden = true; modalResolve && modalResolve(true); };
+$('#mCancel').onclick = () => { $('#modal').hidden = true; modalResolve && modalResolve(false); };
+$('#modal').onclick   = e => { if (e.target === $('#modal')) { $('#modal').hidden = true; modalResolve && modalResolve(false); } };
+
+/* ══════════════════════════════════════════════════════════════════
+   Dashboard
+   ══════════════════════════════════════════════════════════════════ */
+let selYear = isoWeekOf(todayUTC()).year;
+let showEmpty = false;
+
+function fillYearSelects(){
+  const years = trackedYears();
+  if (!years.includes(selYear)) selYear = years[years.length-1];
+  for (const id of ['#yearSel','#yearSel2']){
+    const el = $(id);
+    el.innerHTML = years.map(y => `<option value="${y}"${y === selYear ? ' selected' : ''}>${y}</option>`).join('');
+    el.onchange = () => { selYear = +el.value; render(); };
+  }
+}
+
+function renderDash(){
+  const st = S.settings, y = yearSummary(selYear);
+  $('#dUsed').textContent  = fmt(y.used);
+  $('#dLimit').textContent = fmt(st.limit);
+  $('#dLeft').textContent  = fmt(y.left);
+  $('#dLeft').style.color  = y.left < 0 ? 'var(--bad)' : (y.left < 15 ? 'var(--orange)' : 'var(--ok)');
+  $('#dProj').textContent  = fmt(y.projected);
+  $('#dProj').style.color  = y.projected > st.limit ? 'var(--bad)' : (y.projected > st.limit*0.9 ? 'var(--orange)' : 'var(--fg)');
+  $('#dWeeks').textContent = y.loggedWeeks;
+
+  const pUsed = Math.max(0, Math.min(100, y.used/st.limit*100));
+  const pProj = Math.max(0, Math.min(100 - pUsed, (y.projected - y.used)/st.limit*100));
+  $('#barUsed').style.width = pUsed.toFixed(2)+'%';
+  $('#barProj').style.width = pProj.toFixed(2)+'%';
+  $('#barLegend').innerHTML =
+    `<span style="color:var(--acc)">▉</span> verbraucht ${fmt(y.used)} &nbsp;
+     <span style="color:var(--warn)">▉</span> Prognose bis Jahresende +${fmt(Math.max(0, y.projected - y.used))} &nbsp;
+     <span class="en">(used / projected)</span>`;
+
+  let note = '';
+  if (y.left < 0)
+    note = `<div class="note bad"><b>Limit überschritten.</b> Du liegst ${fmt(-y.left)} Tage über den ${fmt(st.limit)} Arbeitstagen dieses Jahres.</div>`;
+  else if (y.projected > st.limit)
+    note = `<div class="note warn"><b>Prognose über Limit.</b> Bei gleichbleibendem Tempo (${fmt(Math.round(y.avg*100)/100)} Tage/Woche) landest du bei ${fmt(y.projected)} von ${fmt(st.limit)} Tagen — rechnerisch ${fmt(y.projected - st.limit)} zu viel.</div>`;
+  else if (y.left < 15)
+    note = `<div class="note warn">Nur noch <b>${fmt(y.left)} Tage</b> übrig. <span class="en">(few days left)</span></div>`;
+  else
+    note = `<div class="note ok">Noch <b>${fmt(y.left)} Tage</b> frei — Prognose ${fmt(y.projected)} von ${fmt(st.limit)}. <span class="en">(on track)</span></div>`;
+
+  const flagged = y.weeks.filter(w => w.blocked && !preBalance(w).covered);
+  if (flagged.length){
+    const lost = Math.round(flagged.reduce((a,w) => a + w.saving, 0)*100)/100;
+    note += `<div class="note orange" style="margin-top:8px"><b>${flagged.length} Woche(n)</b> in der Vorlesungszeit über 20 h — dadurch entfiel die Pauschale und es wurden <b>${fmt(lost)} Tage extra</b> berechnet. <span class="en">(cost of exceeding 20 h in lecture weeks)</span></div>`;
+  }
+  $('#dashNote').innerHTML = note;
+
+  $('#dashMath').innerHTML = [
+    `Startsaldo (Stand KW ${st.balanceWeek}/${st.balanceYear})   = ${selYear === st.balanceYear ? fmt(st.startBalance) : '0 (neues Jahr, Reset am 1.1.)'}`,
+    `+ erfasste Wochen ab KW ${y.startWeek}          = ${fmt(y.logged)}`,
+    `──────────────────────────────`,
+    `= verbraucht                        ${fmt(y.used)}`,
+    `Limit ${fmt(st.limit)} − ${fmt(y.used)}                 = ${fmt(y.left)} Rest`,
+    ``,
+    `Prognose: Schnitt ${fmt(Math.round(y.avg*1000)/1000)} Tage/KW × ${y.remaining} Rest-KW`,
+    `          ${fmt(y.used)} + ${fmt(Math.round(y.avg*y.remaining*100)/100)} = ${fmt(y.projected)}`,
+    y.preWeeks ? `` : null,
+    y.preWeeks ? `Hinweis: ${y.preWeeks} erfasste KW liegen vor KW ${st.balanceWeek} und sind` : null,
+    y.preWeeks ? `bereits im Startsaldo enthalten (${fmt(y.preCharged)} Tage, nicht addiert).` : null
+  ].filter(x => x !== null).map(l => esc(l).replace(/ /g,'&nbsp;')).join('<br>');
+
+  renderSI();
+}
+
+function renderSI(){
+  const st = S.settings, s = siStats(), n = s.current.length;
+  $('#siNow').textContent   = n;
+  $('#siLimit').textContent = st.siLimit;
+  const p = Math.max(0, Math.min(100, n/st.siLimit*100));
+  const bar = $('#siBar');
+  bar.style.width = p.toFixed(1)+'%';
+  bar.style.background = n >= st.siLimit ? 'var(--bad)' : (n >= st.siLimit-2 ? 'var(--orange)' : (n >= st.siLimit-6 ? 'var(--warn)' : 'var(--ok)'));
+
+  let note;
+  if (n > st.siLimit)
+    note = `<div class="note bad"><b>Über der Grenze.</b> ${n} Wochen über 20 h in 12 Monaten — das Werkstudentenprivileg (Befreiung von KV/PV/AV) entfällt.</div>`;
+  else if (n === st.siLimit)
+    note = `<div class="note bad"><b>Grenze erreicht.</b> Keine weitere Woche über 20 h in diesem 12-Monats-Fenster.</div>`;
+  else if (n >= st.siLimit - 3)
+    note = `<div class="note warn">Nur noch <b>${st.siLimit-n}</b> Woche(n) über 20 h möglich. <span class="en">(close to the 26-week limit)</span></div>`;
+  else
+    note = `<div class="note ok">Noch <b>${st.siLimit-n}</b> Wochen über 20 h möglich. <span class="en">(headroom)</span></div>`;
+  if (s.worst.count > n)
+    note += `<div class="note info" style="margin-top:8px">Schlechtestes 12-Monats-Fenster insgesamt: <b>${s.worst.count}</b> Wochen (${deDate(s.worst.from)} – ${deDate(s.worst.to)}). <span class="en">(worst window across all data)</span></div>`;
+  $('#siNote').innerHTML = note;
+
+  $('#siDetail').innerHTML =
+    `<div class="muted">Aktuelles Fenster: ${deDate(s.winStart)} – ${deDate(s.winEnd)}</div>` +
+    (s.all.length
+      ? `<table class="dbg"><tr><th>KW</th><th>Woche</th><th class="n">Stunden</th><th>im Fenster</th></tr>` +
+        s.all.map(w => `<tr><td>${w.iso.week}/${w.iso.year}</td><td>${deShort(w.mon)}–${deShort(addD(w.mon,6))}</td><td class="n">${fmtH(w.totalHours)}</td><td>${w.mon >= s.winStart && w.mon <= s.winEnd ? '✓' : '–'}</td></tr>`).join('') +
+        `</table>`
+      : `<div class="muted" style="margin-top:6px">Bisher keine Woche über 20 h.</div>`);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Wochenliste
+   ══════════════════════════════════════════════════════════════════ */
+function methodPill(w){
+  if (w.method === 'keine') return '<span class="pill">keine</span>';
+  if (w.method === 'M2')    return '<span class="pill m2">M2 · Pauschale</span>';
+  if (w.method === 'M1=M2') return '<span class="pill m2">M1 = M2</span>';
+  return '<span class="pill m1">M1 · taggenau</span>';
+}
+function absNote(w){   // Urlaub/Krank in der Kopfzeile sichtbar machen
+  const u = w.days.filter(d => d.entry && d.entry.type === 'urlaub').length;
+  const k = w.days.filter(d => d.entry && d.entry.type === 'krank').length;
+  const p = [];
+  if (u) p.push(u + '× 🏖️');
+  if (k) p.push(k + '× 🤒');
+  return p.length ? ' · ' + p.join(' ') : '';
+}
+function renderWeeks(){
+  const y = yearSummary(selYear), st = S.settings;
+  const list = showEmpty ? weeksOfYear(selYear, true) : y.weeks;
+  $('#toggleEmpty').textContent = showEmpty ? 'Leere KW ✓' : 'Leere KW';
+
+  if (!list.length){
+    $('#weekList').innerHTML = `<div class="card muted tiny">Noch keine Einträge für ${selYear}. <span class="en">(nothing logged yet)</span></div>`;
+    return;
+  }
+  let run = selYear === st.balanceYear ? st.startBalance : 0;
+  const html = list.map(w => {
+    const pre = preBalance(w).covered;
+    if (!pre) run = Math.round((run + w.charged)*100)/100;
+
+    const dayRows = w.days.map(d => {
+      let what = '—', chg = '';
+      if (d.entry){
+        if (d.entry.type === 'work'){ what = fmtH(d.entry.hours)+' h'; chg = fmt(d.charge) + (d.entry.hours > 4 ? ' (&gt; 4 h)' : ' (≤ 4 h)'); }
+        else if (d.entry.type === 'urlaub'){ what = '🏖️ Urlaub'; chg = '0 · kein Arbeitstag'; }
+        else { what = '🤒 Krank'; chg = '0 · kein Arbeitstag'; }
+      }
+      return `<tr><td>${DOW[(d.d.getUTCDay()+6)%7]} ${deShort(d.d)}</td>
+        <td class="${d.lp === 'inside' ? 'lp-in' : 'lp-out'}">${d.lp === 'inside' ? 'Vorlesung' : 'frei'}</td>
+        <td class="n">${what}</td><td class="n">${chg}</td></tr>`;
+    }).join('');
+
+    const m1Terms = w.workedDays
+      ? w.days.filter(d => d.charge > 0).map(d => fmt(d.charge)).join(' + ') + ' = ' + fmt(w.m1)
+      : '0';
+
+    const flagBox = w.blocked ? `<div class="note orange" style="margin:10px 0">
+        <b>⚠︎ Über 20 h in der Vorlesungszeit.</b><br>
+        ${fmtH(w.totalHours)} h &gt; 20 h ⇒ Pauschale 2,5 entfällt, es gilt Methode 1 mit <b>${fmt(w.m1)} Tagen</b>.<br>
+        Bei ≤ 20 h hätte diese Woche <b>${fmt(w.wouldCost)} Tage</b> gekostet — Aufpreis <b>${fmt(w.saving)} Tage</b>.
+        <span class="en">(cost of crossing 20 h)</span></div>` : '';
+
+    const preBox = pre ? `<div class="note info" style="margin:10px 0">Liegt vor KW ${st.balanceWeek}/${st.balanceYear} und ist bereits im <b>Startsaldo</b> enthalten — wird nicht noch einmal addiert. <span class="en">(covered by the starting balance)</span></div>` : '';
+
+    return `<details class="wk${w.blocked ? ' flag' : ''}${pre ? ' pre' : ''}">
+      <summary>
+        <div class="wkmain">
+          <div class="wkt">KW ${w.iso.week} · ${deShort(w.mon)}–${deDate(addD(w.mon,6))}</div>
+          <div class="wks">
+            <span class="pill ${w.inside ? 'in' : 'out'}">${w.inside ? 'Vorlesungszeit' : 'vorlesungsfrei'}</span>
+            ${fmtH(w.totalHours)} h · ${w.workedDays} AT${absNote(w)} · ${methodPill(w)}
+          </div>
+        </div>
+        <div class="wkr">
+          <b style="color:${w.blocked ? 'var(--orange)' : 'var(--fg)'}">${fmt(w.charged)}</b>
+          <span>lfd. ${pre ? '—' : fmt(run)}</span>
+        </div>
+      </summary>
+      <div class="wkbody">
+        ${flagBox}${preBox}
+        <table class="dbg">
+          <tr><th>Tag</th><th>Zeitraum</th><th class="n">Erfasst</th><th class="n">Methode 1</th></tr>
+          ${dayRows}
+        </table>
+        <div class="tiny" style="margin-top:10px;line-height:1.65">
+          <div><b>Methode 1</b> (taggenau): ${m1Terms} Tage</div>
+          <div><b>Methode 2</b> (Pauschale 2,5): ${w.workedDays === 0
+              ? '<span style="color:var(--fg3)">entfällt — leere Woche kostet 0</span>'
+              : (w.m2Available ? `verfügbar (${esc(w.m2Reason)})` : `<span style="color:var(--orange)">nicht verfügbar (${esc(w.m2Reason)})</span>`)}</div>
+          <div style="margin-top:6px"><b>Günstigkeitsprüfung:</b> ${esc(w.why)}</div>
+          <div style="margin-top:6px"><b>Belastung dieser Woche: ${fmt(w.charged)} Tage</b>${pre ? ' <span class="muted">(im Startsaldo)</span>' : ` · laufender Stand: <b>${fmt(run)}</b> / ${fmt(st.limit)}`}</div>
+          <div class="muted" style="margin-top:6px">Wochenstunden ${fmtH(w.totalHours)} h (Urlaub/Krank ausgenommen) · Arbeitstage ${w.workedDays} (${w.halfs}× ≤ 4 h, ${w.fulls}× &gt; 4 h)${w.over20 ? ' · zählt für die 26-Wochen-Regel' : ''}</div>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <button class="btn sm" style="width:100%" data-edit="${iso(w.mon)}">Bearbeiten</button>
+          <button class="btn sm danger" style="width:100%" data-clear="${iso(w.mon)}">Woche leeren</button>
+        </div>
+      </div>
+    </details>`;
+  }).join('');
+
+  $('#weekList').innerHTML = html;
+  $$('#weekList [data-edit]').forEach(b => b.onclick = () => {
+    wkMonday = ymd(b.dataset.edit); $('#wDate').value = b.dataset.edit; show('add');
+    setTimeout(() => $('#wRows').scrollIntoView({behavior:'smooth', block:'center'}), 60);
+  });
+  $$('#weekList [data-clear]').forEach(b => b.onclick = async () => {
+    const mon = ymd(b.dataset.clear);
+    if (!await ask('Woche leeren?', `<div class="tiny">Alle Einträge der KW ${isoWeekOf(mon).week} (${deDate(mon)} – ${deDate(addD(mon,6))}) werden gelöscht.</div>`, 'Löschen')) return;
+    for (let i = 0; i < 7; i++) delete S.entries[iso(addD(mon,i))];
+    save(); render(); toast('Woche geleert');
+  });
+}
+$('#toggleEmpty').onclick = () => { showEmpty = !showEmpty; render(); };
+
+/* ══════════════════════════════════════════════════════════════════
+   Erfassen — Schnelleintrag
+   ══════════════════════════════════════════════════════════════════ */
+function qInfo(){
+  const v = $('#qDate').value;
+  if (!v){ $('#qInfo').textContent = ''; return; }
+  const d = ymd(v), w = isoWeekOf(d), lp = lectureStatus(v), e = S.entries[v];
+  const cur = e ? (e.type === 'work' ? `aktuell ${fmtH(e.hours)} h` : (e.type === 'urlaub' ? 'aktuell Urlaub' : 'aktuell krank')) : 'noch kein Eintrag';
+  $('#qInfo').innerHTML = `${DOW[(d.getUTCDay()+6)%7]}, KW ${w.week}/${w.year} · <span class="${lp === 'inside' ? 'lp-in' : 'lp-out'}">${lp === 'inside' ? 'Vorlesungszeit' : 'vorlesungsfrei'}</span> · ${cur}`;
+}
+$('#qDate').oninput = qInfo;
+
+async function setDay(dateStr, entry){
+  // Warnung, wenn dadurch in einer Vorlesungswoche 20 h überschritten werden
+  const mon = mondayOf(ymd(dateStr));
+  const before = computeWeek(mon);
+  const probe = Object.assign({}, S.entries);
+  if (entry) probe[dateStr] = entry; else delete probe[dateStr];
+  const after = computeWeek(mon, probe);
+  if (after.blocked && !before.blocked){
+    if (!await ask('20-Stunden-Grenze', warnHtml(after), 'Trotzdem speichern')) return false;
+  }
+  if (entry) S.entries[dateStr] = entry; else delete S.entries[dateStr];
+  save(); render(); return true;
+}
+function warnHtml(w){
+  const H = w.totalHours;
+  const spreadDays = Math.ceil(H/4);
+  const spreadCost = spreadDays <= 7 ? spreadDays*0.5 : null;
+  const alts = [];
+  alts.push(`Auf <b>≤ 20 h</b> in dieser Woche reduzieren ⇒ Pauschale wieder verfügbar, Kosten <b>${fmt(w.wouldCost)} Tage</b> statt ${fmt(w.m1)} (spart ${fmt(w.saving)}).`);
+  if (spreadCost !== null && spreadCost < w.m1)
+    alts.push(`Dieselben ${fmtH(H)} h auf <b>${spreadDays} Tage à ≤ 4 h</b> verteilen ⇒ jeder Tag zählt nur als <b>halber</b> Tag: ${spreadDays} × 0,5 = <b>${fmt(spreadCost)} Tage</b> (spart ${fmt(Math.round((w.m1-spreadCost)*100)/100)}).`);
+  else if (spreadCost !== null)
+    alts.push(`Dieselben ${fmtH(H)} h auf ${spreadDays} Tage à ≤ 4 h verteilen ergäbe ${fmt(spreadCost)} Tage — hier <b>kein</b> Vorteil gegenüber ${fmt(w.m1)}.`);
+  else
+    alts.push(`${fmtH(H)} h passen nicht in 7 Tage à ≤ 4 h (max. 28 h), Halbtage-Trick greift nicht.`);
+  alts.push(`Stunden in eine <b>vorlesungsfreie</b> Woche schieben ⇒ dort gilt die Pauschale 2,5 unabhängig von der Stundenzahl.`);
+  const si = siStats();
+  const inWin = w.mon >= si.winStart && w.mon <= si.winEnd;
+  const already = si.current.some(x => x.mon.getTime() === w.mon.getTime());
+  const siAfter = si.current.length + (inWin && !already ? 1 : 0);
+  alts.push(`Die Woche zählt außerdem für die <b>26-Wochen-Regel</b> (Sozialversicherung): danach ${siAfter}/${S.settings.siLimit} Wochen über 20 h in 12 Monaten.`);
+
+  return `<div class="note orange"><b>${fmtH(w.totalHours)} h in einer Vorlesungswoche</b> (KW ${w.iso.week}/${w.iso.year}).<br>
+    Über 20 h entfällt die Pauschale von 2,5 Tagen — die Woche kostet dann <b>${fmt(w.m1)} Tage</b> statt ${fmt(w.wouldCost)}.
+    <span class="en">(crossing 20 h in a lecture week removes the flat 2.5)</span></div>
+    <h3 style="font-size:14px;margin:12px 0 0">Günstigere Alternativen <span class="en">(cheaper options)</span></h3>
+    <ul class="alts">${alts.map(a => '<li>'+a+'</li>').join('')}</ul>`;
+}
+
+$('#qSave').onclick = async () => {
+  const d = $('#qDate').value, h = parseFloat(String($('#qHours').value).replace(',','.'));
+  if (!d) return toast('Bitte Datum wählen');
+  if (!isFinite(h) || h <= 0) return toast('Bitte Stunden > 0 eingeben');
+  if (h > 24) return toast('Maximal 24 h');
+  if (await setDay(d, {type:'work', hours:h})) toast('Gespeichert: '+fmtH(h)+' h');
+};
+$('#qUrlaub').onclick = async () => { const d = $('#qDate').value; if (!d) return toast('Bitte Datum wählen'); if (await setDay(d, {type:'urlaub', hours:0})) toast('Urlaub eingetragen'); };
+$('#qKrank').onclick  = async () => { const d = $('#qDate').value; if (!d) return toast('Bitte Datum wählen'); if (await setDay(d, {type:'krank',  hours:0})) toast('Krank eingetragen'); };
+$('#qDel').onclick    = async () => { const d = $('#qDate').value; if (!d) return toast('Bitte Datum wählen'); if (await setDay(d, null)) toast('Eintrag gelöscht'); };
+
+/* ══════════════════════════════════════════════════════════════════
+   Erfassen — ganze Woche
+   ══════════════════════════════════════════════════════════════════ */
+let wkMonday = mondayOf(todayUTC());
+let draft = null;             // {dateStr: {type,hours}|null}
+
+function loadDraft(){
+  draft = {};
+  for (let i = 0; i < 7; i++){
+    const k = iso(addD(wkMonday,i));
+    draft[k] = S.entries[k] ? {...S.entries[k]} : null;
+  }
+}
+function draftEntries(){
+  const m = Object.assign({}, S.entries);
+  for (const [k,v] of Object.entries(draft)){ if (v) m[k] = v; else delete m[k]; }
+  return m;
+}
+function renderWeekEditor(){
+  const w = isoWeekOf(wkMonday);
+  $('#wDate').value = iso(wkMonday);
+  $('#wLabel').innerHTML = `KW ${w.week}/${w.year}<br><span class="tiny muted">${deDate(wkMonday)} – ${deDate(addD(wkMonday,6))}</span>`;
+
+  $('#wRows').innerHTML = Object.keys(draft).map((k,i) => {
+    const d = ymd(k), e = draft[k], lp = lectureStatus(k);
+    const off = e && e.type !== 'work';
+    return `<div class="dayrow${off ? ' off' : ''}" data-k="${k}">
+      <div class="dl"><b>${DOW[i]} ${deShort(d)}</b><span class="${lp === 'inside' ? 'lp-in' : 'lp-out'}">${lp === 'inside' ? 'Vorlesung' : 'frei'}</span></div>
+      <div><input type="number" inputmode="decimal" step="0.25" min="0" max="24" placeholder="h"
+           value="${e && e.type === 'work' ? e.hours : ''}" data-h="${k}" ${off ? 'disabled' : ''}></div>
+      <div class="seg">
+        <button class="u" data-t="urlaub" data-k="${k}" aria-pressed="${e && e.type === 'urlaub'}" title="Urlaub">U</button>
+        <button class="k" data-t="krank"  data-k="${k}" aria-pressed="${e && e.type === 'krank'}"  title="Krank">K</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  $$('#wRows input[data-h]').forEach(inp => inp.oninput = () => {
+    const k = inp.dataset.h, v = parseFloat(String(inp.value).replace(',','.'));
+    draft[k] = (isFinite(v) && v > 0) ? {type:'work', hours: Math.min(24,v)} : null;
+    previewWeek();
+  });
+  $$('#wRows button[data-t]').forEach(b => b.onclick = () => {
+    const k = b.dataset.k, t = b.dataset.t;
+    draft[k] = (draft[k] && draft[k].type === t) ? null : {type:t, hours:0};
+    renderWeekEditor();
+  });
+  previewWeek();
+}
+function previewWeek(){
+  const w = computeWeek(wkMonday, draftEntries());
+  const cur = computeWeek(wkMonday);
+  const diff = Math.round((w.charged - cur.charged)*100)/100;
+  const m1Terms = w.workedDays ? w.days.filter(d => d.charge > 0).map(d => fmt(d.charge)).join(' + ') + ' = ' + fmt(w.m1) : '0';
+
+  let html = `<div class="note ${w.blocked ? 'orange' : 'info'}" style="line-height:1.6">
+    <b>Vorschau KW ${w.iso.week}/${w.iso.year}</b>
+    <span class="pill ${w.inside ? 'in' : 'out'}">${w.inside ? 'Vorlesungszeit' : 'vorlesungsfrei'}</span><br>
+    Stunden ${fmtH(w.totalHours)} h · Arbeitstage ${w.workedDays}<br>
+    Methode 1: ${m1Terms} Tage<br>
+    Methode 2: ${w.workedDays === 0 ? 'entfällt (leere Woche = 0)' : (w.m2Available ? '2,5 verfügbar ('+esc(w.m2Reason)+')' : 'nicht verfügbar ('+esc(w.m2Reason)+')')}<br>
+    <b>Ergebnis: ${fmt(w.charged)} Tage</b> — ${esc(w.why)}
+    ${diff !== 0 ? `<br>Änderung gegenüber gespeichert: <b>${diff > 0 ? '+' : ''}${fmt(diff)}</b> Tage` : ''}
+  </div>`;
+  if (w.blocked)
+    html += `<div class="note orange" style="margin-top:8px">⚠︎ Über 20 h in einer Vorlesungswoche: ${fmt(w.saving)} Tage teurer als nötig. Beim Speichern zeige ich dir die Alternativen. <span class="en">(warning on save)</span></div>`;
+  if (w.over20){
+    const s = siStats();
+    const inWin = w.mon >= s.winStart && w.mon <= s.winEnd;
+    const already = s.current.some(x => x.mon.getTime() === w.mon.getTime());
+    const si = s.current.length + (inWin && !already ? 1 : 0);
+    html += `<div class="note ${si >= S.settings.siLimit ? 'bad' : 'info'}" style="margin-top:8px">26-Wochen-Regel: diese Woche zählt als Woche über 20 h ⇒ ${si}/${S.settings.siLimit} in 12 Monaten${inWin ? '' : ' (liegt außerhalb des aktuellen 12-Monats-Fensters)'}.</div>`;
+  }
+  $('#wPreview').innerHTML = html;
+}
+$('#wDate').oninput = () => { const v = $('#wDate').value; if (!v) return; wkMonday = mondayOf(ymd(v)); loadDraft(); renderWeekEditor(); };
+$('#wPrev').onclick = () => { wkMonday = addD(wkMonday,-7); loadDraft(); renderWeekEditor(); };
+$('#wNext').onclick = () => { wkMonday = addD(wkMonday, 7); loadDraft(); renderWeekEditor(); };
+$('#wFillBtn').onclick = () => {
+  const v = parseFloat(String($('#wFill').value).replace(',','.'));
+  if (!isFinite(v) || v <= 0) return toast('Stundenzahl eingeben');
+  for (let i = 0; i < 5; i++){ const k = iso(addD(wkMonday,i)); draft[k] = {type:'work', hours: Math.min(24,v)}; }
+  renderWeekEditor();
+};
+$('#wClear').onclick = () => { for (const k of Object.keys(draft)) draft[k] = null; renderWeekEditor(); };
+$('#wSave').onclick = async () => {
+  const after = computeWeek(wkMonday, draftEntries());
+  const before = computeWeek(wkMonday);
+  if (after.blocked && !(before.blocked && before.totalHours >= after.totalHours)){
+    if (!await ask('20-Stunden-Grenze', warnHtml(after), 'Trotzdem speichern')) return;
+  }
+  for (const [k,v] of Object.entries(draft)){ if (v) S.entries[k] = v; else delete S.entries[k]; }
+  save(); render(); toast('KW '+after.iso.week+' gespeichert: '+fmt(after.charged)+' Tage');
+};
+
+/* ══════════════════════════════════════════════════════════════════
+   Einstellungen
+   ══════════════════════════════════════════════════════════════════ */
+function renderSettings(){
+  const st = S.settings;
+  $('#sBal').value = st.startBalance;
+  $('#sBalYear').value = st.balanceYear;
+  $('#sBalWeek').value = st.balanceWeek;
+  $('#sLimit').value = st.limit;
+  $('#sSi').value = st.siLimit;
+
+  $('#perList').innerHTML = st.periods.map((p,i) => `
+    <div class="per">
+      <input type="date" value="${p.start}" data-p="start" data-i="${i}">
+      <input type="date" value="${p.end}" data-p="end" data-i="${i}">
+      <select data-p="type" data-i="${i}">
+        <option value="inside" ${p.type === 'inside' ? 'selected' : ''}>Vorlesung</option>
+        <option value="outside" ${p.type === 'outside' ? 'selected' : ''}>frei</option>
+      </select>
+      <button class="x" data-del="${i}">✕</button>
+    </div>`).join('');
+
+  $$('#perList [data-p]').forEach(el => el.onchange = () => {
+    const i = +el.dataset.i, f = el.dataset.p;
+    if (f === 'type') st.periods[i].type = el.value;
+    else if (el.value) st.periods[i][f] = el.value;
+    save(); render();
+  });
+  $$('#perList [data-del]').forEach(b => b.onclick = () => { st.periods.splice(+b.dataset.del,1); save(); render(); });
+}
+const bind = (sel, key, min, max) => {
+  $(sel).onchange = () => {
+    let v = parseFloat(String($(sel).value).replace(',','.'));
+    if (!isFinite(v)) { render(); return; }
+    v = Math.max(min, Math.min(max, v));
+    S.settings[key] = v; save(); render();
+  };
+};
+bind('#sBal','startBalance',0,10000);
+bind('#sBalYear','balanceYear',2000,2100);
+bind('#sBalWeek','balanceWeek',1,53);
+bind('#sLimit','limit',1,10000);
+bind('#sSi','siLimit',1,53);
+$('#perAdd').onclick = () => {
+  const t = iso(todayUTC());
+  S.settings.periods.push({ start:t, end:t, type:'inside' });
+  save(); render();
+};
+$('#perReset').onclick = async () => {
+  if (!await ask('Zurücksetzen?', '<div class="tiny">Die Vorlesungszeiten werden auf die Standardwerte zurückgesetzt. Deine Arbeitstage bleiben erhalten.</div>', 'Zurücksetzen')) return;
+  S.settings.periods = DEFAULT_PERIODS.map(p => ({...p}));
+  save(); render(); toast('Standard wiederhergestellt');
+};
+
+/* Export / Import */
+function exportJSON(){ return JSON.stringify({ version:1, exported: new Date().toISOString(), settings: S.settings, entries: S.entries }, null, 2); }
+$('#expFile').onclick = () => {
+  const blob = new Blob([exportJSON()], {type:'application/json'});
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = 'arbeitstage-' + iso(todayUTC()) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  $('#ioText').value = exportJSON();
+  toast('Export erstellt');
+};
+$('#expCopy').onclick = async () => {
+  const t = exportJSON();
+  $('#ioText').value = t;
+  try { await navigator.clipboard.writeText(t); toast('In die Zwischenablage kopiert'); }
+  catch(e){ $('#ioText').select(); toast('Text markiert — bitte manuell kopieren'); }
+};
+async function doImport(text){
+  let o; try { o = JSON.parse(text); } catch(e){ return toast('Ungültiges JSON'); }
+  const n = normalise(o);
+  const cnt = Object.keys(n.entries).length;
+  if (!await ask('Import?', `<div class="tiny">${cnt} Tageseinträge und die Einstellungen werden übernommen. <b>Alle aktuellen Daten werden ersetzt.</b></div>`, 'Importieren')) return;
+  n.theme = S.theme;
+  S = n; save(); loadDraft(); render(); applyTheme();
+  toast('Import: ' + cnt + ' Einträge');
+}
+$('#impText').onclick = () => { const t = $('#ioText').value.trim(); if (!t) return toast('Kein JSON im Textfeld'); doImport(t); };
+$('#impFileBtn').onclick = () => $('#impFile').click();
+$('#impFile').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { $('#ioText').value = r.result; doImport(String(r.result)); };
+  r.readAsText(f);
+  e.target.value = '';
+};
+$('#wipe').onclick = async () => {
+  if (!await ask('Wirklich alles löschen?', '<div class="tiny">Alle Einträge und Einstellungen dieses Geräts werden unwiderruflich gelöscht. Vorher exportieren!</div>', 'Alles löschen')) return;
+  S = structuredClone(DEFAULT_STATE);
+  localStorage.removeItem(KEY); save();
+  wkMonday = mondayOf(todayUTC()); loadDraft();
+  selYear = isoWeekOf(todayUTC()).year;
+  render(); applyTheme(); toast('Alle Daten gelöscht');
+};
+
+/* ══════════════════════════════════════════════════════════════════
+   Render-Dispatcher
+   ══════════════════════════════════════════════════════════════════ */
+function render(){
+  fillYearSelects();
+  if (view === 'dash')  renderDash();
+  if (view === 'add')   { qInfo(); renderWeekEditor(); }
+  if (view === 'weeks') renderWeeks();
+  if (view === 'set')   renderSettings();
+}
+
+/* Start */
+applyTheme();
+$('#qDate').value = iso(todayUTC());
+$('#wDate').value = iso(wkMonday);
+loadDraft();
+render();
+
+/* ══════════════════════════════════════════════════════════════════
+   Selbsttest der Zählregeln (Konsole) — self-test of the counting rules
+   ══════════════════════════════════════════════════════════════════ */
+(function selfTest(){
+  const keep = S.entries, keepP = S.settings.periods;
+  const P = { in:  [{start:'2026-03-16', end:'2026-07-10', type:'inside'}],
+              out: [] };
+  const mk = (mon, hours) => { const e = {}; hours.forEach((h,i) => { if (h !== null) e[iso(addD(mon,i))] = (typeof h === 'string' ? {type:h,hours:0} : {type:'work',hours:h}); }); return e; };
+  const mon = mondayOfWeek(2026, 15);      // liegt in der Vorlesungszeit
+  const monOut = mondayOfWeek(2026, 30);   // vorlesungsfrei
+  const T = [];
+  const t = (name, got, want) => T.push([name, Math.abs(got-want) < 1e-9, got, want]);
+
+  S.settings.periods = P.in;
+  t('leere Woche = 0',                 computeWeek(mon, {}).charged, 0);
+  t('5×8h Vorlesung (40h) ⇒ M1 5,0',   computeWeek(mon, mk(mon,[8,8,8,8,8,null,null])).charged, 5);
+  t('5×4h Vorlesung (20h) ⇒ M2 2,5',   computeWeek(mon, mk(mon,[4,4,4,4,4,null,null])).charged, 2.5);
+  t('3×4h Vorlesung (12h) ⇒ M1 1,5',   computeWeek(mon, mk(mon,[4,4,4,null,null,null,null])).charged, 1.5);
+  t('2×8h+Urlaub (16h) ⇒ M1 2,0',      computeWeek(mon, mk(mon,[8,8,'urlaub','krank',null,null,null])).charged, 2);
+  t('6×4h Vorlesung (24h) ⇒ M1 3,0',   computeWeek(mon, mk(mon,[4,4,4,4,4,4,null])).charged, 3);
+  S.settings.periods = P.out;
+  t('5×8h frei (40h) ⇒ M2 2,5',        computeWeek(monOut, mk(monOut,[8,8,8,8,8,null,null])).charged, 2.5);
+  t('1×3h frei ⇒ M1 0,5',              computeWeek(monOut, mk(monOut,[3,null,null,null,null,null,null])).charged, 0.5);
+  S.settings.periods = [{start:iso(addD(mon,3)), end:iso(addD(mon,3)), type:'inside'}];
+  t('1 Vorlesungstag färbt ganze KW',  computeWeek(mon, mk(mon,[8,8,8,8,8,null,null])).charged, 5);
+
+  S.entries = keep; S.settings.periods = keepP;
+  const bad = T.filter(x => !x[1]);
+  if (bad.length) console.error('Selbsttest FEHLGESCHLAGEN', bad);
+  else console.log('Selbsttest OK — ' + T.length + ' Regelfälle geprüft:\n' + T.map(x => '  ✓ ' + x[0]).join('\n'));
+})();
+</script>
+</body>
+</html>
