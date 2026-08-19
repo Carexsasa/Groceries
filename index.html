@@ -228,7 +228,8 @@ footer.note b{color:#3f3413}
 <div class="wrap screen">
 
   <div class="toolbar">
-    <button class="primary" id="btnFeas">Can I finish in 2 years?</button>
+    <button class="primary" id="btnFastest">Graduate as soon as possible</button>
+    <button id="btnFeas">Can I finish in 2 years?</button>
     <button id="btnAuto">Auto-plan</button>
     <span class="sep"></span>
     <button id="btnPrint">Print / Save as PDF</button>
@@ -633,6 +634,74 @@ function computePlan(n, parallelOverride){
           breachesDeadline: items.some(m=>!isRetake(m) && lateTerms.includes(assign[m.id]))};
 }
 
+/* -------------------------------------------------------------------------
+   How fast is fast? — the hard constraints, checked rather than assumed.
+
+   A candidate is "graduate in n terms, with/without the internship running
+   alongside a lecture term". It survives only if all of these hold:
+     · both retake windows fall inside the n terms (they are immovable dates);
+     · the internship has a term, and the thesis a strictly later one;
+     · when the internship occupies a term exclusively, that term cannot be one
+       already spoken for by a pinned retake.
+   Load is deliberately NOT a constraint here — this asks what is *possible*,
+   and reports the resulting load so the cost is visible.
+   ------------------------------------------------------------------------- */
+function configFeasible(n, parallel){
+  const terms = PLAN_TERMS.slice(0,n);
+  const items = remaining();
+  const pinned = [...new Set(items.filter(isRetake).map(m=>m.fixed))];
+  const missing = pinned.filter(t=>!terms.includes(t));
+  if(missing.length)
+    return {ok:false, reason:`retake window ${missing.join(" and ")} falls outside a ${n}-term plan — those dates cannot move`};
+
+  const hasIntern = items.some(m=>m.kind==="internship");
+  const hasThesis = items.some(m=>m.kind==="thesis");
+  if(!hasIntern) return {ok:true};
+  if(n<2) return {ok:false, reason:"the internship needs a term and the thesis a later one"};
+
+  // the planner puts the internship second-to-last and the thesis last
+  const internTerm = terms[n-2];
+  if(hasThesis && n<2)
+    return {ok:false, reason:"the thesis must follow the internship term"};
+  if(!parallel && pinned.includes(internTerm))
+    return {ok:false, reason:`the internship would need ${internTerm} to itself, but the ${internTerm} retake is pinned there — ` +
+                             `impossible unless the internship runs alongside a lecture term`};
+  return {ok:true};
+}
+
+// Every graduation date that satisfies the hard constraints, with its true cost.
+function speedFrontier(){
+  const rows = [];
+  [true,false].forEach(parallel=>{
+    for(let n=1;n<=PLAN_TERMS.length;n++){          // from 1, so the floor is derived, not assumed
+      const f = configFeasible(n,parallel);
+      const row = {n, parallel, term:PLAN_TERMS[n-1], sem:SEMESTER[PLAN_TERMS[n-1]], ok:f.ok, reason:f.reason};
+      if(f.ok){
+        const p = computePlan(n,parallel);
+        row.plan = p;
+        row.peakEcts  = Math.max(...p.terms.map(t=> parallel && p.load[t].intern>0 ? p.load[t].course : p.load[t].ects));
+        row.peakDeliv = Math.max(...p.terms.map(t=> p.load[t].written + p.load[t].assignments));
+        row.peakWritten = Math.max(...p.terms.map(t=>p.load[t].written));
+        row.breaches = p.breachesDeadline;
+      }
+      rows.push(row);
+    }
+  });
+  return rows;
+}
+
+// Where effort stops being the binding constraint and the exam timetable takes over.
+const EXTREME_ECTS = 45, CROWDED_EXAMS = 10;
+function plausibility(r){
+  if(r.peakEcts>EXTREME_ECTS || r.peakDeliv>CROWDED_EXAMS)
+    return {key:"no", pill:"red", label:"not a plan"};
+  if(r.peakEcts>AMBER_MAX)
+    return {key:"extreme", pill:"red", label:"extreme"};
+  if(r.peakEcts>NORMAL_LOAD)
+    return {key:"hard", pill:"amber", label:"demanding but possible"};
+  return {key:"ok", pill:"green", label:"within full load"};
+}
+
 function applyPlan(p){
   remaining().forEach(m=>{
     if(p.assign[m.id]){
@@ -806,6 +875,84 @@ function feasibilityReport(){
     <p class="small muted">All figures come straight from the module table — nothing is rounded down to make a target reachable.
     Change any ECTS value or status and press the button again.</p>
   `);
+}
+
+function fastestReport(){
+  const rows = speedFrontier();
+  const ok = rows.filter(r=>r.ok);
+  const items = remaining();
+  const course = items.filter(m=>m.kind!=="internship").reduce((s,m)=>s+num(m.ects),0);
+
+  // the app's own pick: the earliest date a human actually passes
+  const pick = ok.filter(r=>!r.breaches && ["hard","ok"].includes(plausibility(r).key))
+                 .sort((a,b)=>(a.n-b.n)||(a.peakEcts-b.peakEcts))[0];
+  // the earliest date that is possible at all, whatever the cost
+  const absolute = ok.slice().sort((a,b)=>(a.n-b.n)||(a.peakEcts-b.peakEcts))[0];
+  // why nothing earlier than `absolute` exists: look at the next-earliest date and take
+  // the most permissive configuration that still failed
+  const blocked = absolute
+    ? rows.filter(r=>!r.ok && r.n===absolute.n-1).sort((a,b)=>b.parallel-a.parallel)[0]
+    : rows.filter(r=>!r.ok).sort((a,b)=>a.n-b.n)[0];
+
+  const rowHtml = r=>{
+    if(!r.ok)
+      return `<tr><td>${r.term} <span class="muted small">(sem ${r.sem})</span></td>
+        <td>${r.parallel?"alongside":"own term"}</td>
+        <td colspan="3" class="muted" style="text-align:left">impossible — ${esc(r.reason)}</td>
+        <td><span class="pill red">ruled out</span></td><td></td></tr>`;
+    const pl = plausibility(r);
+    const isPick = pick && r.n===pick.n && r.parallel===pick.parallel;
+    return `<tr${isPick?' class="total"':''}>
+      <td>${r.term} <span class="muted small">(sem ${r.sem})</span>${isPick?' <span class="pill green">app\'s pick</span>':''}</td>
+      <td>${r.parallel?"alongside":"own term"}</td>
+      <td>${fmt(r.peakEcts)}</td>
+      <td>${r.peakDeliv} <span class="muted small">(${r.peakWritten} written)</span></td>
+      <td>${fmt(r.peakEcts/NORMAL_LOAD)}×</td>
+      <td>${r.breaches
+            ? `<span class="pill red">breaks first-attempt rule</span><br><span class="small muted">load itself: ${pl.label}</span>`
+            : `<span class="pill ${pl.pill}">${pl.label}</span>`}</td>
+      <td><button data-apply="${r.n}" data-par="${r.parallel?1:0}">Apply</button></td></tr>`;
+  };
+
+  const pickPl = pick ? plausibility(pick) : null;
+  const recHtml = pick
+    ? `<div class="verdict maybe"><b>The app's answer: ${pick.term} (sem ${pick.sem}) — ${pick.n} terms, internship ${pick.parallel?"running alongside a lecture term":"in a term of its own"}.</b><br>
+        Peak load <b>${fmt(pick.peakEcts)} ECTS</b> and <b>${pick.peakDeliv} deliverables</b> in the heaviest exam period
+        (${pick.peakWritten} of them written exams) — ${fmt(pick.peakEcts/NORMAL_LOAD)}× a normal full load, every term, with no
+        gap term anywhere. This is the earliest date on the list that a person actually finishes.</div>`
+    : `<div class="verdict no">No configuration reaches a survivable load.</div>`;
+
+  const fasterRows = ok.filter(r=>pick && r.n<pick.n);
+  const fasterHtml = fasterRows.length
+    ? `<div class="verdict no"><b>Faster is arithmetically possible and I am not going to pretend otherwise — here is what it costs.</b>
+        <ul>${fasterRows.sort((a,b)=>a.n-b.n).map(r=>`<li><b>${r.term} (sem ${r.sem})</b>, internship ${r.parallel?"alongside":"own term"}:
+          <b>${fmt(r.peakEcts)} ECTS</b> and <b>${r.peakDeliv} deliverables</b> in one exam period
+          (${r.peakWritten} written exams) — ${fmt(r.peakEcts/NORMAL_LOAD)}× a full load.</li>`).join("")}</ul>
+        Beyond roughly ${CROWDED_EXAMS} deliverables in a single period the binding constraint stops being how hard you are willing
+        to work and becomes the exam timetable itself: written exams are scheduled inside one two-to-three week window, and
+        ${Math.max(...fasterRows.map(r=>r.peakWritten))} of them in that window will collide. Willingness to study more does not
+        create extra exam slots — that is why the pick above is not simply the top row.</div>`
+    : "";
+
+  const floorHtml = `<div class="msg info" style="margin-bottom:10px">
+      <b>Hard floor: you cannot graduate before ${absolute?absolute.term:"—"} (sem ${absolute?absolute.sem:"—"}) under any load.</b>
+      ${blocked?`Finishing one term earlier (${blocked.term}) is ruled out by a fixed date, not by workload — ${esc(blocked.reason)}.`:""}
+      The retake windows are immovable, the internship needs a term, and the thesis must follow it. Those facts set the
+      floor; every row below is a choice about how much load you pile on above it.</div>`;
+
+  showReport("Fastest possible graduation", `
+    ${floorHtml}
+    ${recHtml}
+    <table>
+      <thead><tr><th>Graduate</th><th>Internship</th><th>Peak ECTS/period</th><th>Peak deliverables</th><th>vs full load</th><th>Verdict</th><th></th></tr></thead>
+      <tbody>${rows.sort((a,b)=>(a.n-b.n)||(b.parallel-a.parallel)).map(rowHtml).join("")}</tbody>
+    </table>
+    <p class="small muted">${fmt(course)} ECTS of coursework plus the ${fmt(items.reduce((s,m)=>s+num(m.ects),0)-course)}-ECTS internship block.
+    Peak values are the heaviest single term in each plan, not the average — the average always looks kinder than the term you actually sit in.
+    Applying a row also sets the internship toggle to match it.</p>
+    ${fasterHtml}
+  `);
+
 }
 
 function autoPlanReport(){
@@ -1063,6 +1210,19 @@ document.getElementById("chkParallel").addEventListener("change",e=>{
 document.getElementById("fStatus").addEventListener("change",e=>{ state.filterStatus=e.target.value; save(); renderTable(); });
 document.getElementById("fSearch").addEventListener("input",e=>{ state.search=e.target.value; save(); renderTable(); });
 
+document.getElementById("btnFastest").addEventListener("click", fastestReport);
+
+// one delegated handler for the Apply buttons inside the speed frontier — attaching it
+// per report render would stack listeners and fire the apply repeatedly
+document.getElementById("report").addEventListener("click", e=>{
+  const n = e.target.dataset && e.target.dataset.apply;
+  if(!n) return;
+  const par = e.target.dataset.par==="1";
+  state.internParallel = par;
+  document.getElementById("chkParallel").checked = par;
+  applyPlan(computePlan(+n, par));
+  fastestReport();
+});
 document.getElementById("btnFeas").addEventListener("click", feasibilityReport);
 document.getElementById("btnAuto").addEventListener("click", autoPlanReport);
 document.getElementById("btnCloseReport").addEventListener("click",()=>document.getElementById("reportSection").classList.add("hidden"));
