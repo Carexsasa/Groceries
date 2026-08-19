@@ -68,6 +68,10 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 button.primary:hover{background:#26506f}
 button.danger{color:var(--red);border-color:#e3c4c4}
 .sep{width:1px;height:22px;background:var(--line);margin:0 3px}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);
+  background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:5px 10px;cursor:pointer}
+.toggle input{margin:0;cursor:pointer}
+.toggle:has(input:checked){background:var(--accent-soft);border-color:#b9cfe2;color:var(--ink)}
 .filters{margin-left:auto;display:flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
 .filters select,.filters input{font:inherit;font-size:12.5px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink)}
 
@@ -235,6 +239,10 @@ footer.note b{color:#3f3413}
     <button id="btnAdd">+ Add module</button>
     <button id="btnClearTerms">Clear all term assignments</button>
     <button class="danger" id="btnReset">Reset to transcript data</button>
+    <span class="sep"></span>
+    <label class="toggle" title="If the 18-week internship can run alongside a lecture term instead of consuming one, it stops costing you a whole exam period.">
+      <input type="checkbox" id="chkParallel"> internship runs alongside a term
+    </label>
     <div class="filters">
       <label>Status
         <select id="fStatus">
@@ -388,7 +396,7 @@ function seed(){
    State
    ========================================================================= */
 const LSKEY = "thd-po217b-planner-v1";
-let state = load() || {modules:seed(), targetTerms:5, filterStatus:"all", search:""};
+let state = load() || {modules:seed(), targetTerms:5, filterStatus:"all", search:"", internParallel:false};
 
 function load(){
   try{
@@ -399,6 +407,7 @@ function load(){
     o.filterStatus = o.filterStatus || "all";
     o.search = o.search || "";
     o.targetTerms = o.targetTerms || 5;
+    o.internParallel = !!o.internParallel;
     return o;
   }catch(e){ return null; }
 }
@@ -448,11 +457,16 @@ function totals(){
 
 function termLoad(term, assignment){
   // assignment: optional {id:term} override map (used for previews)
-  const out = {ects:0, written:0, assignments:0, other:0, mods:[]};
+  // ects = everything in the term; course = the part that produces exams and deadlines
+  // (the internship block is work, not an exam period, so the two differ when the
+  //  internship shares a term with coursework)
+  const out = {ects:0, course:0, intern:0, written:0, assignments:0, other:0, mods:[]};
   mods().forEach(m=>{
     const t = assignment ? (m.status==="passed" ? m.term : assignment[m.id]) : m.term;
     if(t!==term) return;
-    out.ects += num(m.ects);
+    const e = num(m.ects);
+    out.ects += e;
+    if(m.kind==="internship") out.intern += e; else out.course += e;
     out.mods.push(m);
     const c = m.cat;
     if(c==="written") out.written++;
@@ -461,6 +475,9 @@ function termLoad(term, assignment){
   });
   return out;
 }
+// what the colour band judges: the exam-bearing load. With the internship occupying a
+// whole term that is the term total; with it running alongside, it is the coursework.
+function loadBasis(l){ return state.internParallel && l.intern>0 ? l.course : l.ects; }
 function band(e){ return e===0?"empty" : e<=NORMAL_LOAD?"green" : e<=AMBER_MAX?"amber":"red"; }
 function bandLabel(e){ return e===0?"empty" : e<=NORMAL_LOAD?"within full load" : e<=AMBER_MAX?"over full load":"overloaded"; }
 
@@ -506,9 +523,16 @@ function validate(){
     const load = termLoad(t);
     const other = load.mods.filter(m=>m.kind!=="internship" && m.status!=="passed");
     const otherEcts = other.reduce((s,m)=>s+num(m.ects),0);
-    if(otherEcts>0)
+    if(!otherEcts) return;
+    if(state.internParallel)
+      push("warn",`<b>${t} carries the 18-week internship alongside ${fmt(otherEcts)} ECTS of coursework</b> ` +
+                  `(${load.written} written exam${load.written===1?"":"s"}, ${load.assignments} assignment/seminar deliverable${load.assignments===1?"":"s"}, ` +
+                  `${fmt(load.ects)} ECTS in the term all told). This is only possible if the placement genuinely overlaps the lecture period — ` +
+                  `confirm it with the ECRI Studienberatung and your employer before you count on it.`);
+    else
       push("err",`<b>${t} carries the internship plus ${fmt(otherEcts)} ECTS of coursework</b> ` +
-                 `(${esc(other.map(m=>m.name).join(", "))}). The internship term must contain nothing else.`);
+                 `(${esc(other.map(m=>m.name).join(", "))}). The internship term must contain nothing else — ` +
+                 `or switch on “internship runs alongside a term” if your placement really can overlap the lecture period.`);
   });
 
   // thesis after internship
@@ -525,11 +549,12 @@ function validate(){
   // per-term load
   PLAN_TERMS.forEach(t=>{
     const l = termLoad(t);
-    if(l.ects>AMBER_MAX){
-      push("err",`<b>${t}: ${fmt(l.ects)} ECTS — overloaded.</b> That is ${l.written} written exam${l.written===1?"":"s"} ` +
+    const basis = loadBasis(l);
+    if(basis>AMBER_MAX){
+      push("err",`<b>${t}: ${fmt(basis)} ECTS of coursework — overloaded.</b> That is ${l.written} written exam${l.written===1?"":"s"} ` +
                  `and ${l.assignments} assignment/seminar deliverable${l.assignments===1?"":"s"} in one exam period, against a normal full load of ${NORMAL_LOAD} ECTS (roughly 6 exams).`);
-    }else if(l.ects>NORMAL_LOAD){
-      push("warn",`<b>${t}: ${fmt(l.ects)} ECTS — above the ${NORMAL_LOAD}-ECTS full load</b> ` +
+    }else if(basis>NORMAL_LOAD){
+      push("warn",`<b>${t}: ${fmt(basis)} ECTS — above the ${NORMAL_LOAD}-ECTS full load</b> ` +
                   `(${l.written} written exam${l.written===1?"":"s"}, ${l.assignments} assignment/seminar deliverable${l.assignments===1?"":"s"}).`);
     }
   });
@@ -547,20 +572,24 @@ function validate(){
                 `Modules are not locked to a season here — just confirm each one is on the timetable that term: ` +
                 esc(off.map(o=>`${o.m.name} (nominally ${o.nominal}) → ${o.m.term}`).join("; ")));
 
-  if(!out.length) push("ok","No validation problems: retake windows respected, every remaining module is scheduled before the first-attempt deadline, the internship has its own term, the thesis follows it, and no term exceeds 35 ECTS.");
+  if(!out.length) push("ok",`No validation problems: retake windows respected, every remaining module is scheduled before the ` +
+    `first-attempt deadline, the internship ${state.internParallel?"runs alongside its term":"has its own term"}, the thesis follows it, ` +
+    `and no term exceeds ${AMBER_MAX} ECTS.`);
   return out;
 }
 
 /* =========================================================================
    Auto-plan
    ========================================================================= */
-function computePlan(n){
+function computePlan(n, parallelOverride){
+  const parallel = parallelOverride===undefined ? !!state.internParallel : !!parallelOverride;
   const terms = PLAN_TERMS.slice(0,n);
   const assign = {};                               // id -> term
-  const load = {}; terms.forEach(t=>load[t]={ects:0,written:0,assignments:0});
+  const load = {}; terms.forEach(t=>load[t]={ects:0,course:0,intern:0,written:0,assignments:0});
   const put = (m,t)=>{
     assign[m.id]=t;
     load[t].ects += num(m.ects);
+    if(m.kind==="internship") load[t].intern += num(m.ects); else load[t].course += num(m.ects);
     if(m.cat==="written") load[t].written++;
     else if(m.cat==="assignment"||m.cat==="thesis") load[t].assignments++;
   };
@@ -574,7 +603,9 @@ function computePlan(n){
   // 1. fixed retake windows first
   retakes.forEach(m=>{ const t = terms.includes(m.fixed)?m.fixed:terms[0]; put(m,t); });
 
-  // 2. internship gets its own term (second-to-last), thesis the last term
+  // 2. internship sits in the second-to-last term, thesis in the last one.
+  //    Normally that term is reserved for the internship alone; in parallel mode it
+  //    keeps taking coursework like any other term.
   const internTerm = terms[n-2];
   const thesisTerm = terms[n-1];
   internship.forEach(m=>put(m,internTerm));
@@ -586,19 +617,19 @@ function computePlan(n){
   //    terms level. Ties — and with 5-ECTS modules almost everything ties — are broken
   //    by whichever term holds fewest deliverables of the same kind, so written exams
   //    and assignment-based modules stay mixed instead of clustering in one period.
-  const courseTerms = terms.filter(t=>t!==internTerm);
+  const courseTerms = (parallel || !internship.length) ? terms : terms.filter(t=>t!==internTerm);
   const pool = rest.slice().sort((a,b)=> num(b.ects)-num(a.ects) || a.name.localeCompare(b.name));
   pool.forEach(m=>{
     const cat = m.cat==="written" ? "written" : "assignments";
     const target = courseTerms.slice().sort((a,b)=>
-      (load[a].ects-load[b].ects) || (load[a][cat]-load[b][cat]) || (planIdx(a)-planIdx(b))
+      (load[a].course-load[b].course) || (load[a][cat]-load[b][cat]) || (planIdx(a)-planIdx(b))
     )[0];
     put(m,target);
   });
 
-  const maxLoad = Math.max(...terms.map(t=>load[t].ects));
+  const maxLoad = Math.max(...terms.map(t=>parallel ? load[t].course : load[t].ects));
   const lateTerms = terms.slice(DEADLINE_IDX+1);
-  return {n, terms, assign, load, internTerm, thesisTerm, maxLoad, gradTerm: terms[n-1],
+  return {n, parallel, terms, assign, load, internTerm, thesisTerm, maxLoad, gradTerm: terms[n-1],
           breachesDeadline: items.some(m=>!isRetake(m) && lateTerms.includes(assign[m.id]))};
 }
 
@@ -633,59 +664,102 @@ function feasibilityReport(){
   const nPapers  = courseMods.filter(m=>m.cat==="assignment"||m.cat==="thesis").length;
 
   const twoYearTerms = PLAN_TERMS.slice(0,4);              // WT 26/27 … ST 2028 (sem 8)
-  const courseTerms4 = twoYearTerms.length - (internEcts>0?1:0);
+  const parallel = !!state.internParallel;
+  // The only thing that changes the two-year answer: does the internship eat an exam period?
+  const courseTerms4 = twoYearTerms.length - ((internEcts>0 && !parallel)?1:0);
   const per4 = course/courseTerms4;
   const exams4 = nWritten/courseTerms4, papers4 = nPapers/courseTerms4;
+  // the other scenario, for the side-by-side comparison
+  const altTerms4 = twoYearTerms.length - ((internEcts>0 && parallel)?1:0);
+  const altPer4 = course/altTerms4;
 
   // Earliest graduation term whose per-period load stays under the 35-ECTS ceiling.
   // Only terms up to the first-attempt deadline may carry new subjects, so the search
   // stops at sem 9 — ST 2029 exists for retakes, not for first attempts.
   const maxFirstAttemptTerms = DEADLINE_IDX + 1;                 // 5 terms: WT 26/27 … WT 2028/29
+  const internCost = (internEcts>0 && !parallel) ? 1 : 0;        // exam periods lost to the internship
   let earliest=null;
   for(let n=2;n<=maxFirstAttemptTerms;n++){
-    const ct = n - (internEcts>0?1:0);                           // exam periods, internship takes one
+    const ct = n - internCost;
     if(ct<1) continue;
     const per = course/ct;
     if(per<=AMBER_MAX){ earliest={n,per,ct}; break; }
   }
   // the hard floor: everything must be first-attempted inside the deadline window
-  const floorPeriods = maxFirstAttemptTerms - (internEcts>0?1:0);
+  const floorPeriods = maxFirstAttemptTerms - internCost;
   const floorLoad = course/floorPeriods;
 
   const p4 = computePlan(4);
   let rows = "";
   p4.terms.forEach(t=>{
     const l = p4.load[t];
-    rows += `<tr><td>${t} <span class="muted small">(sem ${SEMESTER[t]})</span></td><td>${fmt(l.ects)}</td>` +
+    const basis = parallel && l.intern>0 ? l.course : l.ects;
+    rows += `<tr><td>${t} <span class="muted small">(sem ${SEMESTER[t]})</span></td><td>${fmt(basis)}` +
+            `${l.intern>0 && parallel ? ` <span class="muted small">+${fmt(l.intern)} internship</span>` : ""}</td>` +
             `<td>${l.written}</td><td>${l.assignments}</td>` +
-            `<td><span class="pill ${band(l.ects)}">${bandLabel(l.ects)}</span></td></tr>`;
+            `<td><span class="pill ${band(basis)}">${bandLabel(basis)}</span></td></tr>`;
   });
+
+  // The cycle question, answered up front — it is the thing people assume is the blocker.
+  const cycleHtml = `<div class="msg info" style="margin-bottom:10px">
+      <b>Winter/summer flexibility is already assumed here.</b> Every module defaults to cycle <i>either</i>, and none of the
+      numbers below use season as a constraint — taking a nominally-winter module in summer changes <i>which</i> term a module
+      sits in, not how many ECTS exist or how many exam periods you have. ${fmt(course)} ÷ ${courseTerms4} is
+      ${fmt(per4)} whichever way you shuffle them. What actually moves this number is the internship, below.</div>`;
 
   let verdict;
   if(per4>AMBER_MAX){
-    verdict = `<div class="verdict no"><b>No — graduating by ST 2028 (sem 8) is not realistic.</b><br>
+    verdict = `<div class="verdict no"><b>No — not while the internship consumes a whole term.</b><br>
       ${fmt(course)} ECTS of coursework spread over ${courseTerms4} exam periods is
       <b>${fmt(per4)} ECTS per term</b> — about <b>${Math.round(exams4)} written exams plus ${Math.round(papers4)} assignments/seminars
       in every single exam period</b>, against a normal full load of ${NORMAL_LOAD} ECTS (roughly 6 exams).
-      That is ${fmt(per4/NORMAL_LOAD)}× a full-time semester, sustained for three consecutive terms, with the internship
+      That is ${fmt(per4/NORMAL_LOAD)}× a full-time semester, sustained for ${courseTerms4} consecutive terms, with the internship
       term in between offering no relief. One failed module in that plan has nowhere to go.</div>`;
   }else{
-    verdict = `<div class="verdict maybe"><b>Arithmetically it fits</b> at ${fmt(per4)} ECTS per term — but check the exam counts below before committing.</div>`;
+    verdict = `<div class="verdict maybe"><b>Yes — arithmetically ST 2028 (sem 8) fits, at ${fmt(per4)} ECTS per exam period.</b><br>
+      With the internship running alongside a lecture term rather than consuming one, all ${twoYearTerms.length} terms stay
+      available for exams: ${fmt(course)} ECTS over ${courseTerms4} periods, about ${Math.round(exams4)} written exams plus
+      ${Math.round(papers4)} assignments each. That is still ${fmt(per4/NORMAL_LOAD)}× a full load every term for two straight
+      years, and one of those terms also carries 18 weeks of placement — so the plan has no slack for a single fail.
+      It is a real plan, not a comfortable one.</div>`;
   }
 
+  const lever = `<div class="verdict ${parallel?"maybe":"no"}">
+      <b>The whole two-year question turns on one assumption: does the 18-week internship consume an exam period?</b>
+      <table style="margin-top:6px">
+        <thead><tr><th>Assumption</th><th>Exam periods to ST 2028</th><th>Coursework per period</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>Internship occupies a whole term${!parallel?" <b>(current setting)</b>":""}</td>
+              <td>${twoYearTerms.length-1}</td><td>${fmt(course/(twoYearTerms.length-1))} ECTS</td>
+              <td><span class="pill red">not realistic</span></td></tr>
+          <tr><td>Internship runs alongside a lecture term${parallel?" <b>(current setting)</b>":""}</td>
+              <td>${twoYearTerms.length}</td><td>${fmt(course/twoYearTerms.length)} ECTS</td>
+              <td><span class="pill amber">demanding but possible</span></td></tr>
+        </tbody>
+      </table>
+      Toggle <i>“internship runs alongside a term”</i> in the toolbar to switch the whole planner between these two worlds.
+      Before you bank on the second row, get three things in writing from the ECRI Studienberatung: that the Praxissemester
+      may overlap a lecture term at all, that PLV 1 and PLV 2 can be attended during it, and that the 18 weeks fit around
+      your exam dates. If the answer is no, the first row is your reality and sem 9 is the earliest finish.</div>`;
+
+  const earliestTerm = earliest ? PLAN_TERMS[earliest.n-1] : null;
   const earliestHtml = earliest
-    ? `<div class="verdict maybe">
-        <b>Earliest defensible graduation: ${PLAN_TERMS[earliest.n-1]} (sem ${SEMESTER[PLAN_TERMS[earliest.n-1]]}) — ${earliest.n} terms from now, one more than your goal.</b><br>
+    ? `<div class="verdict ${earliest.n<=4?"yes":"maybe"}">
+        <b>Earliest graduation whose load stays under ${AMBER_MAX} ECTS per period: ${earliestTerm} (sem ${SEMESTER[earliestTerm]})
+        — ${earliest.n} term${earliest.n===1?"":"s"} from now${earliest.n<=4?", i.e. inside your two-year goal":", one more than your goal"}.</b><br>
         ${fmt(course)} ECTS over ${earliest.ct} exam periods = <b>${fmt(earliest.per)} ECTS per term</b>
-        (~${Math.round(nWritten/earliest.ct)} written exams + ${Math.round(nPapers/earliest.ct)} assignments/seminars each),
-        plus one full term for the internship. Still above the ${NORMAL_LOAD}-ECTS full load, so it is demanding — but it is
-        arithmetically survivable, unlike the two-year plan.</div>`
+        (~${Math.round(nWritten/earliest.ct)} written exams + ${Math.round(nPapers/earliest.ct)} assignments/seminars each)${internCost?", plus one full term for the internship":", with the internship running alongside"}.
+        Still above the ${NORMAL_LOAD}-ECTS full load, so it is demanding — but arithmetically survivable.</div>`
     : `<div class="verdict no">Even using every term up to the first-attempt deadline, the load stays above ${AMBER_MAX} ECTS per exam period.</div>`;
 
-  const deadlineHtml = `<div class="verdict no">
+  // The deadline binds hard only when the earliest feasible finish is already sem 9.
+  const deadlineBinds = !earliest || earliest.n >= maxFirstAttemptTerms;
+  const deadlineHtml = deadlineBinds
+    ? `<div class="verdict no">
       <b>The first-attempt deadline sets a hard floor of ${fmt(floorLoad)} ECTS per exam period — you cannot plan your way below it.</b><br>
       Every main-examination subject must be <b>first attempted by ${DEADLINE_TERM} (sem 9)</b>, so the usable window is
-      ${maxFirstAttemptTerms} terms wide; the internship consumes one of them, leaving ${floorPeriods} exam periods for
+      ${maxFirstAttemptTerms} terms wide${internCost?`; the internship consumes one of them, leaving ${floorPeriods} exam periods`
+        :`, all ${floorPeriods} of them usable as exam periods`} for
       ${fmt(course)} ECTS. Stretching to ST 2029 (sem 10) does not reduce that: ST 2029 may carry <i>retakes only</i>,
       never a first attempt. Two consequences worth planning around:
       <ul>
@@ -693,21 +767,35 @@ function feasibilityReport(){
         <li>A single failed module in sem 9 pushes its retake into ST 2029, so graduation slips to sem 10 even if everything else lands.</li>
       </ul>
       If the deadline on your transcript is a per-subject clock rather than a single date, or if the Bachelor's Thesis is
-      exempt from it, this floor changes — confirm the exact wording with the ECRI Studienberatung.</div>`;
+      exempt from it, this floor changes — confirm the exact wording with the ECRI Studienberatung.</div>`
+    : `<div class="verdict maybe">
+      <b>The first-attempt deadline still applies — but it is no longer what limits you.</b><br>
+      Every main-examination subject must be first attempted by ${DEADLINE_TERM} (sem 9). Spread across the
+      ${floorPeriods} exam periods that window allows, that is only ${fmt(floorLoad)} ECTS per term, well inside a full load —
+      so the binding constraint is your own ${earliest.n}-term target, not the regulations. That is worth knowing for one reason:
+      <ul>
+        <li><b>Finishing in ${earliestTerm} (sem ${SEMESTER[earliestTerm]}) buys you a retake buffer.</b> Anything you fail in the
+        final term can still be re-sat in sem 9, and a second failure in ST 2029, without breaking the first-attempt rule —
+        because every <i>first</i> attempt already happened on time.</li>
+        <li>A plan that lands on sem 9 has no such buffer. Aiming early is not just about speed; it is what makes a single
+        bad exam survivable.</li>
+      </ul></div>`;
 
   showReport("Can I finish in 2 years? (by ST 2028, sem 8)", `
+    ${cycleHtml}
     <table>
       <tbody>
         <tr class="total"><td>Remaining ECTS</td><td>${fmt(total)}</td></tr>
-        <tr><td>… internship block (indivisible, one whole term)</td><td>${fmt(internEcts)}</td></tr>
+        <tr><td>… internship block (indivisible, ${parallel?"running alongside a term":"one whole term"})</td><td>${fmt(internEcts)}</td></tr>
         <tr><td>… coursework + thesis to distribute</td><td>${fmt(course)}</td></tr>
         <tr><td>Terms available to ST 2028</td><td>${twoYearTerms.length}</td></tr>
-        <tr><td>… of which usable exam periods (internship takes one)</td><td>${courseTerms4}</td></tr>
+        <tr><td>… of which usable exam periods ${parallel?"(internship runs alongside)":"(internship takes one)"}</td><td>${courseTerms4}</td></tr>
         <tr class="total"><td>Required load per exam period</td><td>${fmt(per4)} ECTS</td></tr>
         <tr><td>Modules still to sit: written exams / assignments &amp; seminars</td><td>${nWritten} / ${nPapers}</td></tr>
       </tbody>
     </table>
     ${verdict}
+    ${lever}
     <h3 style="margin-top:12px">Best possible 4-term distribution (auto-planned, load-balanced)</h3>
     <table>
       <thead><tr><th>Term</th><th>ECTS</th><th>Written exams</th><th>Assignments</th><th>Band</th></tr></thead>
@@ -732,8 +820,9 @@ function autoPlanReport(){
     plans.forEach(p=>{
       if(!p.terms.includes(t)){ rows += `<td class="muted">—</td>`; return; }
       const l=p.load[t];
-      const note = t===p.internTerm ? " internship" : (t===p.thesisTerm ? " incl. thesis" : "");
-      rows += `<td><span class="pill ${band(l.ects)}">${fmt(l.ects)} ECTS</span><br>` +
+      const basis = p.parallel && l.intern>0 ? l.course : l.ects;
+      const note = t===p.internTerm ? (p.parallel?" + internship alongside":" internship") : (t===p.thesisTerm ? " incl. thesis" : "");
+      rows += `<td><span class="pill ${band(basis)}">${fmt(basis)} ECTS</span><br>` +
               `<span class="small muted">${l.written} exam${l.written===1?"":"s"} · ` +
               `${l.assignments} paper${l.assignments===1?"":"s"}${note}</span></td>`;
     });
@@ -752,9 +841,11 @@ function autoPlanReport(){
       <span id="planSliderVal" class="lab">${target} → ${PLAN_TERMS[target-1]} (sem ${SEMESTER[PLAN_TERMS[target-1]]})</span>
       <button class="primary" id="btnApplyPlan">Apply this plan</button>
     </div>
-    <p class="small muted">Retakes are pinned to their fixed windows first, the internship gets a term of its own,
+    <p class="small muted">Retakes are pinned to their fixed windows first, the internship
+    ${state.internParallel?"runs alongside its term (so no exam period is lost to it)":"gets a term of its own"},
     the thesis sits in the final term after it, and the rest is balanced by ECTS while keeping written exams and
-    assignment-based modules mixed rather than clustered.</p>
+    assignment-based modules mixed rather than clustered. Module cycle never constrains placement — every module may be
+    taken in either season.</p>
     <table><thead>${head}</thead><tbody>${rows}${foot}</tbody></table>
     <p class="small muted">6 terms (ST 2029) is shown for completeness only: anything <i>first attempted</i> there breaks the
     PO 217B deadline of ${DEADLINE_TERM}. ST 2029 is available for retakes, not for new subjects.</p>
@@ -821,11 +912,13 @@ function renderTerms(){
   });
   PLAN_TERMS.forEach(t=>{
     const l = termLoad(t);
-    const b = band(l.ects);
-    const intern = l.mods.some(m=>m.kind==="internship");
+    const basis = loadBasis(l);
+    const b = band(basis);
+    const intern = l.intern>0;
+    const alongside = intern && state.internParallel && l.course>0;
     cards.push(`<div class="term ${b}">
       <div class="t-name">${t} <span class="t-sem">sem ${SEMESTER[t]}${t===DEADLINE_TERM?" · deadline":""}</span></div>
-      <div class="t-ects">${fmt(l.ects)}<span> ECTS</span></div>
+      <div class="t-ects">${fmt(basis)}<span> ECTS${alongside?` + ${fmt(l.intern)} internship`:""}</span></div>
       <div class="t-line">${l.written} written exam${l.written===1?"":"s"} · ${l.assignments} assignment${l.assignments===1?"":"s"}/seminar${l.assignments===1?"":"s"}${intern?" · internship":""}</div>
       <div class="t-band">${bandLabel(l.ects)}</div></div>`);
   });
@@ -953,11 +1046,18 @@ document.getElementById("btnClearTerms").addEventListener("click",()=>{
 
 document.getElementById("btnReset").addEventListener("click",()=>{
   if(!confirm("Reset everything back to the seeded transcript data? Your current plan will be lost.")) return;
-  state = {modules:seed(), targetTerms:5, filterStatus:"all", search:""};
+  state = {modules:seed(), targetTerms:5, filterStatus:"all", search:"", internParallel:false};
   document.getElementById("fStatus").value="all";
   document.getElementById("fSearch").value="";
+  document.getElementById("chkParallel").checked=false;
   document.getElementById("reportSection").classList.add("hidden");
   save(); renderAll();
+});
+
+document.getElementById("chkParallel").addEventListener("change",e=>{
+  state.internParallel = e.target.checked;
+  save(); renderAll();
+  if(!document.getElementById("reportSection").classList.contains("hidden")) feasibilityReport();
 });
 
 document.getElementById("fStatus").addEventListener("change",e=>{ state.filterStatus=e.target.value; save(); renderTable(); });
@@ -1016,6 +1116,8 @@ function buildPrint(){
         <tr><td>ECTS remaining</td><td>${fmt(t.allRemaining)}</td><td>of which unassigned</td><td>${fmt(t.unassigned)}</td></tr>
         <tr><td>ECTS planned into terms</td><td>${fmt(t.planned)}</td><td>Projected graduation</td><td>${t.grad?t.grad+" (sem "+SEMESTER[t.grad]+")":"—"}</td></tr>
       </table>
+      ${state.internParallel?`<div class="p-warn"><b>Assumption:</b> the 18-week internship runs alongside a lecture term rather than
+        consuming one. Confirm with the ECRI Studienberatung — without it this plan needs one term more.</div>`:""}
       ${errs.length?`<div class="p-warn"><b>${errs.length} unresolved planning problem${errs.length>1?"s":""}</b> — see the Validation panel on screen.</div>`:""}
       <div class="p-warn">Printed ${new Date().toLocaleDateString()}. Confirm cycles, timetable and internship entry requirements
       against the current PO 217B Studienverlaufsplan and with the ECRI Studienberatung.</div>
@@ -1055,6 +1157,7 @@ window.addEventListener("beforeprint", buildPrint);
 // restore the filter controls so the table and the toolbar never disagree after a reload
 document.getElementById("fStatus").value = state.filterStatus || "all";
 document.getElementById("fSearch").value = state.search || "";
+document.getElementById("chkParallel").checked = !!state.internParallel;
 renderAll();
 </script>
 </body>
