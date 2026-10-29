@@ -187,6 +187,29 @@ table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weigh
 .seg.mini{grid-column:1/-1;gap:5px}
 .seg.mini button{flex:1;min-width:0;min-height:36px;font-size:11.5px;border-radius:7px}
 .seg.mini button.off[aria-pressed="true"]{background:var(--fg3);border-color:var(--fg3);color:var(--bg)}
+#printHead{display:none}
+
+/* Druck / PDF — Nachweis für Arbeitgeber */
+@media print{
+  :root{--bg:#fff;--bg2:#fff;--bg3:#fff;--line:#bbb;--fg:#000;--fg2:#333;--fg3:#666}
+  body{padding:0;background:#fff;color:#000}
+  /* privat bzw. interaktiv — gehört nicht auf den Nachweis */
+  header,nav,.modal,.toast,.chk,.seg,.btn,#planBalBox,#planPrint,#moneyCard,
+  #planYearRow{display:none!important}
+  main{max-width:none;padding:0}
+  .card{border:1px solid #bbb;break-inside:avoid;margin-bottom:10px;padding:10px}
+  .note{break-inside:avoid}
+  details{break-inside:avoid}
+  details>summary{list-style:none}
+  .wk,.planrow,.pwrow{break-inside:avoid}
+  .pwrow{grid-template-columns:1fr auto}
+  .planrow{grid-template-columns:1fr 74px}
+  #printHead{display:block;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #000}
+  #printHead h2{font-size:17px;margin:0 0 3px;color:#000;text-transform:none;letter-spacing:0}
+  #printHead .tiny{color:#333}
+  .en{color:#666}
+  a{text-decoration:none;color:#000}
+}
 .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2);cursor:pointer}
 .chk input{width:20px;height:20px;min-height:20px;flex:0 0 auto;accent-color:var(--acc)}
 </style>
@@ -333,9 +356,14 @@ table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weigh
 
 <!-- ══════════════ PLAN ══════════════ -->
 <section id="v-plan" hidden>
+  <div id="printHead">
+    <h2>Arbeitstage-Nachweis <span id="phYear"></span> · §16b AufenthG</h2>
+    <div class="tiny">Höchstens <span id="phLimit">140</span> Arbeitstage pro Kalenderjahr ·
+      Günstigkeitsprüfung je ISO-Kalenderwoche · Stand <span id="phDate"></span></div>
+  </div>
   <div class="card">
     <h2>Jahresplanung <span class="en">(year plan — what it costs in days)</span></h2>
-    <div class="row" style="align-items:center;gap:10px;margin-bottom:10px">
+    <div class="row" id="planYearRow" style="align-items:center;gap:10px;margin-bottom:10px">
       <div style="flex:0 0 auto"><label style="margin:0">Planjahr</label></div>
       <div><select id="planYear"></select></div>
     </div>
@@ -364,11 +392,12 @@ table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weigh
       TZ = Teilzeit <span class="en">(part-time)</span> · VZ = Vollzeit <span class="en">(full-time)</span> · — = nicht arbeiten.
       Stunden pro Modus änderst du in den Einstellungen.
     </div>
+    <button class="btn sm" id="planPrint" style="width:100%;margin-top:10px">🖨️ Drucken / als PDF speichern <span class="en">(for your employer)</span></button>
   </div>
 
   <div id="planVerdict"></div>
 
-  <div class="card">
+  <div class="card" id="moneyCard">
     <h2>Monate: Tage &amp; Geld <span class="en">(days &amp; money per month)</span></h2>
     <div class="scrollx"><div id="planTable"></div></div>
     <div class="tiny muted" style="margin-top:10px">
@@ -583,7 +612,9 @@ const DEFAULT_STATE = {
   version: 2,
   theme: 'dark',
   settings: {
-    startBalance: 87.5,   // alle Arbeitstage Jan–Okt 2026 — eigene Zahl eintragen
+    /* Verbrauch Januar–Oktober 2026. 140 − 108 = 32 Tage Rest: genau
+       1 Monat November in Teilzeit (10,0) + 1 Monat Dezember in Vollzeit (22,0). */
+    startBalance: 108,
     balanceYear: 2026,
     balanceWeek: 45,      // ab KW 45 (2.11.2026) wird einzeln geplant/erfasst
     limit: 140,
@@ -601,8 +632,9 @@ const DEFAULT_STATE = {
         2026: ['','','','','','','','','','','tz','vz'],
         [SEED_PLAN_YEAR]: SEED_PLAN.slice()
       },
-      /* Einzelne Wochen schlagen den Monatsmodus: November = 1 Woche Vollzeit, dann 3 Wochen Teilzeit */
-      weeks:  { '2026-45': 'vz' },
+      /* Einzelne Wochen schlagen den Monatsmodus (KW-Schlüssel "Jahr-KW").
+         Grundfall: November komplett Teilzeit, Dezember komplett Vollzeit = exakt 140. */
+      weeks:  {},
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
@@ -1481,11 +1513,17 @@ function renderPlan(){
 
   const c = planCompute(planYear, planUseReal);
 
+  $('#phYear').textContent  = planYear;
+  $('#phLimit').textContent = fmt(st.limit);
+  $('#phDate').textContent  = deDate(todayUTC());
+
   /* ── Monatszeilen mit Tagen ── */
   $('#planRows').innerHTML = c.months.map(m => {
     const hot = m.weeks.some(w => w.blocked);
     return `<div class="planrow">
-      <div class="pm">${MONTHS[m.i]}<span>${MONTHS_EN[m.i]}${m.mode ? ' · ' + eur(P.modes[m.mode].pay) : ''}</span></div>
+      <div class="pm">${MONTHS[m.i]}<span>${MONTHS_EN[m.i]} · ${
+        m.weeks.length && m.weeks.every(w => w.covered) ? 'im Startsaldo enthalten'
+        : (m.mode ? P.modes[m.mode].label + ' · ' + eur(P.modes[m.mode].pay) : 'frei')}</span></div>
       <div class="seg">
         <button data-m="${m.i}" data-v=""   aria-pressed="${!m.mode}">—</button>
         <button class="tz" data-m="${m.i}" data-v="tz" aria-pressed="${m.mode === 'tz'}">TZ</button>
@@ -1640,6 +1678,13 @@ function renderPlan(){
 }
 $('#planYear').onchange = () => { planYear = +$('#planYear').value; renderPlan(); };
 $('#planReal').onchange = () => { planUseReal = $('#planReal').checked; renderPlan(); };
+$('#planPrint').onclick = () => {
+  const ds = $$('#planWeeks details'), prev = ds.map(d => d.open);
+  ds.forEach(d => d.open = true);                    // alles aufklappen, damit es mitgedruckt wird
+  const restore = () => { ds.forEach((d,i) => d.open = prev[i]); window.removeEventListener('afterprint', restore); };
+  window.addEventListener('afterprint', restore);
+  setTimeout(() => window.print(), 60);
+};
 $('#planBal').onchange = () => {
   const v = parseFloat(String($('#planBal').value).replace(',','.'));
   if (isFinite(v)) { S.settings.startBalance = Math.max(0, v); save(); }
