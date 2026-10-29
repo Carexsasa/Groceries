@@ -159,6 +159,26 @@ ul.alts li+li{margin-top:6px}
 .per input,.per select{min-height:42px;padding:8px;font-size:14px}
 .per .x{background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--bad);min-width:40px;min-height:42px;cursor:pointer;font-size:16px}
 hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
+
+/* Planer */
+.planrow{display:grid;grid-template-columns:1fr auto 74px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.planrow:last-child{border-bottom:0}
+.planrow .pm{font-size:14px;font-weight:600;min-width:0}
+.planrow .pm span{display:block;font-size:10.5px;color:var(--fg3);font-weight:400}
+.planrow .pd{text-align:right;font-size:16px;font-weight:700}
+.planrow .pd span{display:block;font-size:9.5px;color:var(--fg3);font-weight:400;letter-spacing:0}
+.seg button.tz[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg button.vz[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#fff}
+table.money{width:100%;border-collapse:collapse;font-size:12px}
+table.money th,table.money td{padding:5px 3px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+table.money th:first-child,table.money td:first-child{text-align:left}
+table.money th{color:var(--fg3);font-weight:600;font-size:10.5px}
+table.money td.hot{color:var(--orange);font-weight:700}
+table.money input{width:58px;min-height:30px;padding:3px 5px;font-size:12px;text-align:right}
+table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weight:700;padding-top:7px}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2);cursor:pointer}
+.chk input{width:20px;height:20px;min-height:20px;flex:0 0 auto;accent-color:var(--acc)}
 </style>
 </head>
 <body>
@@ -301,6 +321,45 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
   <div id="weekList"></div>
 </section>
 
+<!-- ══════════════ PLAN ══════════════ -->
+<section id="v-plan" hidden>
+  <div class="card">
+    <h2>Jahresplanung <span class="en">(year plan — what it costs in days)</span></h2>
+    <div class="row" style="align-items:center;gap:10px;margin-bottom:10px">
+      <div style="flex:0 0 auto"><label style="margin:0">Planjahr</label></div>
+      <div><select id="planYear"></select></div>
+    </div>
+    <label class="chk" style="margin-bottom:10px">
+      <input type="checkbox" id="planReal" checked>
+      <span>Bereits erfasste Tage berücksichtigen <span class="en">(logged days win over the plan)</span></span>
+    </label>
+    <div id="planRows"></div>
+    <div class="tiny muted" style="margin-top:10px">
+      TZ = Teilzeit <span class="en">(part-time)</span> · VZ = Vollzeit <span class="en">(full-time)</span> · — = nicht arbeiten.
+      Stunden pro Modus änderst du in den Einstellungen.
+    </div>
+  </div>
+
+  <div id="planVerdict"></div>
+
+  <div class="card">
+    <h2>Monate: Tage &amp; Geld <span class="en">(days &amp; money per month)</span></h2>
+    <div class="scrollx"><div id="planTable"></div></div>
+    <div class="tiny muted" style="margin-top:10px">
+      Gerechnet wird <b>pro Kalenderwoche</b> (so schreibt es die Günstigkeitsprüfung vor). Für die Monatsanzeige
+      wird jede Woche dem Monat zugeordnet, in dem ihr <b>Donnerstag</b> liegt — deshalb passt die Summe der
+      Monatswerte exakt zum Jahreswert, einzelne Monate können aber eine Woche mehr oder weniger enthalten.
+      <span class="en">(weeks are the unit of calculation; months are display only)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Wochen im Plan <span class="en">(every planned week)</span></h2>
+    <div class="tiny muted" style="margin:-4px 0 10px">Monat antippen für die einzelnen Wochen. <span class="en">(tap a month)</span></div>
+    <div id="planWeeks"></div>
+  </div>
+</section>
+
 <!-- ══════════════ EINSTELLUNGEN ══════════════ -->
 <section id="v-set" hidden>
   <div class="card">
@@ -338,6 +397,30 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
   </div>
 
   <div class="card">
+    <h2>Arbeitsmodelle für den Plan <span class="en">(what TZ and VZ mean)</span></h2>
+    <div class="tiny muted" style="margin:-4px 0 10px">
+      Damit rechnet die Jahresplanung. <span class="en">(the planner turns these into hours per day)</span>
+    </div>
+    <h3 style="color:var(--ok)">Teilzeit (TZ)</h3>
+    <div class="grid3">
+      <div><label for="tzH">Std./Tag</label><input type="number" id="tzH" inputmode="decimal" step="0.5" min="0" max="24"></div>
+      <div><label for="tzD">Tage/Woche</label><input type="number" id="tzD" inputmode="numeric" step="1" min="0" max="7"></div>
+      <div><label for="tzP">€ / Monat</label><input type="number" id="tzP" inputmode="numeric" step="10" min="0"></div>
+    </div>
+    <h3 style="color:var(--orange)">Vollzeit (VZ)</h3>
+    <div class="grid3">
+      <div><label for="vzH">Std./Tag</label><input type="number" id="vzH" inputmode="decimal" step="0.5" min="0" max="24"></div>
+      <div><label for="vzD">Tage/Woche</label><input type="number" id="vzD" inputmode="numeric" step="1" min="0" max="7"></div>
+      <div><label for="vzP">€ / Monat</label><input type="number" id="vzP" inputmode="numeric" step="10" min="0"></div>
+    </div>
+    <h3>Geld <span class="en">(money)</span></h3>
+    <div class="grid2">
+      <div><label for="plExp">Ausgaben € / Monat</label><input type="number" id="plExp" inputmode="numeric" step="10" min="0"></div>
+      <div><label for="plSav">Startguthaben €</label><input type="number" id="plSav" inputmode="numeric" step="10"></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>Vorlesungszeiten <span class="en">(lecture periods)</span></h2>
     <div class="tiny muted" style="margin:-4px 0 10px">
       Spätere Zeilen überschreiben frühere bei Überschneidung. Nicht abgedeckte Tage gelten als
@@ -347,6 +430,12 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
     <div class="grid2" style="margin-top:10px">
       <button class="btn sm" id="perAdd" style="width:100%">+ Zeitraum</button>
       <button class="btn sm ghost" id="perReset" style="width:100%">Standard wiederherstellen</button>
+    </div>
+    <button class="btn sm" id="perShift" style="width:100%;margin-top:8px">↻ Nächstes Studienjahr schätzen (+1 Jahr)</button>
+    <div class="tiny muted" style="margin-top:6px">
+      Kopiert das letzte Studienjahr um ein Jahr nach vorn — eine <b>Schätzung</b>, die du mit den echten
+      Semesterterminen deiner Hochschule überschreiben solltest.
+      <span class="en">(estimate; replace with your university's real dates)</span>
     </div>
   </div>
 
@@ -390,6 +479,7 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:14px 0}
   <button data-view="dash"   aria-current="true"><span class="ic">📊</span>Übersicht</button>
   <button data-view="add"><span class="ic">➕</span>Erfassen</button>
   <button data-view="weeks"><span class="ic">🗓️</span>Wochen</button>
+  <button data-view="plan"><span class="ic">🧭</span>Plan</button>
   <button data-view="set"><span class="ic">⚙️</span>Einstell.</button>
 </nav>
 
@@ -455,8 +545,14 @@ const DEFAULT_PERIODS = [
   { start:'2026-10-01', end:'2027-01-22', type:'inside'  },
   { start:'2026-12-24', end:'2027-01-06', type:'outside' }
 ];
+const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+/* Monatsplan aus der eigenen Kalkulation: Jan TZ, Feb–Mär VZ, Apr–Mai TZ, Jun–Sep VZ, Okt–Nov TZ, Dez VZ */
+const SEED_PLAN = ['tz','vz','vz','tz','tz','vz','vz','vz','vz','tz','tz','vz'];
+const SEED_PLAN_YEAR = 2027;
+
 const DEFAULT_STATE = {
-  version: 1,
+  version: 2,
   theme: 'dark',
   settings: {
     startBalance: 87.5,
@@ -464,7 +560,17 @@ const DEFAULT_STATE = {
     balanceWeek: 34,
     limit: 140,
     siLimit: 26,
-    periods: DEFAULT_PERIODS.map(p => ({...p}))
+    periods: DEFAULT_PERIODS.map(p => ({...p})),
+    plan: {
+      modes: {
+        tz: { label:'Teilzeit', short:'TZ', hoursPerDay:4, daysPerWeek:5, pay:1300 },
+        vz: { label:'Vollzeit', short:'VZ', hoursPerDay:8, daysPerWeek:5, pay:2000 }
+      },
+      expenses: 830,
+      startSavings: 5280,
+      years:  { [SEED_PLAN_YEAR]: SEED_PLAN.slice() },
+      extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
+    }
   },
   entries: {}     // "YYYY-MM-DD" -> {type:'work'|'urlaub'|'krank', hours:Number}
 };
@@ -494,6 +600,31 @@ function normalise(o){
           .filter(p => p && /^\d{4}-\d{2}-\d{2}$/.test(p.start||'') && /^\d{4}-\d{2}-\d{2}$/.test(p.end||''))
           .map(p => ({ start:p.start, end:p.end, type: p.type === 'inside' ? 'inside' : 'outside' }));
         if (ps.length) s.settings.periods = ps;
+      }
+      if (t.plan && typeof t.plan === 'object'){
+        const P = s.settings.plan, q = t.plan;
+        if (isFinite(q.expenses))     P.expenses     = +q.expenses;
+        if (isFinite(q.startSavings)) P.startSavings = +q.startSavings;
+        if (q.modes && typeof q.modes === 'object'){
+          for (const id of ['tz','vz']){
+            const m = q.modes[id]; if (!m) continue;
+            if (isFinite(m.hoursPerDay)) P.modes[id].hoursPerDay = Math.max(0, Math.min(24, +m.hoursPerDay));
+            if (isFinite(m.daysPerWeek)) P.modes[id].daysPerWeek = Math.max(0, Math.min(7, Math.round(+m.daysPerWeek)));
+            if (isFinite(m.pay))         P.modes[id].pay         = +m.pay;
+          }
+        }
+        if (q.years && typeof q.years === 'object'){
+          P.years = {};
+          for (const [y, arr] of Object.entries(q.years)){
+            if (!/^\d{4}$/.test(y) || !Array.isArray(arr)) continue;
+            P.years[y] = Array.from({length:12}, (_,i) => (arr[i] === 'tz' || arr[i] === 'vz') ? arr[i] : '');
+          }
+        }
+        if (q.extras && typeof q.extras === 'object'){
+          P.extras = {};
+          for (const [k, v] of Object.entries(q.extras))
+            if (/^\d{4}-\d{1,2}$/.test(k) && isFinite(v)) P.extras[k] = +v;
+        }
       }
     }
     if (o.entries && typeof o.entries === 'object'){
@@ -675,7 +806,7 @@ $('#themeBtn').onclick = () => { S.theme = S.theme === 'light' ? 'dark' : 'light
 let view = 'dash';
 function show(v){
   view = v;
-  for (const id of ['dash','add','weeks','set']) $('#v-'+id).hidden = (id !== v);
+  for (const id of ['dash','add','weeks','plan','set']) $('#v-'+id).hidden = (id !== v);
   $$('nav button').forEach(b => b.setAttribute('aria-current', String(b.dataset.view === v)));
   window.scrollTo(0,0);
   render();
@@ -744,6 +875,17 @@ function renderDash(){
   if (flagged.length){
     const lost = Math.round(flagged.reduce((a,w) => a + w.saving, 0)*100)/100;
     note += `<div class="note orange" style="margin-top:8px"><b>${flagged.length} Woche(n)</b> in der Vorlesungszeit über 20 h — dadurch entfiel die Pauschale und es wurden <b>${fmt(lost)} Tage extra</b> berechnet. <span class="en">(cost of exceeding 20 h in lecture weeks)</span></div>`;
+  }
+  // Kurzblick auf die Jahresplanung, sofern für ein anderes Jahr etwas geplant ist
+  for (const py of Object.keys(S.settings.plan.years).map(Number).sort()){
+    if (py === selYear || !S.settings.plan.years[py].some(m => m)) continue;
+    const pc = planCompute(py, true);
+    const o = Math.round((pc.used - pc.limit)*100)/100;
+    note += `<div class="note ${o > 0 ? 'bad' : 'ok'}" style="margin-top:8px">
+      <b>Plan ${py}:</b> ${fmt(pc.used)} von ${fmt(pc.limit)} Tagen${o > 0 ? ` — <b>${fmt(o)} Tage zu viel</b>` : ` — ${fmt(-o)} Tage Puffer`}
+      ${pc.over20 > S.settings.siLimit ? `, ${pc.over20} Wochen über 20 h (max. ${S.settings.siLimit})` : ''}.
+      <span class="en">(tap “Plan”)</span></div>`;
+    break;
   }
   $('#dashNote').innerHTML = note;
 
@@ -1068,6 +1210,9 @@ function renderSettings(){
   $('#sBalWeek').value = st.balanceWeek;
   $('#sLimit').value = st.limit;
   $('#sSi').value = st.siLimit;
+  $('#tzH').value = st.plan.modes.tz.hoursPerDay; $('#tzD').value = st.plan.modes.tz.daysPerWeek; $('#tzP').value = st.plan.modes.tz.pay;
+  $('#vzH').value = st.plan.modes.vz.hoursPerDay; $('#vzD').value = st.plan.modes.vz.daysPerWeek; $('#vzP').value = st.plan.modes.vz.pay;
+  $('#plExp').value = st.plan.expenses; $('#plSav').value = st.plan.startSavings;
 
   $('#perList').innerHTML = st.periods.map((p,i) => `
     <div class="per">
@@ -1101,10 +1246,54 @@ bind('#sBalYear','balanceYear',2000,2100);
 bind('#sBalWeek','balanceWeek',1,53);
 bind('#sLimit','limit',1,10000);
 bind('#sSi','siLimit',1,53);
+const bindMode = (sel, mode, key, min, max) => {
+  $(sel).onchange = () => {
+    let v = parseFloat(String($(sel).value).replace(',','.'));
+    if (!isFinite(v)) { render(); return; }
+    S.settings.plan.modes[mode][key] = Math.max(min, Math.min(max, v));
+    save(); render();
+  };
+};
+bindMode('#tzH','tz','hoursPerDay',0,24); bindMode('#tzD','tz','daysPerWeek',0,7); bindMode('#tzP','tz','pay',0,1e6);
+bindMode('#vzH','vz','hoursPerDay',0,24); bindMode('#vzD','vz','daysPerWeek',0,7); bindMode('#vzP','vz','pay',0,1e6);
+const bindPlan = (sel, key, min, max) => {
+  $(sel).onchange = () => {
+    let v = parseFloat(String($(sel).value).replace(',','.'));
+    if (!isFinite(v)) { render(); return; }
+    S.settings.plan[key] = Math.max(min, Math.min(max, v));
+    save(); render();
+  };
+};
+bindPlan('#plExp','expenses',0,1e6);
+bindPlan('#plSav','startSavings',-1e7,1e7);
 $('#perAdd').onclick = () => {
   const t = iso(todayUTC());
   S.settings.periods.push({ start:t, end:t, type:'inside' });
   save(); render();
+};
+/* Letztes Studienjahr um +1 Jahr fortschreiben (Schätzung) */
+const plusYear = d => {
+  const y = Number(d.slice(0,4)) + 1, rest = d.slice(4);
+  const cand = y + rest;
+  return isNaN(Date.parse(cand)) ? y + '-02-28' : cand;      // 29.02. abfangen
+};
+$('#perShift').onclick = async () => {
+  const ps = S.settings.periods;
+  if (!ps.length) return toast('Keine Zeiträume vorhanden');
+  const maxStart = ps.reduce((a,p) => p.start > a ? p.start : a, ps[0].start);
+  const cutoff = (Number(maxStart.slice(0,4)) - 1) + maxStart.slice(4);
+  const src = ps.filter(p => p.start >= cutoff);
+  const add = src.map(p => ({ start: plusYear(p.start), end: plusYear(p.end), type: p.type }))
+                 .filter(n => !ps.some(p => p.start === n.start && p.end === n.end && p.type === n.type));
+  if (!add.length) return toast('Schon vorhanden');
+  const html = `<div class="tiny">Folgende Zeiträume werden angehängt — bitte danach mit den echten
+    Semesterterminen abgleichen:</div><table class="dbg" style="margin-top:8px">
+    ${add.map(n => `<tr><td>${deDate(ymd(n.start))} – ${deDate(ymd(n.end))}</td>
+      <td class="${n.type === 'inside' ? 'lp-in' : 'lp-out'}">${n.type === 'inside' ? 'Vorlesung' : 'frei'}</td></tr>`).join('')}
+    </table>`;
+  if (!await ask('Studienjahr fortschreiben?', html, 'Anhängen')) return;
+  S.settings.periods = ps.concat(add);
+  save(); render(); toast(add.length + ' Zeiträume ergänzt');
 };
 $('#perReset').onclick = async () => {
   if (!await ask('Zurücksetzen?', '<div class="tiny">Die Vorlesungszeiten werden auf die Standardwerte zurückgesetzt. Deine Arbeitstage bleiben erhalten.</div>', 'Zurücksetzen')) return;
@@ -1113,7 +1302,7 @@ $('#perReset').onclick = async () => {
 };
 
 /* Export / Import */
-function exportJSON(){ return JSON.stringify({ version:1, exported: new Date().toISOString(), settings: S.settings, entries: S.entries }, null, 2); }
+function exportJSON(){ return JSON.stringify({ version:2, exported: new Date().toISOString(), settings: S.settings, entries: S.entries }, null, 2); }
 $('#expFile').onclick = () => {
   const blob = new Blob([exportJSON()], {type:'application/json'});
   const url = URL.createObjectURL(blob), a = document.createElement('a');
@@ -1157,6 +1346,199 @@ $('#wipe').onclick = async () => {
 };
 
 /* ══════════════════════════════════════════════════════════════════
+   Jahresplanung — Monatsmodell (TZ/VZ) in Arbeitstage umrechnen
+   Year planner: turns a Part-Time / Full-Time month plan into days.
+   ══════════════════════════════════════════════════════════════════ */
+let planYear = Math.max(SEED_PLAN_YEAR, isoWeekOf(todayUTC()).year);
+let planUseReal = true;
+
+const planMonths = y => (S.settings.plan.years[y] || (S.settings.plan.years[y] = Array(12).fill(''))) ;
+const eur = n => (Math.round(n)).toLocaleString('de-DE') + ' €';
+
+/* Synthetische Tageseinträge aus dem Monatsplan.
+   Jeder Tag folgt dem Plan SEINES eigenen Kalenderjahres, damit Wochen
+   über den Jahreswechsel korrekt gefüllt werden. Echte Einträge gewinnen. */
+function planEntries(year, useReal){
+  const e = useReal ? Object.assign({}, S.entries) : {};
+  const first = mondayOfWeek(year, 1), last = addD(mondayOfWeek(year, weeksInYear(year)), 6);
+  for (let d = first; d <= last; d = addD(d, 1)){
+    const k = iso(d);
+    if (useReal && S.entries[k]) continue;              // Ist schlägt Plan
+    const arr = S.settings.plan.years[d.getUTCFullYear()];
+    if (!arr) continue;
+    const mode = arr[d.getUTCMonth()];
+    if (!mode) continue;
+    const m = S.settings.plan.modes[mode];
+    const dow = (d.getUTCDay() + 6) % 7;                // Mo = 0
+    if (dow < m.daysPerWeek && m.hoursPerDay > 0) e[k] = { type:'work', hours: m.hoursPerDay };
+  }
+  return e;
+}
+
+function planCompute(year, useReal){
+  const ent = planEntries(year, useReal);
+  const weeks = [];
+  for (let w = 1; w <= weeksInYear(year); w++) weeks.push(computeWeek(mondayOfWeek(year, w), ent));
+
+  const months = MONTHS.map((_, i) => ({ i, mode: planMonths(year)[i], weeks: [], days: 0, hours: 0 }));
+  for (const w of weeks){                               // Anzeige: Woche → Monat ihres Donnerstags
+    const m = months[addD(w.mon, 3).getUTCMonth()];
+    m.weeks.push(w); m.days += w.charged; m.hours += w.totalHours;
+  }
+  const r = n => Math.round(n*100)/100;
+  months.forEach(m => { m.days = r(m.days); m.hours = r(m.hours); });
+
+  const base    = year === S.settings.balanceYear ? S.settings.startBalance : 0;
+  const total   = r(weeks.reduce((a,w) => a + w.charged, 0));
+  const blocked = weeks.filter(w => w.blocked);
+  const extra   = r(blocked.reduce((a,w) => a + w.saving, 0));
+  const over20  = weeks.filter(w => w.over20).length;
+  const best    = r(weeks.reduce((a,w) => a + (w.workedDays ? Math.min(w.m1, 2.5) : 0), 0));
+
+  // nicht von Vorlesungszeiten abgedeckte Tage ⇒ gelten als vorlesungsfrei (optimistisch)
+  let uncovered = 0;
+  for (let d = new Date(Date.UTC(year,0,1)); d.getUTCFullYear() === year; d = addD(d,1))
+    if (!S.settings.periods.some(p => iso(d) >= p.start && iso(d) <= p.end)) uncovered++;
+
+  return { year, weeks, months, base, total, used: r(base + total), blocked, extra, over20,
+           bestCase: r(base + best), uncovered, limit: S.settings.limit };
+}
+
+function renderPlan(){
+  const st = S.settings, P = st.plan;
+  const years = [...new Set([
+    isoWeekOf(todayUTC()).year, isoWeekOf(todayUTC()).year + 1, SEED_PLAN_YEAR,
+    ...Object.keys(P.years).map(Number)
+  ])].sort((a,b) => a-b);
+  if (!years.includes(planYear)) planYear = years[0];
+  $('#planYear').innerHTML = years.map(y => `<option value="${y}"${y === planYear ? ' selected' : ''}>${y}</option>`).join('');
+  $('#planReal').checked = planUseReal;
+
+  const c = planCompute(planYear, planUseReal);
+
+  /* ── Monatszeilen mit Tagen ── */
+  $('#planRows').innerHTML = c.months.map(m => {
+    const hot = m.weeks.some(w => w.blocked);
+    return `<div class="planrow">
+      <div class="pm">${MONTHS[m.i]}<span>${MONTHS_EN[m.i]}${m.mode ? ' · ' + eur(P.modes[m.mode].pay) : ''}</span></div>
+      <div class="seg">
+        <button data-m="${m.i}" data-v=""   aria-pressed="${!m.mode}">—</button>
+        <button class="tz" data-m="${m.i}" data-v="tz" aria-pressed="${m.mode === 'tz'}">TZ</button>
+        <button class="vz" data-m="${m.i}" data-v="vz" aria-pressed="${m.mode === 'vz'}">VZ</button>
+      </div>
+      <div class="pd" style="color:${hot ? 'var(--orange)' : (m.days ? 'var(--fg)' : 'var(--fg3)')}">${fmt(m.days)}<span>Tage${hot ? ' ⚠︎' : ''}</span></div>
+    </div>`;
+  }).join('');
+  $$('#planRows button[data-m]').forEach(b => b.onclick = () => {
+    planMonths(planYear)[+b.dataset.m] = b.dataset.v;
+    save(); renderPlan();
+  });
+
+  /* ── Urteil ── */
+  const over = Math.round((c.used - c.limit)*100)/100;
+  const pct  = Math.max(0, Math.min(100, c.used/c.limit*100));
+  let v = `<div class="card">
+    <h2>Ergebnis ${c.year} <span class="en">(what the plan costs)</span></h2>
+    <div class="big" style="color:${over > 0 ? 'var(--bad)' : 'var(--ok)'}">${fmt(c.used)}<small> / ${fmt(c.limit)} Arbeitstage</small></div>
+    <div class="bar"><i class="used" style="width:${pct.toFixed(1)}%;background:${over > 0 ? 'var(--bad)' : 'var(--ok)'}"></i></div>
+    <div class="kpis">
+      <div class="kpi"><b style="color:${over > 0 ? 'var(--bad)' : 'var(--ok)'}">${over > 0 ? '+'+fmt(over) : fmt(-over)}</b><span>${over > 0 ? 'zu viel<br><span class="en">over</span>' : 'übrig<br><span class="en">left</span>'}</span></div>
+      <div class="kpi"><b style="color:${c.over20 > st.siLimit ? 'var(--bad)' : (c.over20 > st.siLimit-3 ? 'var(--orange)' : 'var(--fg)')}">${c.over20}</b><span>KW &gt; 20 h<br><span class="en">of ${st.siLimit}</span></span></div>
+      <div class="kpi"><b>${c.weeks.filter(w => w.workedDays > 0).length}</b><span>Arbeits-KW<br><span class="en">weeks</span></span></div>
+    </div>`;
+
+  if (over > 0)
+    v += `<div class="note bad" style="margin-top:12px"><b>Der Plan passt nicht.</b> Er verbraucht ${fmt(c.used)} Tage — das sind <b>${fmt(over)} Tage über dem Limit</b> von ${fmt(c.limit)}. So wie er steht, arbeitest du ${fmt(over)} Tage ohne Erlaubnis.</div>`;
+  else
+    v += `<div class="note ok" style="margin-top:12px"><b>Der Plan passt.</b> ${fmt(c.used)} von ${fmt(c.limit)} Tagen, <b>${fmt(-over)} Tage Puffer</b>.</div>`;
+
+  if (c.blocked.length){
+    const hotMonths = [...new Set(c.blocked.map(w => addD(w.mon,3).getUTCMonth()))].map(i => MONTHS[i]);
+    v += `<div class="note orange" style="margin-top:8px">
+      <b>Vollzeit in der Vorlesungszeit ist der Preistreiber.</b><br>
+      ${c.blocked.length} Woche(n) liegen in der Vorlesungszeit mit über 20 h — dort entfällt die Pauschale von 2,5 Tagen
+      und die Woche kostet den vollen taggenauen Wert. Das sind <b>${fmt(c.extra)} Tage extra</b>.<br>
+      Betroffene Monate: ${hotMonths.join(', ')}.<br>
+      Lägen dieselben Stunden in der vorlesungsfreien Zeit, käme der Plan auf <b>${fmt(c.bestCase)} Tage</b>.
+      <span class="en">(same hours, lecture-free: much cheaper)</span></div>`;
+  }
+
+  if (c.over20 > st.siLimit)
+    v += `<div class="note bad" style="margin-top:8px"><b>Werkstudentenprivileg gefährdet.</b> Der Plan enthält <b>${c.over20} Wochen über 20 h</b> in diesem Jahr — erlaubt sind ${st.siLimit}. Ab der ${st.siLimit+1}. Woche zahlst du volle Sozialversicherung (KV, PV, AV), nicht nur die Rentenversicherung.</div>`;
+  else if (c.over20 > st.siLimit - 3)
+    v += `<div class="note warn" style="margin-top:8px"><b>${c.over20} Wochen über 20 h</b> — die Grenze von ${st.siLimit} ist nah. <span class="en">(close to the limit)</span></div>`;
+
+  if (c.uncovered > 0)
+    v += `<div class="note warn" style="margin-top:8px"><b>${c.uncovered} Tage in ${c.year} sind von keiner Vorlesungszeit abgedeckt</b> und gelten deshalb als vorlesungsfrei — also als billig. Trage deine echten Semesterzeiten für ${c.year} in den Einstellungen nach, sonst ist diese Rechnung zu optimistisch. <span class="en">(add ${c.year} lecture periods, otherwise this is too optimistic)</span></div>`;
+
+  if (planYear === st.balanceYear)
+    v += `<div class="note info" style="margin-top:8px">Enthält den Startsaldo von ${fmt(st.startBalance)} Tagen (Stand KW ${st.balanceWeek}/${st.balanceYear}).</div>`;
+
+  v += `</div>`;
+  $('#planVerdict').innerHTML = v;
+
+  /* ── Monatstabelle: Tage und Geld ── */
+  let runDays = c.base, runSav = P.startSavings, sumPay = 0, sumExtra = 0;
+  const rows = c.months.map(m => {
+    const mode = m.mode ? P.modes[m.mode] : null;
+    const pay = mode ? mode.pay : 0;
+    const xk = planYear + '-' + m.i, x = P.extras[xk] || 0;
+    const surplus = pay + x - P.expenses;
+    runDays = Math.round((runDays + m.days)*100)/100;
+    runSav += surplus; sumPay += pay; sumExtra += x;
+    const hot = m.weeks.some(w => w.blocked);
+    return `<tr>
+      <td>${MONTHS[m.i].slice(0,3)}</td>
+      <td>${mode ? mode.short : '—'}</td>
+      <td>${fmtH(m.hours)}</td>
+      <td class="${hot ? 'hot' : ''}">${fmt(m.days)}${hot ? ' ⚠︎' : ''}</td>
+      <td><b>${fmt(runDays)}</b></td>
+      <td>${pay ? eur(pay) : '—'}</td>
+      <td><input type="number" step="10" data-x="${xk}" value="${x || ''}" placeholder="0"></td>
+      <td>${surplus >= 0 ? '+' : ''}${eur(surplus)}</td>
+      <td>${eur(runSav)}</td>
+    </tr>`;
+  }).join('');
+
+  $('#planTable').innerHTML = `<table class="money">
+    <tr><th>Monat</th><th>Modus</th><th>Std.</th><th>Tage</th><th>kum.</th><th>Lohn</th><th>Extra</th><th>Überschuss</th><th>Guthaben</th></tr>
+    ${rows}
+    <tr class="tot"><td>Σ</td><td></td><td>${fmtH(Math.round(c.months.reduce((a,m)=>a+m.hours,0)))}</td>
+      <td>${fmt(c.total)}</td><td>${fmt(c.used)}</td><td>${eur(sumPay)}</td><td>${eur(sumExtra)}</td>
+      <td>${eur(sumPay + sumExtra - P.expenses*12)}</td><td>${eur(runSav)}</td></tr>
+  </table>`;
+  $$('#planTable input[data-x]').forEach(inp => inp.onchange = () => {
+    const v = parseFloat(String(inp.value).replace(',','.'));
+    if (isFinite(v) && v !== 0) P.extras[inp.dataset.x] = v; else delete P.extras[inp.dataset.x];
+    save(); renderPlan();
+  });
+
+  /* ── Wochen je Monat ── */
+  $('#planWeeks').innerHTML = c.months.filter(m => m.weeks.some(w => w.workedDays > 0)).map(m => `
+    <details class="wk${m.weeks.some(w => w.blocked) ? ' flag' : ''}">
+      <summary>
+        <div class="wkmain">
+          <div class="wkt">${MONTHS[m.i]}</div>
+          <div class="wks">${m.mode ? P.modes[m.mode].label : 'frei'} · ${m.weeks.filter(w=>w.workedDays>0).length} KW · ${fmtH(m.hours)} h</div>
+        </div>
+        <div class="wkr"><b>${fmt(m.days)}</b><span>Tage</span></div>
+      </summary>
+      <div class="wkbody"><table class="dbg">
+        <tr><th>KW</th><th>Zeitraum</th><th class="n">h</th><th class="n">Methode</th><th class="n">Tage</th></tr>
+        ${m.weeks.map(w => `<tr${w.blocked ? ' style="color:var(--orange)"' : ''}>
+          <td>${w.iso.week}</td><td>${deShort(w.mon)}–${deShort(addD(w.mon,6))}</td>
+          <td class="n">${fmtH(w.totalHours)}</td>
+          <td class="n">${w.workedDays === 0 ? '—' : (w.method === 'M2' ? 'Pauschale' : (w.method === 'M1=M2' ? 'M1=M2' : 'taggenau'))}${w.blocked ? ' ⚠︎' : ''}</td>
+          <td class="n"><b>${fmt(w.charged)}</b></td></tr>`).join('')}
+      </table>
+      ${m.weeks.some(w => w.blocked) ? `<div class="note orange" style="margin-top:8px">⚠︎ = Vorlesungszeit mit über 20 h: Pauschale 2,5 entfällt, es zählt der taggenaue Wert.</div>` : ''}
+      </div>
+    </details>`).join('') || `<div class="tiny muted">Keine Arbeitsmonate geplant.</div>`;
+}
+$('#planYear').onchange = () => { planYear = +$('#planYear').value; renderPlan(); };
+$('#planReal').onchange = () => { planUseReal = $('#planReal').checked; renderPlan(); };
+
+/* ══════════════════════════════════════════════════════════════════
    Render-Dispatcher
    ══════════════════════════════════════════════════════════════════ */
 function render(){
@@ -1164,6 +1546,7 @@ function render(){
   if (view === 'dash')  renderDash();
   if (view === 'add')   { qInfo(); renderWeekEditor(); }
   if (view === 'weeks') renderWeeks();
+  if (view === 'plan')  renderPlan();
   if (view === 'set')   renderSettings();
 }
 
