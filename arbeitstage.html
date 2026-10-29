@@ -177,6 +177,16 @@ table.money td.hot{color:var(--orange);font-weight:700}
 table.money input{width:58px;min-height:30px;padding:3px 5px;font-size:12px;text-align:right}
 table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weight:700;padding-top:7px}
 .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pwrow{display:grid;grid-template-columns:1fr auto;gap:5px 8px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}
+.pwrow:last-child{border-bottom:0}
+.pwrow.hot{background:color-mix(in srgb,var(--orange) 9%,transparent);margin:0 -6px;padding-left:6px;padding-right:6px;border-radius:8px}
+.pwrow .pwi{font-size:13px;font-weight:600}
+.pwrow .pwi span{display:block;font-size:11px;color:var(--fg2);font-weight:400;margin-top:1px}
+.pwrow .pwd{font-size:16px;font-weight:700;text-align:right}
+.pwrow .pwd span{display:block;font-size:9.5px;color:var(--fg3);font-weight:400}
+.seg.mini{grid-column:1/-1;gap:5px}
+.seg.mini button{flex:1;min-width:0;min-height:36px;font-size:11.5px;border-radius:7px}
+.seg.mini button.off[aria-pressed="true"]{background:var(--fg3);border-color:var(--fg3);color:var(--bg)}
 .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2);cursor:pointer}
 .chk input{width:20px;height:20px;min-height:20px;flex:0 0 auto;accent-color:var(--acc)}
 </style>
@@ -333,6 +343,22 @@ table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weigh
       <input type="checkbox" id="planReal" checked>
       <span>Bereits erfasste Tage berücksichtigen <span class="en">(logged days win over the plan)</span></span>
     </label>
+    <div id="planBalBox" class="note info" style="margin-bottom:12px">
+      <div class="row" style="align-items:flex-end;gap:8px">
+        <div style="flex:2">
+          <label for="planBal" style="margin-bottom:4px">Startsaldo: Tage vor KW <span id="planBalWeek">45</span> <span class="en">(days already used)</span></label>
+          <input type="number" id="planBal" inputmode="decimal" step="0.5" min="0">
+        </div>
+        <div style="flex:1">
+          <label for="planBalFrom" style="margin-bottom:4px">ab KW</label>
+          <input type="number" id="planBalFrom" inputmode="numeric" step="1" min="1" max="53">
+        </div>
+      </div>
+      <div class="tiny" style="margin-top:7px;color:var(--fg2)">
+        Alles <b>vor</b> dieser Woche steckt in dieser Zahl. Bei KW 45 sind das Januar bis Oktober.
+        <span class="en">(everything before that week is this one number)</span>
+      </div>
+    </div>
     <div id="planRows"></div>
     <div class="tiny muted" style="margin-top:10px">
       TZ = Teilzeit <span class="en">(part-time)</span> · VZ = Vollzeit <span class="en">(full-time)</span> · — = nicht arbeiten.
@@ -380,8 +406,10 @@ table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weigh
         </div>
       </div>
       <div class="tiny muted">
-        Der Startsaldo deckt alles <b>vor</b> dieser KW ab. Ab dieser KW zählt nur noch, was du hier erfasst.
-        <span class="en">The balance covers everything before that week; logged weeks from that week on are added on top.</span>
+        Der Startsaldo deckt alles <b>vor</b> dieser KW ab. Ab dieser KW zählt nur noch, was du erfasst oder planst.<br>
+        Voreingestellt ist <b>KW 45/2026</b> = ab 2. November: Januar bis Oktober stecken damit komplett im Startsaldo,
+        November und Dezember werden einzeln geplant. Trage oben deine eigene Summe für Januar–Oktober ein.
+        <span class="en">The balance covers everything before that week — here: all of Jan–Oct 2026.</span>
       </div>
       <div class="grid2">
         <div>
@@ -555,9 +583,9 @@ const DEFAULT_STATE = {
   version: 2,
   theme: 'dark',
   settings: {
-    startBalance: 87.5,
+    startBalance: 87.5,   // alle Arbeitstage Jan–Okt 2026 — eigene Zahl eintragen
     balanceYear: 2026,
-    balanceWeek: 34,
+    balanceWeek: 45,      // ab KW 45 (2.11.2026) wird einzeln geplant/erfasst
     limit: 140,
     siLimit: 26,
     periods: DEFAULT_PERIODS.map(p => ({...p})),
@@ -568,7 +596,13 @@ const DEFAULT_STATE = {
       },
       expenses: 830,
       startSavings: 5280,
-      years:  { [SEED_PLAN_YEAR]: SEED_PLAN.slice() },
+      years: {
+        /* 2026: Jan–Okt stecken im Startsaldo, geplant werden nur November und Dezember */
+        2026: ['','','','','','','','','','','tz','vz'],
+        [SEED_PLAN_YEAR]: SEED_PLAN.slice()
+      },
+      /* Einzelne Wochen schlagen den Monatsmodus: November = 1 Woche Vollzeit, dann 3 Wochen Teilzeit */
+      weeks:  { '2026-45': 'vz' },
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
@@ -624,6 +658,11 @@ function normalise(o){
           P.extras = {};
           for (const [k, v] of Object.entries(q.extras))
             if (/^\d{4}-\d{1,2}$/.test(k) && isFinite(v)) P.extras[k] = +v;
+        }
+        if (q.weeks && typeof q.weeks === 'object'){
+          P.weeks = {};
+          for (const [k, v] of Object.entries(q.weeks))
+            if (/^\d{4}-\d{1,2}$/.test(k) && ['tz','vz','off'].includes(v)) P.weeks[k] = v;
         }
       }
     }
@@ -1358,15 +1397,24 @@ const eur = n => (Math.round(n)).toLocaleString('de-DE') + ' €';
 /* Synthetische Tageseinträge aus dem Monatsplan.
    Jeder Tag folgt dem Plan SEINES eigenen Kalenderjahres, damit Wochen
    über den Jahreswechsel korrekt gefüllt werden. Echte Einträge gewinnen. */
+const wkKey = mon => { const w = isoWeekOf(mon); return w.year + '-' + w.week; };
+
+/* Modus eines Tages: Wochen-Override schlägt Monatsmodus. '' = frei. */
+function modeOfDay(d){
+  const ov = S.settings.plan.weeks[wkKey(d)];
+  if (ov === 'off') return '';
+  if (ov) return ov;
+  const arr = S.settings.plan.years[d.getUTCFullYear()];
+  return arr ? (arr[d.getUTCMonth()] || '') : '';
+}
+
 function planEntries(year, useReal){
   const e = useReal ? Object.assign({}, S.entries) : {};
   const first = mondayOfWeek(year, 1), last = addD(mondayOfWeek(year, weeksInYear(year)), 6);
   for (let d = first; d <= last; d = addD(d, 1)){
     const k = iso(d);
     if (useReal && S.entries[k]) continue;              // Ist schlägt Plan
-    const arr = S.settings.plan.years[d.getUTCFullYear()];
-    if (!arr) continue;
-    const mode = arr[d.getUTCMonth()];
+    const mode = modeOfDay(d);
     if (!mode) continue;
     const m = S.settings.plan.modes[mode];
     const dow = (d.getUTCDay() + 6) % 7;                // Mo = 0
@@ -1378,30 +1426,38 @@ function planEntries(year, useReal){
 function planCompute(year, useReal){
   const ent = planEntries(year, useReal);
   const weeks = [];
-  for (let w = 1; w <= weeksInYear(year); w++) weeks.push(computeWeek(mondayOfWeek(year, w), ent));
+  for (let w = 1; w <= weeksInYear(year); w++){
+    const r = computeWeek(mondayOfWeek(year, w), ent);
+    r.covered = preBalance(r).covered;                  // steckt schon im Startsaldo
+    weeks.push(r);
+  }
 
   const months = MONTHS.map((_, i) => ({ i, mode: planMonths(year)[i], weeks: [], days: 0, hours: 0 }));
   for (const w of weeks){                               // Anzeige: Woche → Monat ihres Donnerstags
     const m = months[addD(w.mon, 3).getUTCMonth()];
-    m.weeks.push(w); m.days += w.charged; m.hours += w.totalHours;
+    m.weeks.push(w);
+    if (!w.covered){ m.days += w.charged; m.hours += w.totalHours; }
   }
   const r = n => Math.round(n*100)/100;
   months.forEach(m => { m.days = r(m.days); m.hours = r(m.hours); });
 
+  const live    = weeks.filter(w => !w.covered);        // zählt zusätzlich zum Startsaldo
   const base    = year === S.settings.balanceYear ? S.settings.startBalance : 0;
-  const total   = r(weeks.reduce((a,w) => a + w.charged, 0));
-  const blocked = weeks.filter(w => w.blocked);
+  const total   = r(live.reduce((a,w) => a + w.charged, 0));
+  const blocked = live.filter(w => w.blocked);
   const extra   = r(blocked.reduce((a,w) => a + w.saving, 0));
   const over20  = weeks.filter(w => w.over20).length;
-  const best    = r(weeks.reduce((a,w) => a + (w.workedDays ? Math.min(w.m1, 2.5) : 0), 0));
+  const best    = r(live.reduce((a,w) => a + (w.workedDays ? Math.min(w.m1, 2.5) : 0), 0));
 
   // nicht von Vorlesungszeiten abgedeckte Tage ⇒ gelten als vorlesungsfrei (optimistisch)
   let uncovered = 0;
   for (let d = new Date(Date.UTC(year,0,1)); d.getUTCFullYear() === year; d = addD(d,1))
     if (!S.settings.periods.some(p => iso(d) >= p.start && iso(d) <= p.end)) uncovered++;
 
-  return { year, weeks, months, base, total, used: r(base + total), blocked, extra, over20,
-           bestCase: r(base + best), uncovered, limit: S.settings.limit };
+  const used = r(base + total);
+  return { year, weeks, live, months, base, total, used, blocked, extra, over20,
+           bestCase: r(base + best), uncovered, limit: S.settings.limit,
+           left: r(S.settings.limit - used) };
 }
 
 function renderPlan(){
@@ -1413,6 +1469,15 @@ function renderPlan(){
   if (!years.includes(planYear)) planYear = years[0];
   $('#planYear').innerHTML = years.map(y => `<option value="${y}"${y === planYear ? ' selected' : ''}>${y}</option>`).join('');
   $('#planReal').checked = planUseReal;
+
+  // Startsaldo direkt hier bearbeitbar — nur sinnvoll im Saldo-Jahr
+  const isBalYear = planYear === st.balanceYear;
+  $('#planBalBox').style.display = isBalYear ? '' : 'none';
+  if (isBalYear){
+    $('#planBal').value = st.startBalance;
+    $('#planBalFrom').value = st.balanceWeek;
+    $('#planBalWeek').textContent = st.balanceWeek;
+  }
 
   const c = planCompute(planYear, planUseReal);
 
@@ -1451,6 +1516,28 @@ function renderPlan(){
     v += `<div class="note bad" style="margin-top:12px"><b>Der Plan passt nicht.</b> Er verbraucht ${fmt(c.used)} Tage — das sind <b>${fmt(over)} Tage über dem Limit</b> von ${fmt(c.limit)}. So wie er steht, arbeitest du ${fmt(over)} Tage ohne Erlaubnis.</div>`;
   else
     v += `<div class="note ok" style="margin-top:12px"><b>Der Plan passt.</b> ${fmt(c.used)} von ${fmt(c.limit)} Tagen, <b>${fmt(-over)} Tage Puffer</b>.</div>`;
+
+  /* ── Feinjustierung: wie viel Arbeit bzw. Freizeit fehlt bis exakt zum Limit ── */
+  const wkCost = (mode, inside) => {
+    const m = P.modes[mode], m1 = m.daysPerWeek * (m.hoursPerDay > 4 ? 1 : 0.5);
+    return (!inside || m.daysPerWeek * m.hoursPerDay <= 20) ? Math.min(m1, 2.5) : m1;
+  };
+  const vzIn = wkCost('vz', true), vzOut = wkCost('vz', false), tzIn = wkCost('tz', true);
+  const wks = (days, per) => per > 0 ? fmt(Math.round(days/per*100)/100) : '–';
+  const freeWeeks = c.live.filter(w => P.weeks[wkKey(w.mon)] === 'off').length;
+  v += `<div class="note info" style="margin-top:8px;line-height:1.65">
+    <b>Bis genau ${fmt(c.limit)} Tage${over > 0 ? ' zu viel' : ' frei'}: ${fmt(Math.abs(over))} Tage</b><br>
+    ${over > 0
+      ? `Um exakt auf ${fmt(c.limit)} zu landen, musst du <b>${fmt(over)} Tage weniger</b> arbeiten — das sind
+         <b>${wks(over, vzIn)} Wochen Vollzeit in der Vorlesungszeit</b> (je ${fmt(vzIn)} Tage),
+         ${wks(over, vzOut)} Wochen Vollzeit in der vorlesungsfreien Zeit (je ${fmt(vzOut)}) oder
+         ${wks(over, tzIn)} Wochen Teilzeit (je ${fmt(tzIn)}).`
+      : `Du könntest noch <b>${fmt(-over)} Tage</b> arbeiten — das sind
+         ${wks(-over, vzIn)} Wochen Vollzeit in der Vorlesungszeit (je ${fmt(vzIn)} Tage),
+         ${wks(-over, vzOut)} Wochen Vollzeit vorlesungsfrei (je ${fmt(vzOut)}) oder
+         ${wks(-over, tzIn)} Wochen Teilzeit (je ${fmt(tzIn)}).`}
+    ${freeWeeks ? `<br>Aktuell auf <b>frei</b> gestellt: ${freeWeeks} Woche(n).` : ''}
+    <br><span class="en">(set single weeks to “frei” below until this reads exactly ${fmt(c.limit)})</span></div>`;
 
   if (c.blocked.length){
     const hotMonths = [...new Set(c.blocked.map(w => addD(w.mon,3).getUTCMonth()))].map(i => MONTHS[i]);
@@ -1513,30 +1600,56 @@ function renderPlan(){
     save(); renderPlan();
   });
 
-  /* ── Wochen je Monat ── */
-  $('#planWeeks').innerHTML = c.months.filter(m => m.weeks.some(w => w.workedDays > 0)).map(m => `
-    <details class="wk${m.weeks.some(w => w.blocked) ? ' flag' : ''}">
+  /* ── Wochen je Monat: hier wird einzeln geplant ── */
+  const shown = c.months.filter(m => m.mode || m.weeks.some(w => w.workedDays > 0 || P.weeks[wkKey(w.mon)]));
+  $('#planWeeks').innerHTML = shown.map(m => `
+    <details class="wk${m.weeks.some(w => w.blocked) ? ' flag' : ''}"${m.weeks.some(w => P.weeks[wkKey(w.mon)]) ? ' open' : ''}>
       <summary>
         <div class="wkmain">
           <div class="wkt">${MONTHS[m.i]}</div>
-          <div class="wks">${m.mode ? P.modes[m.mode].label : 'frei'} · ${m.weeks.filter(w=>w.workedDays>0).length} KW · ${fmtH(m.hours)} h</div>
+          <div class="wks">${m.mode ? P.modes[m.mode].label : 'frei'} · ${m.weeks.filter(w => w.workedDays > 0 && !w.covered).length} KW · ${fmtH(m.hours)} h</div>
         </div>
         <div class="wkr"><b>${fmt(m.days)}</b><span>Tage</span></div>
       </summary>
-      <div class="wkbody"><table class="dbg">
-        <tr><th>KW</th><th>Zeitraum</th><th class="n">h</th><th class="n">Methode</th><th class="n">Tage</th></tr>
-        ${m.weeks.map(w => `<tr${w.blocked ? ' style="color:var(--orange)"' : ''}>
-          <td>${w.iso.week}</td><td>${deShort(w.mon)}–${deShort(addD(w.mon,6))}</td>
-          <td class="n">${fmtH(w.totalHours)}</td>
-          <td class="n">${w.workedDays === 0 ? '—' : (w.method === 'M2' ? 'Pauschale' : (w.method === 'M1=M2' ? 'M1=M2' : 'taggenau'))}${w.blocked ? ' ⚠︎' : ''}</td>
-          <td class="n"><b>${fmt(w.charged)}</b></td></tr>`).join('')}
-      </table>
-      ${m.weeks.some(w => w.blocked) ? `<div class="note orange" style="margin-top:8px">⚠︎ = Vorlesungszeit mit über 20 h: Pauschale 2,5 entfällt, es zählt der taggenaue Wert.</div>` : ''}
+      <div class="wkbody">
+        ${m.weeks.map(w => {
+          const k = wkKey(w.mon), ov = P.weeks[k] || '';
+          const method = w.covered ? 'im Startsaldo'
+            : (w.workedDays === 0 ? 'frei' : (w.method === 'M2' ? 'Pauschale 2,5' : (w.method === 'M1=M2' ? 'M1 = M2' : 'taggenau')));
+          return `<div class="pwrow${w.blocked ? ' hot' : ''}">
+            <div class="pwi">KW ${w.iso.week} · ${deShort(w.mon)}–${deShort(addD(w.mon,6))}
+              <span>${fmtH(w.totalHours)} h · ${method}${w.blocked ? ' ⚠︎ über 20 h in der Vorlesungszeit' : ''}</span></div>
+            <div class="pwd" style="color:${w.covered ? 'var(--fg3)' : (w.blocked ? 'var(--orange)' : 'var(--fg)')}">${w.covered ? '—' : fmt(w.charged)}<span>Tage</span></div>
+            <div class="seg mini">
+              <button data-w="${k}" data-v=""    aria-pressed="${ov === ''}">Monat</button>
+              <button class="tz"  data-w="${k}" data-v="tz"  aria-pressed="${ov === 'tz'}">TZ</button>
+              <button class="vz"  data-w="${k}" data-v="vz"  aria-pressed="${ov === 'vz'}">VZ</button>
+              <button class="off" data-w="${k}" data-v="off" aria-pressed="${ov === 'off'}">frei</button>
+            </div>
+          </div>`;
+        }).join('')}
+        ${m.weeks.some(w => w.blocked) ? `<div class="note orange" style="margin-top:10px">⚠︎ = Vorlesungszeit mit über 20 h: Pauschale 2,5 entfällt, es zählt der taggenaue Wert.</div>` : ''}
       </div>
     </details>`).join('') || `<div class="tiny muted">Keine Arbeitsmonate geplant.</div>`;
+
+  $$('#planWeeks button[data-w]').forEach(b => b.onclick = () => {
+    const k = b.dataset.w, v = b.dataset.v;
+    if (v) P.weeks[k] = v; else delete P.weeks[k];
+    save(); renderPlan();
+  });
 }
 $('#planYear').onchange = () => { planYear = +$('#planYear').value; renderPlan(); };
 $('#planReal').onchange = () => { planUseReal = $('#planReal').checked; renderPlan(); };
+$('#planBal').onchange = () => {
+  const v = parseFloat(String($('#planBal').value).replace(',','.'));
+  if (isFinite(v)) { S.settings.startBalance = Math.max(0, v); save(); }
+  renderPlan();
+};
+$('#planBalFrom').onchange = () => {
+  const v = parseFloat(String($('#planBalFrom').value).replace(',','.'));
+  if (isFinite(v)) { S.settings.balanceWeek = Math.max(1, Math.min(53, Math.round(v))); save(); }
+  renderPlan();
+};
 
 /* ══════════════════════════════════════════════════════════════════
    Render-Dispatcher
