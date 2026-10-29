@@ -645,8 +645,9 @@ const DEFAULT_STATE = {
       },
       /* Urlaub als echter Zeitraum — unabhängig von Wochengrenzen. */
       vacations: [{ start:'2026-11-22', end:'2026-12-05' }],
-      /* Einzelne Wochen schlagen den Monatsmodus (KW-Schlüssel "Jahr-KW"). */
-      weeks:  {},
+      /* Einzelne Wochen schlagen den Monatsmodus (KW-Schlüssel "Jahr-KW").
+         KW 52 + 53 unbezahlt frei — sonst wäre das Jahr über 140. */
+      weeks:  { '2026-52': 'off', '2026-53': 'off' },
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
