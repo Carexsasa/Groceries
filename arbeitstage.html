@@ -184,9 +184,10 @@ table.money tr.tot td{border-top:2px solid var(--fg3);border-bottom:0;font-weigh
 .pwrow .pwi span{display:block;font-size:11px;color:var(--fg2);font-weight:400;margin-top:1px}
 .pwrow .pwd{font-size:16px;font-weight:700;text-align:right}
 .pwrow .pwd span{display:block;font-size:9.5px;color:var(--fg3);font-weight:400}
-.seg.mini{grid-column:1/-1;gap:5px}
-.seg.mini button{flex:1;min-width:0;min-height:36px;font-size:11.5px;border-radius:7px}
+.seg.mini{grid-column:1/-1;gap:5px;flex-wrap:wrap}
+.seg.mini button{flex:1 1 56px;min-width:0;min-height:36px;font-size:11.5px;border-radius:7px}
 .seg.mini button.off[aria-pressed="true"]{background:var(--fg3);border-color:var(--fg3);color:var(--bg)}
+.seg.mini button.url[aria-pressed="true"]{background:var(--acc2);border-color:var(--acc2);color:#fff}
 #printHead{display:none}
 
 /* Druck / PDF — Nachweis für Arbeitgeber */
@@ -612,9 +613,10 @@ const DEFAULT_STATE = {
   version: 2,
   theme: 'dark',
   settings: {
-    /* Verbrauch Januar–Oktober 2026. 140 − 108 = 32 Tage Rest: genau
-       1 Monat November in Teilzeit (10,0) + 1 Monat Dezember in Vollzeit (22,0). */
-    startBalance: 108,
+    /* Verbrauch Januar–Oktober 2026. 140 − 120,5 = 19,5 Tage Rest:
+       November Teilzeit (10,0) + KW 49 (4,5) + KW 50 (5,0). Die beiden
+       Urlaubswochen kosten 0 Tage, und KW 51 muss trotzdem frei bleiben. */
+    startBalance: 120.5,
     balanceYear: 2026,
     balanceWeek: 45,      // ab KW 45 (2.11.2026) wird einzeln geplant/erfasst
     limit: 140,
@@ -633,8 +635,8 @@ const DEFAULT_STATE = {
         [SEED_PLAN_YEAR]: SEED_PLAN.slice()
       },
       /* Einzelne Wochen schlagen den Monatsmodus (KW-Schlüssel "Jahr-KW").
-         Grundfall: November komplett Teilzeit, Dezember komplett Vollzeit = exakt 140. */
-      weeks:  {},
+         2 Wochen Urlaub über Weihnachten + 1 Woche unbezahlt frei ⇒ exakt 140. */
+      weeks:  { '2026-51': 'off', '2026-52': 'url', '2026-53': 'url' },
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
@@ -694,7 +696,7 @@ function normalise(o){
         if (q.weeks && typeof q.weeks === 'object'){
           P.weeks = {};
           for (const [k, v] of Object.entries(q.weeks))
-            if (/^\d{4}-\d{1,2}$/.test(k) && ['tz','vz','off'].includes(v)) P.weeks[k] = v;
+            if (/^\d{4}-\d{1,2}$/.test(k) && ['tz','vz','url','off'].includes(v)) P.weeks[k] = v;
         }
       }
     }
@@ -1431,25 +1433,24 @@ const eur = n => (Math.round(n)).toLocaleString('de-DE') + ' €';
    über den Jahreswechsel korrekt gefüllt werden. Echte Einträge gewinnen. */
 const wkKey = mon => { const w = isoWeekOf(mon); return w.year + '-' + w.week; };
 
-/* Modus eines Tages: Wochen-Override schlägt Monatsmodus. '' = frei. */
-function modeOfDay(d){
-  const ov = S.settings.plan.weeks[wkKey(d)];
-  if (ov === 'off') return '';
-  if (ov) return ov;
-  const arr = S.settings.plan.years[d.getUTCFullYear()];
-  return arr ? (arr[d.getUTCMonth()] || '') : '';
-}
-
+/* Wochen-Override schlägt den Monatsmodus:
+   'tz'/'vz' = arbeiten · 'url' = Urlaub (kein Arbeitstag) · 'off' = frei · '' = Monat */
 function planEntries(year, useReal){
   const e = useReal ? Object.assign({}, S.entries) : {};
   const first = mondayOfWeek(year, 1), last = addD(mondayOfWeek(year, weeksInYear(year)), 6);
   for (let d = first; d <= last; d = addD(d, 1)){
     const k = iso(d);
     if (useReal && S.entries[k]) continue;              // Ist schlägt Plan
-    const mode = modeOfDay(d);
+    const ov  = S.settings.plan.weeks[wkKey(d)];
+    const dow = (d.getUTCDay() + 6) % 7;                // Mo = 0
+    if (ov === 'off') continue;
+    if (ov === 'url'){                                  // Urlaub: zählt nicht als Arbeitstag ⇒ 0 Tage
+      if (dow < 5) e[k] = { type:'urlaub', hours:0 };
+      continue;
+    }
+    const mode = ov || (S.settings.plan.years[d.getUTCFullYear()] || [])[d.getUTCMonth()] || '';
     if (!mode) continue;
     const m = S.settings.plan.modes[mode];
-    const dow = (d.getUTCDay() + 6) % 7;                // Mo = 0
     if (dow < m.daysPerWeek && m.hoursPerDay > 0) e[k] = { type:'work', hours: m.hoursPerDay };
   }
   return e;
@@ -1563,6 +1564,25 @@ function renderPlan(){
   const vzIn = wkCost('vz', true), vzOut = wkCost('vz', false), tzIn = wkCost('tz', true);
   const wks = (days, per) => per > 0 ? fmt(Math.round(days/per*100)/100) : '–';
   const freeWeeks = c.live.filter(w => P.weeks[wkKey(w.mon)] === 'off').length;
+  const urlWeeks  = c.live.filter(w => P.weeks[wkKey(w.mon)] === 'url').length;
+  if (urlWeeks || freeWeeks){
+    // Was würde der Plan kosten, wenn Urlaubs- und Freiwochen durchgearbeitet würden?
+    const keep = {};
+    for (const w of c.live){
+      const k = wkKey(w.mon), v = P.weeks[k];
+      if (v === 'url' || v === 'off'){ keep[k] = v; delete P.weeks[k]; }
+    }
+    const worked = planCompute(c.year, planUseReal);
+    Object.assign(P.weeks, keep);
+    v += `<div class="note ${worked.used > c.limit ? 'warn' : 'info'}" style="margin-top:8px;line-height:1.65">
+      <b>Freizeit im Plan:</b>
+      ${urlWeeks ? `${urlWeeks} Woche(n) <b>Urlaub</b> (bezahlt, kein Arbeitstag ⇒ 0 Tage)` : ''}${urlWeeks && freeWeeks ? ' · ' : ''}${freeWeeks ? `${freeWeeks} Woche(n) <b>unbezahlt frei</b>` : ''}.<br>
+      Würdest du alle diese Wochen durcharbeiten, käme das Jahr auf <b>${fmt(worked.used)} Tage</b>
+      ${worked.used > c.limit
+        ? `— also <b>${fmt(Math.round((worked.used - c.limit)*100)/100)} Tage über dem Limit</b>. Die freie Woche ist damit nicht optional, sondern nötig.`
+        : `und läge noch im Limit.`}
+      <span class="en">(holiday costs no work days; the unpaid week is what keeps the year legal)</span></div>`;
+  }
   v += `<div class="note info" style="margin-top:8px;line-height:1.65">
     <b>Bis genau ${fmt(c.limit)} Tage${over > 0 ? ' zu viel' : ' frei'}: ${fmt(Math.abs(over))} Tage</b><br>
     ${over > 0
@@ -1652,16 +1672,20 @@ function renderPlan(){
       <div class="wkbody">
         ${m.weeks.map(w => {
           const k = wkKey(w.mon), ov = P.weeks[k] || '';
+          const isUrl = w.days.some(d => d.entry && d.entry.type === 'urlaub') && w.workedDays === 0;
           const method = w.covered ? 'im Startsaldo'
-            : (w.workedDays === 0 ? 'frei' : (w.method === 'M2' ? 'Pauschale 2,5' : (w.method === 'M1=M2' ? 'M1 = M2' : 'taggenau')));
+            : isUrl ? '🏖️ Urlaub — kein Arbeitstag, kostet 0 Tage'
+            : (w.workedDays === 0 ? (ov === 'off' ? 'frei — unbezahlt, kostet 0 Tage' : 'keine Arbeit')
+            : (w.method === 'M2' ? 'Pauschale 2,5' : (w.method === 'M1=M2' ? 'M1 = M2' : 'taggenau')));
           return `<div class="pwrow${w.blocked ? ' hot' : ''}">
             <div class="pwi">KW ${w.iso.week} · ${deShort(w.mon)}–${deShort(addD(w.mon,6))}
-              <span>${fmtH(w.totalHours)} h · ${method}${w.blocked ? ' ⚠︎ über 20 h in der Vorlesungszeit' : ''}</span></div>
-            <div class="pwd" style="color:${w.covered ? 'var(--fg3)' : (w.blocked ? 'var(--orange)' : 'var(--fg)')}">${w.covered ? '—' : fmt(w.charged)}<span>Tage</span></div>
+              <span>${w.workedDays ? fmtH(w.totalHours) + ' h · ' : ''}${method}${w.blocked ? ' ⚠︎ über 20 h in der Vorlesungszeit' : ''}</span></div>
+            <div class="pwd" style="color:${w.covered ? 'var(--fg3)' : (w.blocked ? 'var(--orange)' : (w.charged ? 'var(--fg)' : 'var(--fg3)'))}">${w.covered ? '—' : fmt(w.charged)}<span>Tage</span></div>
             <div class="seg mini">
               <button data-w="${k}" data-v=""    aria-pressed="${ov === ''}">Monat</button>
               <button class="tz"  data-w="${k}" data-v="tz"  aria-pressed="${ov === 'tz'}">TZ</button>
               <button class="vz"  data-w="${k}" data-v="vz"  aria-pressed="${ov === 'vz'}">VZ</button>
+              <button class="url" data-w="${k}" data-v="url" aria-pressed="${ov === 'url'}">Urlaub</button>
               <button class="off" data-w="${k}" data-v="off" aria-pressed="${ov === 'off'}">frei</button>
             </div>
           </div>`;
