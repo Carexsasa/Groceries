@@ -4,38 +4,50 @@
 <meta charset="utf-8">
 <title>Arbeitstage-Nachweis 2026</title>
 <style>
-@page{ size:A4; margin:17mm 16mm 15mm; }
+@page{ size:A4; margin:16mm 15mm 14mm; }
 *{box-sizing:border-box}
-body{
-  margin:0; font:10.5pt/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:#15202b; background:#fff;
-}
+body{margin:0; font:10.5pt/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:#15202b; background:#fff}
 h1{font-size:19pt;margin:0 0 2pt;letter-spacing:-.2pt}
-.sub{font-size:9pt;color:#5a6672;margin:0 0 14pt;padding-bottom:8pt;border-bottom:2pt solid #15202b}
-h2{font-size:11.5pt;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:.8pt solid #c8d0d8}
+.sub{font-size:9pt;color:#5a6672;margin:0 0 12pt;padding-bottom:7pt;border-bottom:2pt solid #15202b}
+h2{font-size:11.5pt;margin:15pt 0 6pt;padding-bottom:3pt;border-bottom:.8pt solid #c8d0d8}
 h2 .en{font-weight:400;color:#8a949e;font-size:9pt}
 p{margin:0 0 7pt}
-.lead{background:#eef4fb;border-left:3pt solid #1f6feb;padding:9pt 11pt;margin:0 0 4pt;font-size:10.5pt}
+.lead{background:#eef4fb;border-left:3pt solid #1f6feb;padding:9pt 11pt;margin:0 0 4pt}
 .lead b{color:#0d3d7a}
-table{width:100%;border-collapse:collapse;margin:4pt 0 6pt;font-size:9.5pt}
-th,td{padding:4.5pt 5pt;text-align:left;border-bottom:.6pt solid #dce2e8;vertical-align:top}
-th{font-size:8pt;text-transform:uppercase;letter-spacing:.4pt;color:#6b7680;font-weight:700;border-bottom:1pt solid #9aa5b0}
+.stand{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8pt;margin:8pt 0 4pt}
+.stand div{border:.8pt solid #dce2e8;border-radius:3pt;padding:7pt 9pt;text-align:center}
+.stand b{display:block;font-size:17pt;line-height:1.15;letter-spacing:-.3pt}
+.stand span{font-size:8pt;color:#6b7680;text-transform:uppercase;letter-spacing:.3pt}
+.stand .hi{background:#eff7f1;border-color:#2f855a}
+.stand .hi b{color:#1d5c3c}
+table{width:100%;border-collapse:collapse;margin:4pt 0 6pt;font-size:9pt}
+th,td{padding:4pt 4pt;text-align:left;border-bottom:.6pt solid #dce2e8;vertical-align:top}
+th{font-size:7.5pt;text-transform:uppercase;letter-spacing:.3pt;color:#6b7680;font-weight:700;border-bottom:1pt solid #9aa5b0}
 td.n,th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.rest{font-weight:700}
+tr.start td{background:#f6f8fa;font-weight:600}
 tr.urlaub td{background:#eef7ff;color:#1a4b7a}
 tr.frei td{background:#f4f6f8;color:#5a6672}
-tr.voll td.n:last-child{color:#b4530a;font-weight:700}
+tr.voll td.n.tage{color:#b4530a;font-weight:700}
 tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding-top:6pt;font-size:10.5pt}
-.rule{display:grid;grid-template-columns:1fr auto;gap:2pt 10pt;font-size:9.5pt;
-      border:.8pt solid #dce2e8;border-radius:3pt;padding:8pt 10pt;margin:4pt 0 7pt}
+.rule{display:grid;grid-template-columns:1fr auto;gap:0 10pt;font-size:9.5pt;
+      border:.8pt solid #dce2e8;border-radius:3pt;padding:7pt 10pt;margin:4pt 0 7pt}
 .rule div:nth-child(even){text-align:right;font-weight:700;white-space:nowrap}
 .rule div{padding:1.5pt 0;border-bottom:.5pt dotted #e3e8ed}
 .rule div:nth-last-child(-n+2){border-bottom:0}
 .calc{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:10pt;background:#f6f8fa;
-      border:.8pt solid #dce2e8;border-radius:3pt;padding:9pt 11pt;margin:4pt 0 7pt;white-space:pre-line;line-height:1.75}
+      border:.8pt solid #dce2e8;border-radius:3pt;padding:9pt 11pt;margin:4pt 0 7pt;white-space:pre-line;line-height:1.7}
+.opt{border:1pt solid #dce2e8;border-radius:3pt;padding:9pt 11pt;margin:5pt 0 8pt;font-size:10pt}
+.opt.good{border-color:#2f855a;background:#f4faf6}
+.opt.bad{border-color:#d9822b;background:#fdf6ee}
+.opt h3{margin:0 0 5pt;font-size:10.5pt}
+.opt.good h3{color:#1d5c3c}
+.opt.bad h3{color:#9c4c00}
+.opt .verdict{display:inline-block;font-size:8.5pt;font-weight:700;padding:1.5pt 6pt;border-radius:9pt;margin-left:5pt;vertical-align:1pt}
+.opt.good .verdict{background:#2f855a;color:#fff}
+.opt.bad .verdict{background:#d9822b;color:#fff}
 .warn{border:1pt solid #d9822b;background:#fdf6ee;border-radius:3pt;padding:9pt 11pt;margin:5pt 0 7pt;font-size:10pt}
 .warn b{color:#9c4c00}
-.ok{border:1pt solid #2f855a;background:#eff7f1;border-radius:3pt;padding:9pt 11pt;margin:5pt 0;font-size:10pt}
-.ok b{color:#1d5c3c}
 .foot{margin-top:11pt;padding-top:6pt;border-top:.8pt solid #dce2e8;font-size:8pt;color:#78838e;line-height:1.45}
 .en{color:#8a949e}
 .sig{margin-top:15pt;display:grid;grid-template-columns:1fr 1fr;gap:26pt;font-size:9pt;color:#5a6672}
@@ -48,25 +60,28 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 <h1>Arbeitstage-Nachweis 2026</h1>
 <p class="sub">
   Werkstudent · Aufenthaltserlaubnis nach §&nbsp;16b AufenthG · Höchstens 140 Arbeitstage pro Kalenderjahr<br>
-  Stand: 29.10.2026
+  Stand: 30.10.2026
 </p>
 
 <p class="lead">
-  <b>Kurz gesagt:</b> Ich darf in diesem Jahr noch <b>19,5 Arbeitstage</b> arbeiten.
-  Davon brauche ich 7,5 Tage für den November in Teilzeit und 10,0 Tage für den Dezember.
-  Damit ich das Limit einhalte, muss ich <b>eine Woche unbezahlt frei nehmen: die Woche vom
-  7.&nbsp;bis 13.&nbsp;Dezember</b>, direkt im Anschluss an meinen Urlaub. Danach arbeite ich
-  durchgehend bis zum 3.&nbsp;Januar — auch über Weihnachten, denn in der vorlesungsfreien Zeit
-  kostet eine volle Woche nur 2,5 statt 5,0 Tage.
+  <b>Kurz gesagt:</b> Von meinen 140 Arbeitstagen habe ich bis Ende Oktober <b>120,5 Tage</b> verbraucht.
+  Es bleiben <b>19,5 Tage</b> für November und Dezember. Damit komme ich durch den November in Teilzeit
+  und durch den Dezember — aber nur, wenn ich <b>eine Woche unbezahlt frei nehme</b>.
   Am 1.&nbsp;Januar 2027 beginnt ein neues Konto mit 140 Tagen.
 </p>
+
+<div class="stand">
+  <div><b>120,5</b><span>verbraucht Jan–Okt</span></div>
+  <div class="hi"><b>19,5</b><span>Rest heute</span></div>
+  <div><b>140</b><span>Limit pro Jahr</span></div>
+</div>
 
 <h2>1. Die Regel <span class="en">(the rule)</span></h2>
 <p>
   Als Studierender aus einem Nicht-EU-Land darf ich laut meiner Aufenthaltserlaubnis höchstens
-  <b>140 Arbeitstage im Kalenderjahr</b> arbeiten. Das Konto läuft vom 1.&nbsp;Januar bis zum 31.&nbsp;Dezember
-  und beginnt jedes Jahr wieder bei null. Gezählt wird nicht in Stunden, sondern in <b>Tagen</b> —
-  und zwar für jede Kalenderwoche einzeln.
+  <b>140 Arbeitstage im Kalenderjahr</b> arbeiten. Das Konto läuft vom 1.&nbsp;Januar bis zum
+  31.&nbsp;Dezember und beginnt jedes Jahr wieder bei null. Gezählt wird nicht in Stunden, sondern
+  in <b>Tagen</b> — und zwar für jede Kalenderwoche einzeln.
 </p>
 <div class="rule">
   <div>Arbeitstag bis 4 Stunden</div><div>0,5 Tage</div>
@@ -77,79 +92,103 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 </div>
 <p>
   Für jede Woche werden beide Rechenwege geprüft; es gilt das <b>niedrigere</b> Ergebnis
-  (Günstigkeitsprüfung). Wichtig für den Dezember: Eine Woche mit <b>mehr als 20 Stunden während der
-  Vorlesungszeit</b> bekommt die Pauschale von 2,5 Tagen <b>nicht</b> — sie wird taggenau gezählt
-  und kostet dann 5,0 Tage statt 2,5.
+  (Günstigkeitsprüfung). Entscheidend für den Dezember: Eine Woche mit <b>mehr als 20 Stunden
+  während der Vorlesungszeit</b> bekommt die Pauschale von 2,5 Tagen <b>nicht</b> — sie wird
+  taggenau gezählt und kostet dann <b>5,0 Tage statt 2,5</b>.
 </p>
 
-<h2>2. Mein Konto <span class="en">(my account)</span></h2>
-<div class="calc">140,0 Tage   Jahreslimit
-−120,5 Tage   bereits verbraucht, Januar bis Oktober
-─────────────
-  19,5 Tage   Rest für November und Dezember</div>
-
-<h2 class="avoid">3. Alle Wochen im Detail <span class="en">(every week)</span></h2>
+<h2 class="avoid">2. Das ganze Jahr <span class="en">(the whole year, with the running balance)</span></h2>
 <table>
   <tr>
-    <th>KW</th><th>Zeitraum</th><th>Tätigkeit</th><th class="n">Std.</th>
-    <th>Berechnung</th><th class="n">Tage</th>
+    <th>Zeitraum</th><th>Tätigkeit</th><th>Berechnung</th>
+    <th class="n">Tage</th><th class="n">Verbraucht</th><th class="n">Rest von 140</th>
   </tr>
-  <tr><td>45</td><td>02.–08.11.</td><td>Teilzeit</td><td class="n">20</td>
-      <td>Pauschale 2,5 (max. 20&nbsp;h)</td><td class="n">2,5</td></tr>
-  <tr><td>46</td><td>09.–15.11.</td><td>Teilzeit</td><td class="n">20</td>
-      <td>Pauschale 2,5 (max. 20&nbsp;h)</td><td class="n">2,5</td></tr>
-  <tr><td>47</td><td>16.–22.11.</td><td>Teilzeit</td><td class="n">20</td>
-      <td>Pauschale 2,5 (max. 20&nbsp;h)</td><td class="n">2,5</td></tr>
-  <tr class="urlaub"><td>48</td><td>23.–29.11.</td><td>Urlaub</td><td class="n">—</td>
-      <td>kein Arbeitstag</td><td class="n">0</td></tr>
-  <tr class="urlaub"><td>49</td><td>30.11.–06.12.</td><td>Urlaub</td><td class="n">—</td>
-      <td>kein Arbeitstag</td><td class="n">0</td></tr>
-  <tr class="frei"><td>50</td><td>07.–13.12.</td><td>unbezahlt frei</td><td class="n">—</td>
-      <td>kein Arbeitstag</td><td class="n">0</td></tr>
-  <tr class="voll"><td>51</td><td>14.–20.12.</td><td>Vollzeit</td><td class="n">40</td>
-      <td>taggenau: 1+1+1+1+1 — über 20&nbsp;h in der Vorlesungszeit</td><td class="n">5,0</td></tr>
-  <tr><td>52</td><td>21.–27.12.</td><td>Vollzeit</td><td class="n">40</td>
-      <td>Pauschale 2,5 — vorlesungsfreie Zeit</td><td class="n">2,5</td></tr>
-  <tr><td>53</td><td>28.12.–03.01.</td><td>Vollzeit</td><td class="n">36</td>
-      <td>Pauschale 2,5 — vorlesungsfreie Zeit</td><td class="n">2,5</td></tr>
-  <tr class="sum"><td colspan="5">Summe November + Dezember</td><td class="n">17,5</td></tr>
+  <tr class="start">
+    <td>Januar – Oktober</td><td>laut eigener Aufstellung</td><td>Summe aller Arbeitswochen</td>
+    <td class="n">120,5</td><td class="n">120,5</td><td class="n rest">19,5</td>
+  </tr>
+  <tr><td>KW 45 · 02.–08.11.</td><td>Teilzeit · 20&nbsp;h</td><td>Pauschale 2,5 (max. 20&nbsp;h)</td>
+      <td class="n tage">2,5</td><td class="n">123,0</td><td class="n rest">17,0</td></tr>
+  <tr><td>KW 46 · 09.–15.11.</td><td>Teilzeit · 20&nbsp;h</td><td>Pauschale 2,5 (max. 20&nbsp;h)</td>
+      <td class="n tage">2,5</td><td class="n">125,5</td><td class="n rest">14,5</td></tr>
+  <tr><td>KW 47 · 16.–22.11.</td><td>Teilzeit · 20&nbsp;h</td><td>Pauschale 2,5 (max. 20&nbsp;h)</td>
+      <td class="n tage">2,5</td><td class="n">128,0</td><td class="n rest">12,0</td></tr>
+  <tr class="urlaub"><td>KW 48 · 23.–29.11.</td><td>Urlaub</td><td>kein Arbeitstag</td>
+      <td class="n">0</td><td class="n">128,0</td><td class="n rest">12,0</td></tr>
+  <tr class="urlaub"><td>KW 49 · 30.11.–06.12.</td><td>Urlaub</td><td>kein Arbeitstag</td>
+      <td class="n">0</td><td class="n">128,0</td><td class="n rest">12,0</td></tr>
+  <tr class="frei"><td>KW 50 · 07.–13.12.</td><td>unbezahlt frei</td><td>kein Arbeitstag</td>
+      <td class="n">0</td><td class="n">128,0</td><td class="n rest">12,0</td></tr>
+  <tr class="voll"><td>KW 51 · 14.–20.12.</td><td>Vollzeit · 40&nbsp;h</td>
+      <td>taggenau 1+1+1+1+1 — über 20&nbsp;h in der Vorlesungszeit</td>
+      <td class="n tage">5,0</td><td class="n">133,0</td><td class="n rest">7,0</td></tr>
+  <tr><td>KW 52 · 21.–27.12.</td><td>Vollzeit · 40&nbsp;h</td><td>Pauschale 2,5 — vorlesungsfreie Zeit</td>
+      <td class="n tage">2,5</td><td class="n">135,5</td><td class="n rest">4,5</td></tr>
+  <tr><td>KW 53 · 28.12.–03.01.</td><td>Vollzeit · 36&nbsp;h</td><td>Pauschale 2,5 — vorlesungsfreie Zeit</td>
+      <td class="n tage">2,5</td><td class="n">138,0</td><td class="n rest">2,0</td></tr>
+  <tr class="sum"><td colspan="3">Gesamt 2026</td>
+      <td class="n">138,0</td><td class="n">138,0</td><td class="n">2,0</td></tr>
 </table>
-<p style="font-size:9pt;color:#5a6672">
-  Der Urlaub läuft vom <b>22.11. bis 5.12.2026</b> (10 Werktage) und fällt damit in die Wochen 48 und 49.
-  Direkt im Anschluss ist die Woche vom <b>7. bis 13.12.</b> unbezahlt frei; ab dem <b>14.12.</b>
-  arbeite ich wieder durchgehend. Die <b>vorlesungsfreie Zeit</b> beginnt am <b>21.12.2026</b> —
-  deshalb kosten die Wochen 52 und 53 nur je 2,5 statt 5,0 Tage.
+<p style="font-size:8.5pt;color:#5a6672;margin-top:-2pt">
+  Der Urlaub läuft vom <b>22.11. bis 5.12.2026</b> (10 Werktage) und fällt in die Wochen 48 und 49.
+  Die <b>vorlesungsfreie Zeit</b> beginnt am <b>21.12.2026</b> — deshalb kosten die Wochen 52 und 53
+  nur je 2,5 statt 5,0 Tage. Die Summe Januar–Oktober beruht auf meiner eigenen Aufstellung.
 </p>
 
-<h2 class="avoid">4. Ergebnis <span class="en">(result)</span></h2>
 <div class="calc">120,5 Tage   Januar bis Oktober
 + 17,5 Tage   November und Dezember
 ─────────────
  138,0 Tage   von 140 erlaubten Tagen
    2,0 Tage   bleiben übrig</div>
-<div class="ok"><b>Der Plan hält das Limit ein.</b> 138,0 von 140 Arbeitstagen.</div>
 
-<h2 class="avoid">5. Warum eine Woche frei sein muss <span class="en">(why one week off)</span></h2>
+<h2 class="avoid">3. Die freie Woche: zwei Möglichkeiten <span class="en">(two options)</span></h2>
+<p>
+  Eine Woche muss unbezahlt frei bleiben, sonst komme ich über das Limit. Für den Zeitpunkt gibt es
+  zwei Varianten — sie sind aber <b>nicht gleichwertig</b>:
+</p>
+
+<div class="opt good">
+  <h3>Variante A — frei vom 7. bis 13. Dezember <span class="verdict">138,0 von 140 — passt</span></h3>
+  Die freie Woche schließt direkt an meinen Urlaub an. Ich bin damit vom <b>22.11. bis 13.12.</b>
+  durchgehend weg und arbeite danach <b>ohne Unterbrechung vom 14.12. bis 3.1.</b><br>
+  Es bleiben <b>2,0 Tage Puffer</b> — falls doch einmal ein zusätzlicher Tag anfällt.
+</div>
+
+<div class="opt bad">
+  <h3>Variante B — frei vom 16. bis 22. November <span class="verdict">140,5 von 140 — zu viel</span></h3>
+  Diese Woche ist eine <b>Teilzeitwoche</b> und kostet nur 2,5 Tage. Nehme ich sie frei, spare ich
+  auch nur 2,5 Tage — dafür arbeite ich dann die volle Dezemberwoche vom 7.–13.12. für 5,0 Tage.
+  Unter dem Strich komme ich auf <b>140,5 Tage</b> und liege damit <b>0,5 Tage über dem Limit</b>.<br><br>
+  <b>Variante B geht nur mit einer Zusatzregel:</b> Wenn ich an <b>einem einzigen Tag im Dezember
+  höchstens 4 Stunden</b> arbeite, zählt dieser Tag nur als halber Tag. Dann lande ich bei genau
+  <b>140,0 Tagen</b> — exakt am Limit, ohne jeden Puffer.
+</div>
+
+<p>
+  <b>Ich schlage Variante A vor.</b> Sie ist einfacher zu planen, lässt einen kleinen Puffer
+  und braucht keine Sonderregel für einzelne Tage.
+</p>
+
+<h2 class="avoid">4. Warum überhaupt eine Woche frei sein muss <span class="en">(why a week off at all)</span></h2>
 <p>
   Der Urlaub hilft hier nicht weiter: Urlaubstage sind keine Arbeitstage, sie geben mir aber auch
   keine zusätzlichen Tage. Entscheidend ist allein, wie viele Tage noch auf dem Konto sind.
 </p>
 <div class="warn">
-  <b>Würde ich auch die KW&nbsp;50 arbeiten:</b><br>
-  138,0 + 5,0 (Vollzeit in der Vorlesungszeit) = <b>143,0 Tage</b> — also 3,0 Tage über dem Limit.<br><br>
-  <b>Es muss genau diese Woche sein.</b> Die freie Woche muss in der <b>Vorlesungszeit</b> liegen,
-  denn nur dort kostet sie 5,0 Tage. Würde ich stattdessen eine Weihnachtswoche frei nehmen,
-  spare ich dort nur 2,5 Tage und lande bei <b>140,5 Tagen</b> — immer noch über der Grenze.
-  Deshalb liegt die freie Woche direkt nach dem Urlaub, und ab dem 14.&nbsp;Dezember
-  arbeite ich wieder durch.
+  <b>Ohne freie Woche:</b> Würde ich alle Wochen im Dezember arbeiten, käme ich auf
+  <b>143,0 Tage</b> — also 3,0 Tage über dem Limit.<br><br>
+  <b>Die freie Woche muss in der Vorlesungszeit liegen.</b> Nur dort kostet eine Vollzeitwoche
+  5,0 Tage. Eine Woche in der vorlesungsfreien Zeit — also über Weihnachten — kostet ohnehin nur
+  2,5 Tage; sie frei zu nehmen würde zu wenig sparen und ich bliebe bei <b>140,5 Tagen</b>.
+  Deshalb arbeite ich über Weihnachten und nehme die Woche im Dezember davor frei.
 </div>
 
-<h2 class="avoid">6. Ab Januar 2027 <span class="en">(from January)</span></h2>
+<h2 class="avoid">5. Ab Januar 2027 <span class="en">(from January)</span></h2>
 <p>
   Am 1.&nbsp;Januar 2027 beginnt ein neues Konto mit 140 Arbeitstagen. Ab der ersten Januarwoche
   kann ich wieder im vereinbarten Umfang arbeiten. Wenn es hilft, plane ich die Vollzeitphasen im
   nächsten Jahr bevorzugt in die <b>vorlesungsfreie Zeit</b> — dort kostet eine volle Arbeitswoche
-  nur 2,5 statt 5,0 Tage, ich kann also bei gleichem Limit deutlich mehr arbeiten.
+  nur 2,5 statt 5,0 Tage. Bei gleichem Limit kann ich dort also doppelt so lange arbeiten.
 </p>
 
 <div class="sig">
@@ -159,9 +198,8 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 
 <p class="foot">
   Berechnet mit meinem eigenen Arbeitstage-Konto nach den Zählregeln für Studierende mit
-  Aufenthaltserlaubnis nach §&nbsp;16b AufenthG (Günstigkeitsprüfung je Kalenderwoche, Montag bis Sonntag).
-  Die Summe Januar–Oktober beruht auf meiner eigenen Aufstellung der geleisteten Arbeitstage.
-  Grundlage für die Wochen 52 und 53 ist eine vorlesungsfreie Zeit ab dem 21.12.2026.
+  Aufenthaltserlaubnis nach §&nbsp;16b AufenthG (Günstigkeitsprüfung je Kalenderwoche, Montag bis
+  Sonntag). Grundlage für die Wochen 52 und 53 ist eine vorlesungsfreie Zeit ab dem 21.12.2026.
   Dieses Dokument ist eine Arbeitsplanung, keine Rechtsauskunft.
 </p>
 
