@@ -649,10 +649,9 @@ const DEFAULT_STATE = {
       /* Urlaub als echter Zeitraum — unabhängig von Wochengrenzen. */
       vacations: [{ start:'2026-11-22', end:'2026-12-05' }],
       /* Einzelne Wochen schlagen den Monatsmodus (KW-Schlüssel "Jahr-KW").
-         Eine Woche unbezahlt frei, direkt im Anschluss an den Urlaub. Sie muss
-         eine Vorlesungswoche (5,0 Tage) sein — KW 52 oder 53 frei zu nehmen
-         spart nur 2,5 Tage und reicht nicht. */
-      weeks:  { '2026-50': 'off' },
+         KW 45 wurde Vollzeit gearbeitet (5,0 statt 2,5 Tage). Damit reicht eine
+         freie Woche nicht mehr: KW 46 und KW 50 bleiben unbezahlt frei. */
+      weeks:  { '2026-45': 'vz', '2026-46': 'off', '2026-50': 'off' },
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
