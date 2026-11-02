@@ -655,12 +655,14 @@ const DEFAULT_STATE = {
       /* Urlaub als echter Zeitraum — unabhängig von Wochengrenzen. */
       vacations: [{ start:'2026-11-22', end:'2026-12-05' }],
       /* Einzelne Wochen schlagen den Monatsmodus (KW-Schlüssel "Jahr-KW").
-         KW 45 ist in Vollzeit eingeplant (5,0 statt 2,5 Tage). KW 50 bleibt
-         unbezahlt frei; im November werden statt 10 nur 5 Schichten gearbeitet. */
-      weeks:  { '2026-45': 'vz', '2026-50': 'off' },
+         KW 45 Vollzeit; 7.–22.12. frei; ab 23.12. wieder Vollzeit in der
+         vorlesungsfreien Zeit, dort kostet die Woche pauschal 2,5 Tage. */
+      weeks:  { '2026-45': 'vz', '2026-50': 'off', '2026-51': 'off' },
       /* Schichten pro Woche, überschreibt daysPerWeek des Modus.
-         3 Schichten in KW 46, 2 in KW 47 ⇒ ab Mi 18.11. frei bis zum Urlaub. */
-      weekDays: { '2026-46': 3, '2026-47': 2 },
+         Nov: 3 Schichten in KW 46, 2 in KW 47 ⇒ ab Mi 18.11. frei.
+         Dez: KW 52 ab Mi 23.12. (4 Tage), KW 53 sechs Tage — in der
+         vorlesungsfreien Zeit kosten zusätzliche Tage nichts. */
+      weekDays: { '2026-46': 3, '2026-47': 2, '2026-52': 4, '2026-53': 6 },
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
