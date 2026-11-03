@@ -45,11 +45,10 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 
 <h1>Arbeitsplan 2027</h1>
 <p class="sub">Werkstudent · Aufenthaltserlaubnis nach §&nbsp;16b AufenthG · Stand: 03.11.2026</p>
-
 <div class="stand">
-  <div><b>142,5</b><span>Arbeitstage im Dienstplan</span></div>
-  <div class="hi"><b>126,5</b><span>nach Abzug des Urlaubs</span></div>
-  <div><b>140</b><span>Limit pro Jahr</span></div>
+  <div class="hi"><b>133,5</b><span>von 140 Arbeitstagen</span></div>
+  <div><b>1516</b><span>Arbeitsstunden</span></div>
+  <div><b>7</b><span>Vollzeitmonate</span></div>
 </div>
 
 <h2>1. Die Vorgabe</h2>
@@ -70,87 +69,95 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
   <tr><td><b>Urlaub</b>, Krankheit, freie Tage — nie ein Arbeitstag</td><td><b>0 Tage</b></td></tr>
 </table>
 
-<h2 class="avoid">2. Warum die Semesterferien entscheidend sind</h2>
-<p>Für jede Woche gilt der <b>günstigere</b> der beiden Rechenwege. Daraus folgt ein fester Umrechnungskurs:</p>
+<h2 class="avoid">2. Zwei Hebel, die den Plan tragen</h2>
+<p><b>Erstens: In den Semesterferien ist Arbeitszeit doppelt so viel wert.</b></p>
 <table class="rule">
   <tr><td><b>Vorlesungszeit</b> — jede Verteilung der Schichten</td><td>8 Std. je Tag</td></tr>
   <tr><td><b>Semesterferien</b> — Pauschale, unabhängig von der Stundenzahl</td><td>bis 19 Std. je Tag</td></tr>
 </table>
 <p>
-  <b>Eine Vollzeitwoche in den Semesterferien kostet 2,5 Tage, dieselbe Woche in der Vorlesungszeit
-  kostet 5,0 Tage.</b> Deshalb liegen die Vollzeitmonate dort, wo die meisten Wochen vorlesungsfrei
-  sind: <b>Februar, März, Juli, August und September</b>. Alle übrigen Monate laufen in Teilzeit mit
-  höchstens 20 Wochenstunden.
+  <b>Zweitens: Urlaub wirkt dort am stärksten, wo die Tage am teuersten sind.</b> Ein Urlaubstag in
+  einer Vollzeitwoche der Vorlesungszeit spart einen <b>ganzen</b> Arbeitstag, in einer Teilzeitwoche
+  nur einen halben:
+</p>
+<table class="rule">
+  <tr><td>1 Urlaubstag in einer <b>Vollzeitwoche der Vorlesungszeit</b></td><td>spart 1,0 Tag</td></tr>
+  <tr><td>1 Urlaubstag in einer <b>Teilzeitwoche</b></td><td>spart 0,5 Tage</td></tr>
+  <tr><td>1 Urlaubstag in den <b>Semesterferien</b></td><td>spart 0 Tage</td></tr>
+</table>
+<p>
+  Deshalb liegt der Urlaub in Vollzeitmonaten während der Vorlesungszeit. Dadurch werden Tage frei,
+  die wiederum <b>zusätzliche Vollzeitmonate</b> ermöglichen: Der Plan enthält
+  <b>7 Vollzeitmonate</b> statt der sonst möglichen fünf.
 </p>
 
-<h2 class="avoid">3. Der Dienstplan nach Monaten</h2>
+<h2 class="avoid">3. Das Jahr nach Monaten</h2>
 <p style="font-size:9.5pt;color:#5a6672;margin-top:-2pt">
   Jeder Monat ist durchgehend Vollzeit <b>oder</b> durchgehend Teilzeit — kein Wechsel innerhalb
-  eines Monats. Die folgenden Zahlen zeigen den <b>reinen Arbeitsplan ohne Urlaub</b>.
+  eines Monats. In den vorlesungsfreien Wochen der Vollzeitmonate sind auch <b>Samstage</b>
+  eingeplant; sie kosten dort keine zusätzlichen Tage.
 </p>
 <table>
-  <tr><th>Monat</th><th>Modus</th><th class="n">Stunden</th><th class="n">Arbeitstage</th><th class="n">Kumuliert</th></tr>
+  <tr><th>Monat</th><th>Modus</th><th class="n">Stunden</th><th class="n">Urlaub</th>
+      <th class="n">Arbeitstage</th><th class="n">Kumuliert</th></tr>
   <tr><td>Januar</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
-      <td class="n rest">10,0</td></tr>
-  <tr><td>Februar</td><td><b>Vollzeit</b></td>
-      <td class="n">192&nbsp;h</td><td class="n tage">10,0</td>
-      <td class="n rest">20,0</td></tr>
-  <tr><td>März</td><td><b>Vollzeit</b></td>
-      <td class="n">176&nbsp;h</td><td class="n tage">15,0</td>
-      <td class="n rest">35,0</td></tr>
+      <td class="n">80&nbsp;h</td><td class="n">–</td>
+      <td class="n">10,0</td><td class="n rest">10,0</td></tr>
+  <tr class="urlaub"><td>Februar</td><td><b>Vollzeit</b></td>
+      <td class="n">112&nbsp;h</td><td class="n">10</td>
+      <td class="n">7,0</td><td class="n rest">17,0</td></tr>
+  <tr class="urlaub"><td>März</td><td><b>Vollzeit</b></td>
+      <td class="n">96&nbsp;h</td><td class="n">10</td>
+      <td class="n">5,0</td><td class="n rest">22,0</td></tr>
   <tr><td>April</td><td>Teilzeit</td>
-      <td class="n">100&nbsp;h</td><td class="n">12,5</td>
-      <td class="n rest">47,5</td></tr>
-  <tr><td>Mai</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
-      <td class="n rest">57,5</td></tr>
+      <td class="n">100&nbsp;h</td><td class="n">–</td>
+      <td class="n">12,5</td><td class="n rest">34,5</td></tr>
+  <tr class="urlaub"><td>Mai</td><td><b>Vollzeit</b></td>
+      <td class="n">80&nbsp;h</td><td class="n">10</td>
+      <td class="n">10,0</td><td class="n rest">44,5</td></tr>
   <tr><td>Juni</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
-      <td class="n rest">67,5</td></tr>
-  <tr><td>Juli</td><td><b>Vollzeit</b></td>
-      <td class="n">224&nbsp;h</td><td class="n tage">17,5</td>
-      <td class="n rest">85,0</td></tr>
+      <td class="n">80&nbsp;h</td><td class="n">–</td>
+      <td class="n">10,0</td><td class="n rest">54,5</td></tr>
+  <tr class="urlaub"><td>Juli</td><td><b>Vollzeit</b></td>
+      <td class="n">176&nbsp;h</td><td class="n">6</td>
+      <td class="n">11,5</td><td class="n rest">66,0</td></tr>
   <tr><td>August</td><td><b>Vollzeit</b></td>
-      <td class="n">192&nbsp;h</td><td class="n tage">10,0</td>
-      <td class="n rest">95,0</td></tr>
+      <td class="n">192&nbsp;h</td><td class="n">–</td>
+      <td class="n tage">10,0</td><td class="n rest">76,0</td></tr>
   <tr><td>September</td><td><b>Vollzeit</b></td>
-      <td class="n">232&nbsp;h</td><td class="n tage">15,0</td>
-      <td class="n rest">110,0</td></tr>
+      <td class="n">232&nbsp;h</td><td class="n">–</td>
+      <td class="n tage">15,0</td><td class="n rest">91,0</td></tr>
   <tr><td>Oktober</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
-      <td class="n rest">120,0</td></tr>
+      <td class="n">80&nbsp;h</td><td class="n">–</td>
+      <td class="n">10,0</td><td class="n rest">101,0</td></tr>
   <tr><td>November</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
-      <td class="n rest">130,0</td></tr>
-  <tr><td>Dezember</td><td>Teilzeit</td>
-      <td class="n">100&nbsp;h</td><td class="n">12,5</td>
-      <td class="n rest">142,5</td></tr>
-  <tr class="sum"><td>Gesamt 2027</td><td></td><td class="n">1616&nbsp;h</td>
-      <td class="n">142,5</td><td class="n">142,5</td></tr>
+      <td class="n">80&nbsp;h</td><td class="n">–</td>
+      <td class="n">10,0</td><td class="n rest">111,0</td></tr>
+  <tr><td>Dezember</td><td><b>Vollzeit</b></td>
+      <td class="n">208&nbsp;h</td><td class="n">–</td>
+      <td class="n tage">22,5</td><td class="n rest">133,5</td></tr>
+  <tr class="sum"><td>Gesamt 2027</td><td></td><td class="n">1516&nbsp;h</td><td class="n">36</td>
+      <td class="n">133,5</td><td class="n">133,5</td></tr>
 </table>
 
-<h2 class="avoid">4. Der Urlaub bringt den Plan ins Limit</h2>
-<div class="warn">
-  <b>Der Dienstplan allein ergibt 142,5 Arbeitstage und liegt damit
-  2,5 Tage über dem Limit von 140.</b> Urlaubstage sind jedoch keine
-  Arbeitstage: Sie kosten 0 Tage und senken die Wochen, in die sie fallen.
-</div>
-<div class="calc">Dienstplan ohne Urlaub          142,5 Tage
-− Wirkung der 36 Urlaubstage    − 16,0 Tage
-──────────────────────────────────────
-= tatsächlich verbraucht        126,5 Tage
-  von 140 erlaubten Tagen       13,5 Tage Puffer</div>
+<h2 class="avoid">4. Der Urlaub</h2>
+<table>
+  <tr><th>Zeitraum</th><th>Datum</th><th class="n">Dauer</th><th>Anlass</th></tr>
+  <tr class="urlaub"><td>KW 6–7</td><td>08.02.2027 – 19.02.2027</td>
+      <td class="n">10 Tage</td><td><b>Prüfungszeit</b></td></tr>
+  <tr class="urlaub"><td>KW 11–12</td><td>15.03.2027 – 26.03.2027</td>
+      <td class="n">10 Tage</td><td>—</td></tr>
+  <tr class="urlaub"><td>KW 18–19</td><td>03.05.2027 – 14.05.2027</td>
+      <td class="n">10 Tage</td><td>—</td></tr>
+  <tr class="urlaub"><td>KW 26–27</td><td>28.06.2027 – 09.07.2027</td>
+      <td class="n">6 Tage</td><td>—</td></tr>
+  <tr class="sum"><td colspan="2">Gesamt</td><td class="n">36 Tage</td><td></td></tr>
+</table>
 <p>
-  <b>Ich muss meinen Urlaub also tatsächlich nehmen</b> — er ist nicht nur Erholung, sondern
-  Voraussetzung dafür, dass der Plan die gesetzliche Grenze einhält. Eine Auszahlung statt
-  Freizeit wäre hier keine Alternative.
-</p>
-<p>
-  Die konkrete Lage der Urlaubstage stimme ich gerne mit dem Dienstplan ab. <b>Fest steht nur
-  der Zeitraum 08.02. – 19.02.2027</b> (zwei Wochen) — das ist meine Prüfungszeit. Der übrige
-  Urlaub lässt sich in einzelne Wochen und Tage aufteilen, sodass keine langen Abwesenheiten
-  entstehen.
+  Vier Blöcke von höchstens zwei Wochen, über das Jahr verteilt — keine langen Abwesenheiten.
+  <b>Fest ist nur der erste Block (08.–19.02.2027): meine Prüfungszeit.</b> Die übrigen drei lassen
+  sich innerhalb der Vorlesungszeit verschieben, solange sie nicht in die Semesterferien fallen —
+  dort würden sie keine Arbeitstage einsparen.
 </p>
 
 <h2 class="avoid">5. Die zweite Grenze: 26 Wochen über 20 Stunden</h2>
@@ -158,7 +165,8 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
   Für den Werkstudentenstatus gilt zusätzlich: <b>höchstens 26 Wochen über 20 Stunden</b> innerhalb
   von 12 Monaten. Darüber entfällt die Befreiung von Kranken-, Pflege- und Arbeitslosenversicherung
   — mit Folgen auch für die Abrechnung auf Arbeitgeberseite.<br><br>
-  Dieser Plan liegt bei <b>20 von 26 Wochen</b> und hält damit Abstand zu beiden Grenzen.
+  Dieser Plan liegt bei <b>24 von 26 Wochen</b> und bei <b>133,5 von 140 Tagen</b>
+  — Abstand zu beiden Grenzen.
 </div>
 
 <h2 class="avoid">6. Bitte bei der Dienstplanung</h2>
@@ -169,15 +177,11 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 <p>
   In den Teilzeitmonaten ist allein die <b>Wochengrenze von 20 Stunden</b> entscheidend, nicht die
   Länge der einzelnen Schicht: 5 Schichten à 4 h und 4 Schichten à 5 h kosten beide 2,5 Tage.
-  Ab 22,5 Stunden entfällt die Pauschale und dieselbe Woche kostet <b>5,0 Tage</b>. In den
-  Vollzeitmonaten — soweit sie in die Semesterferien fallen — ist die Woche ohnehin bei 2,5 Tagen
-  gedeckelt; zusätzliche Stunden und Samstage kosten dort nichts.
+  Ab 22,5 Stunden entfällt die Pauschale und dieselbe Woche kostet <b>5,0 Tage</b>.
 </p>
-
 <div class="sig"><div>Datum, Unterschrift Studierende/r</div><div>Zur Kenntnis genommen</div></div>
 <p class="foot">
   Zählung je Kalenderwoche (Montag bis Sonntag) nach der Günstigkeitsprüfung. Die Semestertermine
   2027 sind fortgeschrieben und mit dem offiziellen Semesterkalender abzugleichen. Arbeitszeiten im
   Rahmen des Arbeitszeitgesetzes (max. 10 h/Tag, im Schnitt 48 h/Woche). Arbeitsplanung, keine Rechtsauskunft.
-</p>
-</body></html>
+</p></body></html>
