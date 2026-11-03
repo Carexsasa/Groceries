@@ -659,10 +659,10 @@ const DEFAULT_STATE = {
          vorlesungsfreien Zeit, dort kostet die Woche pauschal 2,5 Tage. */
       weeks:  { '2026-45': 'vz', '2026-50': 'off', '2026-51': 'off' },
       /* Schichten pro Woche, überschreibt daysPerWeek des Modus.
-         Nov: 3 Schichten in KW 46, 2 in KW 47 ⇒ ab Mi 18.11. frei.
+         Nov: reguläre 5 Schichten, Woche bleibt bei 20 h ⇒ Pauschale 2,5.
          Dez: KW 52 ab Mi 23.12. (4 Tage), KW 53 sechs Tage — in der
          vorlesungsfreien Zeit kosten zusätzliche Tage nichts. */
-      weekDays: { '2026-46': 3, '2026-47': 2, '2026-52': 4, '2026-53': 6 },
+      weekDays: { '2026-52': 4, '2026-53': 6 },
       extras: { [SEED_PLAN_YEAR + '-11']: 1300 }   // Steuerrückzahlung im Dezember
     }
   },
