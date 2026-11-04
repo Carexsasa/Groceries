@@ -46,9 +46,9 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 <h1>Arbeitsplan 2027</h1>
 <p class="sub">Werkstudent · Aufenthaltserlaubnis nach §&nbsp;16b AufenthG · Stand: 04.11.2026</p>
 <div class="stand">
-  <div class="hi"><b>135,0</b><span>von 140 Arbeitstagen</span></div>
-  <div><b>1528</b><span>Arbeitsstunden</span></div>
-  <div><b>7</b><span>Vollzeitmonate</span></div>
+  <div><b>162,5</b><span>Arbeitstage im Dienstplan</span></div>
+  <div class="hi"><b>126,5</b><span>nach Abzug des Urlaubs</span></div>
+  <div><b>140</b><span>Limit pro Jahr</span></div>
 </div>
 
 <h2>1. Die Vorgabe</h2>
@@ -69,92 +69,104 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
   <tr><td><b>Urlaub</b>, Krankheit, freie Tage — nie ein Arbeitstag</td><td><b>0 Tage</b></td></tr>
 </table>
 
-<h2 class="avoid">2. Zwei Hebel, die den Plan tragen</h2>
-<p><b>Erstens: In den Semesterferien ist Arbeitszeit doppelt so viel wert.</b></p>
+<h2 class="avoid">2. Warum die Semesterferien entscheidend sind</h2>
+<p>Für jede Woche gilt der <b>günstigere</b> der beiden Rechenwege. Daraus folgt ein fester Umrechnungskurs:</p>
 <table class="rule">
   <tr><td><b>Vorlesungszeit</b> — jede Verteilung der Schichten</td><td>8 Std. je Tag</td></tr>
   <tr><td><b>Semesterferien</b> — Pauschale, unabhängig von der Stundenzahl</td><td>bis 19 Std. je Tag</td></tr>
 </table>
-<p><b>Zweitens: Urlaub wirkt dort am stärksten, wo die Tage am teuersten sind.</b></p>
+<p>
+  <b>Eine Vollzeitwoche in den Semesterferien kostet 2,5 Tage, dieselbe Woche in der Vorlesungszeit
+  kostet 5,0 Tage.</b> Deshalb liegen die Vollzeitmonate dort, wo die meisten Wochen vorlesungsfrei
+  sind: <b>Februar, März, Mai, Juli, August, September und Dezember</b>. Alle übrigen Monate laufen
+  in Teilzeit mit höchstens 20 Wochenstunden.
+</p>
+
+<h2 class="avoid">3. Der Dienstplan nach Monaten</h2>
+<p style="font-size:9.5pt;color:#5a6672;margin-top:-2pt">
+  Jeder Monat ist durchgehend Vollzeit <b>oder</b> durchgehend Teilzeit — kein Wechsel innerhalb
+  eines Monats. In den vorlesungsfreien Wochen der Vollzeitmonate sind auch <b>Samstage</b>
+  eingeplant; sie kosten dort keine zusätzlichen Tage. Die Zahlen zeigen den <b>reinen Arbeitsplan
+  ohne Urlaub</b>.
+</p>
+<table>
+  <tr><th>Monat</th><th>Modus</th><th class="n">Stunden</th><th class="n">Arbeitstage</th><th class="n">Kumuliert</th></tr>
+  <tr><td>Januar</td><td>Teilzeit</td>
+      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
+      <td class="n rest">10,0</td></tr>
+  <tr><td>Februar</td><td><b>Vollzeit</b></td>
+      <td class="n">192&nbsp;h</td><td class="n tage">10,0</td>
+      <td class="n rest">20,0</td></tr>
+  <tr><td>März</td><td><b>Vollzeit</b></td>
+      <td class="n">176&nbsp;h</td><td class="n tage">15,0</td>
+      <td class="n rest">35,0</td></tr>
+  <tr><td>April</td><td>Teilzeit</td>
+      <td class="n">100&nbsp;h</td><td class="n">12,5</td>
+      <td class="n rest">47,5</td></tr>
+  <tr><td>Mai</td><td><b>Vollzeit</b></td>
+      <td class="n">160&nbsp;h</td><td class="n tage">20,0</td>
+      <td class="n rest">67,5</td></tr>
+  <tr><td>Juni</td><td>Teilzeit</td>
+      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
+      <td class="n rest">77,5</td></tr>
+  <tr><td>Juli</td><td><b>Vollzeit</b></td>
+      <td class="n">224&nbsp;h</td><td class="n tage">17,5</td>
+      <td class="n rest">95,0</td></tr>
+  <tr><td>August</td><td><b>Vollzeit</b></td>
+      <td class="n">192&nbsp;h</td><td class="n tage">10,0</td>
+      <td class="n rest">105,0</td></tr>
+  <tr><td>September</td><td><b>Vollzeit</b></td>
+      <td class="n">232&nbsp;h</td><td class="n tage">15,0</td>
+      <td class="n rest">120,0</td></tr>
+  <tr><td>Oktober</td><td>Teilzeit</td>
+      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
+      <td class="n rest">130,0</td></tr>
+  <tr><td>November</td><td>Teilzeit</td>
+      <td class="n">80&nbsp;h</td><td class="n">10,0</td>
+      <td class="n rest">140,0</td></tr>
+  <tr><td>Dezember</td><td><b>Vollzeit</b></td>
+      <td class="n">208&nbsp;h</td><td class="n tage">22,5</td>
+      <td class="n rest">162,5</td></tr>
+  <tr class="sum"><td>Gesamt 2027</td><td></td><td class="n">1804&nbsp;h</td>
+      <td class="n">162,5</td><td class="n">162,5</td></tr>
+</table>
+
+<h2 class="avoid">4. Der Urlaub — und warum seine Lage zählt</h2>
+<p>
+  Urlaubstage sind keine Arbeitstage und kosten <b>0 Tage</b>. Sie sparen mir aber genau die Tage,
+  die die jeweilige Woche sonst gekostet hätte — und das ist von Woche zu Woche sehr verschieden:
+</p>
 <table class="rule">
   <tr><td>1 Urlaubstag in einer <b>Vollzeitwoche der Vorlesungszeit</b></td><td>spart 1,0 Tag</td></tr>
   <tr><td>1 Urlaubstag in einer <b>Teilzeitwoche</b></td><td>spart 0,5 Tage</td></tr>
   <tr><td>1 Urlaubstag in den <b>Semesterferien</b></td><td>spart 0 Tage</td></tr>
 </table>
 <p>
-  Deshalb liegt mein Urlaub <b>ausschließlich in Vollzeitmonaten</b>, und dort in den Wochen der
-  Vorlesungszeit. Die frei werdenden Tage ermöglichen zusätzliche Vollzeitmonate: Der Plan enthält
-  <b>7 Vollzeitmonate</b> statt der sonst möglichen fünf.
-</p>
-
-<h2 class="avoid">3. Das Jahr nach Monaten</h2>
-<p style="font-size:9.5pt;color:#5a6672;margin-top:-2pt">
-  Jeder Monat ist durchgehend Vollzeit <b>oder</b> durchgehend Teilzeit — kein Wechsel innerhalb
-  eines Monats. In den vorlesungsfreien Wochen der Vollzeitmonate sind auch <b>Samstage</b>
-  eingeplant; sie kosten dort keine zusätzlichen Tage.
+  <b>Urlaub in einer Vollzeitwoche während der Vorlesungszeit ist also doppelt so viel wert wie in
+  einer Teilzeitwoche — und in den Semesterferien bringt er gar nichts</b>, weil die Woche dort
+  ohnehin pauschal mit 2,5 Tagen gedeckelt ist. Derselbe Urlaub von 36 Tagen führt deshalb zu
+  völlig unterschiedlichen Ergebnissen:
 </p>
 <table>
-  <tr><th>Monat</th><th>Modus</th><th class="n">Stunden</th><th class="n">Urlaub</th>
-      <th class="n">Arbeitstage</th><th class="n">Kumuliert</th></tr>
-  <tr class="urlaub"><td>Januar</td><td>Teilzeit</td>
-      <td class="n">60&nbsp;h</td><td class="n">4</td>
-      <td class="n">7,5</td><td class="n rest">7,5</td></tr>
-  <tr class="urlaub"><td>Februar</td><td><b>Vollzeit</b></td>
-      <td class="n">96&nbsp;h</td><td class="n">12</td>
-      <td class="n">5,0</td><td class="n rest">12,5</td></tr>
-  <tr><td>März</td><td><b>Vollzeit</b></td>
-      <td class="n">176&nbsp;h</td><td class="n">–</td>
-      <td class="n tage">15,0</td><td class="n rest">27,5</td></tr>
-  <tr><td>April</td><td>Teilzeit</td>
-      <td class="n">100&nbsp;h</td><td class="n">–</td>
-      <td class="n">12,5</td><td class="n rest">40,0</td></tr>
-  <tr class="urlaub"><td>Mai</td><td><b>Vollzeit</b></td>
-      <td class="n">120&nbsp;h</td><td class="n">5</td>
-      <td class="n">15,0</td><td class="n rest">55,0</td></tr>
-  <tr><td>Juni</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">–</td>
-      <td class="n">10,0</td><td class="n rest">65,0</td></tr>
-  <tr><td>Juli</td><td><b>Vollzeit</b></td>
-      <td class="n">224&nbsp;h</td><td class="n">–</td>
-      <td class="n tage">17,5</td><td class="n rest">82,5</td></tr>
-  <tr><td>August</td><td><b>Vollzeit</b></td>
-      <td class="n">192&nbsp;h</td><td class="n">–</td>
-      <td class="n tage">10,0</td><td class="n rest">92,5</td></tr>
-  <tr><td>September</td><td><b>Vollzeit</b></td>
-      <td class="n">232&nbsp;h</td><td class="n">–</td>
-      <td class="n tage">15,0</td><td class="n rest">107,5</td></tr>
-  <tr><td>Oktober</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">–</td>
-      <td class="n">10,0</td><td class="n rest">117,5</td></tr>
-  <tr><td>November</td><td>Teilzeit</td>
-      <td class="n">80&nbsp;h</td><td class="n">–</td>
-      <td class="n">10,0</td><td class="n rest">127,5</td></tr>
-  <tr class="urlaub"><td>Dezember</td><td><b>Vollzeit</b></td>
-      <td class="n">88&nbsp;h</td><td class="n">15</td>
-      <td class="n">7,5</td><td class="n rest">135,0</td></tr>
-  <tr class="sum"><td>Gesamt 2027</td><td></td><td class="n">1528&nbsp;h</td><td class="n">36</td><td class="n">135,0</td><td class="n">135,0</td></tr>
+  <tr><th>36 Urlaubstage gelegt in …</th><th class="n">spart</th><th class="n">Jahr</th><th>Ergebnis</th></tr>
+  <tr class="urlaub"><td><b>Vollzeitwochen der Vorlesungszeit</b></td><td class="n">36,0</td>
+      <td class="n"><b>126,5</b></td><td><b>hält das Limit ein</b></td></tr>
+  <tr><td>Teilzeitwochen</td><td class="n">22,5</td><td class="n">140,0</td>
+      <td>genau am Limit, aber 31 statt 26 Wochen über 20&nbsp;h</td></tr>
+  <tr class="voll"><td>Semesterferien</td><td class="n">15,0</td>
+      <td class="n tage">147,5</td><td><b>über dem Limit</b></td></tr>
 </table>
-
-<h2 class="avoid">4. Der Urlaub</h2>
-<table>
-  <tr><th>Monat</th><th>Zeitraum</th><th>Dauer</th><th class="n">Tage</th><th>Anlass</th></tr>
-  <tr class="urlaub"><td><b>Januar</b></td><td>25.–28.01.</td><td>1 Woche</td><td class="n">4 Tage</td><td><b>Prüfungszeit</b></td></tr>
-  <tr class="urlaub"><td><b>Februar</b></td><td>08.–20.02.</td><td>2 Wochen</td><td class="n">12 Tage</td><td><b>Prüfungszeit</b></td></tr>
-  <tr class="urlaub"><td><b>Mai</b></td><td>03.–07.05.</td><td>1 Woche</td><td class="n">5 Tage</td><td>—</td></tr>
-  <tr class="urlaub"><td><b>Dezember</b></td><td>06.–24.12.</td><td><b>3 Wochen</b></td><td class="n">15 Tage</td><td><b>Auslandsreise</b></td></tr>
-  <tr class="sum"><td colspan="3">Gesamt</td><td class="n">36 Tage</td><td></td></tr>
-</table>
+<div class="calc">Dienstplan ohne Urlaub          162,5 Tage
+− Wirkung von 36 Urlaubstagen   − 36,0 Tage
+──────────────────────────────────────
+= tatsächlich verbraucht        126,5 Tage
+  von 140 erlaubten Tagen        13,5 Tage Puffer</div>
 <p>
-  <b>Der Dezemberblock ist eine dreiwöchige Auslandsreise</b> und der einzige längere Urlaub im
-  Jahr. Am <b>27.12.</b> bin ich wieder im Dienst — die Woche zwischen Weihnachten und Neujahr
-  arbeite ich also regulär mit.
-</p>
-<p>
-  Die Prüfungszeiten im Januar und Februar liegen fest. Meine Prüfungen beginnen am 22. Januar;
-  da der Freitag in der 4-Tage-Woche ohnehin frei ist, betrifft der Urlaub die Woche vom 25. bis
-  28. Januar. Alle Urlaubsblöcke liegen in Vollzeitmonaten während der Vorlesungszeit — nur dort
-  sparen sie Arbeitstage ein. In den Semesterferien würden sie <b>gar keine</b> Tage sparen, und
-  der Plan ginge nicht mehr auf.
+  <b>Die konkreten Termine lege ich noch nicht fest</b> — sie lassen sich mit dem Dienstplan
+  abstimmen. Entscheidend ist nur, dass die 36 Tage in <b>Vollzeitwochen während der
+  Vorlesungszeit</b> fallen. Dafür stehen 13 solche Wochen zur Verfügung, also deutlich mehr als
+  die rund 7 benötigten. Fest steht lediglich, dass meine <b>Prüfungszeiten</b> im Januar und
+  Februar liegen.
 </p>
 
 <h2 class="avoid">5. Die zweite Grenze: 26 Wochen über 20 Stunden</h2>
@@ -162,14 +174,16 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
   Für den Werkstudentenstatus gilt zusätzlich: <b>höchstens 26 Wochen über 20 Stunden</b> innerhalb
   von 12 Monaten. Darüber entfällt die Befreiung von Kranken-, Pflege- und Arbeitslosenversicherung
   — mit Folgen auch für die Abrechnung auf Arbeitgeberseite.<br><br>
-  Dieser Plan liegt bei <b>25 von 26 Wochen</b> und bei <b>135,0 von 140 Tagen</b>.
-  Der Abstand ist knapp — zusätzliche Vollzeitwochen sind deshalb nicht möglich.
+  Mit dem Urlaub in Vollzeitwochen liegt der Plan bei <b>24 von 26 Wochen</b>. Auch das ist ein
+  Grund für diese Lage: Läge der Urlaub in Teilzeitwochen, blieben alle Vollzeitwochen bestehen und
+  der Plan käme auf <b>31 Wochen</b> — die Befreiung wäre verloren.
 </div>
 
 <h2 class="avoid">6. Bitte bei der Dienstplanung</h2>
 <table class="rule">
   <tr><td><b>Teilzeitmonate:</b> höchstens 20 Stunden pro Woche</td><td>sonst doppelte Kosten</td></tr>
   <tr><td><b>Vollzeitmonate:</b> gerne Samstage und lange Tage</td><td>kostet nichts zusätzlich</td></tr>
+  <tr><td><b>Urlaub:</b> in Vollzeitwochen der Vorlesungszeit</td><td>spart doppelt so viel</td></tr>
 </table>
 <p>
   In den Teilzeitmonaten ist allein die <b>Wochengrenze von 20 Stunden</b> entscheidend, nicht die
