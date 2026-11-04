@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<title>Arbeitstage-Nachweis 2026</title>
+<html lang="de"><head><meta charset="utf-8"><title>Arbeitstage-Nachweis 2026</title>
 <style>
-@page{ size:A4; margin:16mm 15mm 14mm; }
+@page{ size:A4; margin:15mm 15mm 12mm; }
 *{box-sizing:border-box}
 body{margin:0; font:10.5pt/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:#15202b; background:#fff}
 h1{font-size:19pt;margin:0 0 2pt;letter-spacing:-.2pt}
 .sub{font-size:9pt;color:#5a6672;margin:0 0 12pt;padding-bottom:7pt;border-bottom:2pt solid #15202b}
-h2{font-size:11.5pt;margin:15pt 0 6pt;padding-bottom:3pt;border-bottom:.8pt solid #c8d0d8}
+h2{font-size:11.5pt;margin:12pt 0 5pt;padding-bottom:3pt;border-bottom:.8pt solid #c8d0d8}
 p{margin:0 0 7pt}
 .stand{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8pt;margin:0 0 4pt}
 .stand div{border:.8pt solid #dce2e8;border-radius:3pt;padding:7pt 9pt;text-align:center}
@@ -25,7 +22,7 @@ th,td{padding:4pt;text-align:left;border-bottom:.6pt solid #dce2e8;vertical-alig
 th{font-size:7.5pt;text-transform:uppercase;letter-spacing:.3pt;color:#6b7680;font-weight:700;border-bottom:1pt solid #9aa5b0}
 td.n,th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 td.rest{font-weight:700}
-tr.start td{background:#f6f8fa;font-weight:600}
+tr.basis td{background:#f6f8fa;font-weight:600}
 tr.urlaub td{background:#eef7ff;color:#1a4b7a}
 tr.frei td{background:#f4f6f8;color:#5a6672}
 tr.voll td.tage{color:#b4530a;font-weight:700}
@@ -35,119 +32,80 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
 .rule td:last-child{text-align:right;font-weight:700;white-space:nowrap}
 .rule tr:last-child td{border-bottom:0}
 .calc{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:10pt;background:#f6f8fa;
-      border:.8pt solid #dce2e8;border-radius:3pt;padding:9pt 11pt;margin:4pt 0 6pt;white-space:pre-line;line-height:1.7}
+      border:.8pt solid #dce2e8;border-radius:3pt;padding:8pt 11pt;margin:4pt 0 5pt;white-space:pre-line;line-height:1.6}
 .box{border:1pt solid #2f855a;background:#f4faf6;border-radius:3pt;padding:9pt 11pt;margin:5pt 0 7pt;font-size:10pt}
 .box b{color:#1d5c3c}
 .warn{border:1pt solid #d9822b;background:#fdf6ee;border-radius:3pt;padding:9pt 11pt;margin:5pt 0 7pt;font-size:10pt}
 .warn b{color:#9c4c00}
-.foot{margin-top:11pt;padding-top:6pt;border-top:.8pt solid #dce2e8;font-size:8pt;color:#78838e;line-height:1.45}
-.sig{margin-top:15pt;display:grid;grid-template-columns:1fr 1fr;gap:26pt;font-size:9pt;color:#5a6672}
+.foot{margin-top:8pt;padding-top:5pt;border-top:.8pt solid #dce2e8;font-size:8pt;color:#78838e;line-height:1.45}
+.sig{margin-top:12pt;display:grid;grid-template-columns:1fr 1fr;gap:26pt;font-size:9pt;color:#5a6672}
 .sig div{border-top:.8pt solid #9aa5b0;padding-top:4pt}
 .avoid{break-inside:avoid}
-</style>
-</head>
-<body>
+
+.termine{border:1.6pt solid #1f6feb;border-radius:4pt;padding:8pt 12pt;margin:5pt 0 6pt}
+.termine table{margin:0;font-size:10.5pt}
+.termine td{border-bottom:.5pt dotted #c8d0d8;padding:4pt 2pt}
+.termine tr:last-child td{border-bottom:0}
+.termine td:last-child{text-align:right;white-space:nowrap}
+.start{background:#eff7f1;border:1.6pt solid #2f855a;border-radius:4pt;padding:9pt 12pt;margin:6pt 0;text-align:center}
+.start b{display:block;font-size:15pt;color:#1d5c3c;letter-spacing:-.2pt;margin-bottom:2pt}
+.start span{font-size:9.5pt;color:#1d5c3c}
+</style></head><body>
 
 <h1>Arbeitstage-Nachweis 2026</h1>
-<p class="sub">Werkstudent · Aufenthaltserlaubnis nach §&nbsp;16b AufenthG · Stand: 02.11.2026</p>
+<p class="sub">Werkstudent · Aufenthaltserlaubnis nach §&nbsp;16b AufenthG · Stand: 04.11.2026</p>
 
 <div class="stand">
-  <div><b>120,5</b><span>verbraucht Jan–Okt</span></div>
-  <div class="hi"><b>19,5</b><span>Rest heute</span></div>
-  <div><b>140</b><span>Limit pro Jahr</span></div>
+  <div><b>120,5</b><span>Jan–Okt verbraucht</span></div>
+  <div class="hi"><b>135,5</b><span>von 140 Tagen</span></div>
+  <div><b>4,5</b><span>Tage Puffer</span></div>
 </div>
 
-<h2>1. Rechtsgrundlage</h2>
-<blockquote>
-  „Die Aufenthaltserlaubnis nach Absatz 1 berechtigt zur Ausübung einer Beschäftigung, die insgesamt
-  140 Tage oder 280 halbe Tage im Jahr nicht überschreiten darf, sowie zur Ausübung studentischer
-  Nebentätigkeiten.“
-  <cite>§ 16b Absatz 3 Satz 1 AufenthG</cite>
-</blockquote>
-<p>Das Jahr läuft vom 1. Januar bis 31. Dezember und beginnt jedes Jahr wieder bei null.</p>
-
-<h2 class="avoid">2. Wie gezählt wird</h2>
+<h2>Die Regel in Kürze</h2>
 <p>
-  Das Limit steht in <b>Tagen</b>, nicht in Stunden. Entscheidend ist deshalb nicht, wie viel ich
-  insgesamt arbeite, sondern <b>wie sich die Arbeit über die Wochen verteilt</b>. Gezählt wird
-  immer je <b>Kalenderwoche</b> (Montag bis Sonntag), nie je Monat.
-</p>
-
-<h3>a) Zwei Rechenwege — der günstigere zählt</h3>
-<p>Für jede Woche werden beide Wege gerechnet, angesetzt wird der <b>niedrigere</b> Wert:</p>
-<table class="rule">
-  <tr><td><b>Weg 1 — taggenau.</b> Jeder Arbeitstag bis 4 Stunden</td><td>0,5 Tage</td></tr>
-  <tr><td>Jeder Arbeitstag über 4 Stunden — auch bei 8 oder 10 Stunden</td><td>1,0 Tage</td></tr>
-  <tr><td><b>Weg 2 — Wochenpauschale.</b> Gilt nur in der vorlesungsfreien Zeit,<br>
-          oder in der Vorlesungszeit bei höchstens 20 Wochenstunden</td><td>2,5 Tage</td></tr>
-  <tr><td>Urlaub, Krankheit, freie Tage — nie ein Arbeitstag</td><td>0 Tage</td></tr>
-</table>
-<p>
-  Die 0,5 Tage stammen direkt aus dem Gesetz: Es erlaubt <b>140 ganze oder 280 halbe Tage</b>.
-  Über 4 Stunden gibt es keine Abstufung mehr — eine 5-Stunden-Schicht kostet genauso viel wie
-  eine 10-Stunden-Schicht.
-</p>
-
-<h3>b) Was das praktisch bedeutet</h3>
-<p>
-  Aus den beiden Regeln ergibt sich ein fester Umrechnungskurs zwischen Arbeitszeit und
-  verbrauchten Tagen — und der ist in der vorlesungsfreien Zeit <b>doppelt so gut</b>:
+  Nach §&nbsp;16b Abs.&nbsp;3 AufenthG darf ich <b>höchstens 140 Arbeitstage oder 280 halbe Tage im
+  Kalenderjahr</b> arbeiten. Gezählt wird je <b>Kalenderwoche</b>, nicht je Monat; für jede Woche
+  gilt der günstigere von zwei Rechenwegen.
 </p>
 <table class="rule">
-  <tr><td><b>In der Vorlesungszeit</b> — jede Verteilung, egal ob 4- oder 8-Stunden-Schichten</td>
-      <td>8 Std. je Tag</td></tr>
-  <tr><td><b>In der vorlesungsfreien Zeit</b> — dank der Pauschale von 2,5 Tagen pro Woche</td>
-      <td>16 Std. je Tag</td></tr>
+  <tr><td>Arbeitstag bis 4 Stunden</td><td>0,5 Tage</td></tr>
+  <tr><td>Arbeitstag über 4 Stunden — auch bei 8 oder 10 Stunden</td><td>1,0 Tage</td></tr>
+  <tr><td>Ganze Woche pauschal — vorlesungsfrei, oder in der<br>
+          Vorlesungszeit bei höchstens 20 Wochenstunden</td><td>2,5 Tage</td></tr>
+  <tr><td>Urlaub, Krankheit, freie Tage</td><td>0 Tage</td></tr>
 </table>
-<p>
-  Dieselben <b>40 Arbeitsstunden</b> kosten deshalb unterschiedlich viel, je nachdem, wann sie
-  geleistet werden:
-</p>
-<table>
-  <tr><th>40 Stunden in einer Woche</th><th>Rechnung</th><th class="n">Kosten</th></tr>
-  <tr class="voll"><td>5 Tage à 8 h <b>in der Vorlesungszeit</b></td>
-      <td>über 20 h ⇒ keine Pauschale, taggenau 1+1+1+1+1</td><td class="n tage">5,0 Tage</td></tr>
-  <tr><td>5 Tage à 8 h <b>in der vorlesungsfreien Zeit</b></td>
-      <td>Pauschale gilt immer</td><td class="n">2,5 Tage</td></tr>
-</table>
-<p>
-  Genau daraus folgt mein Plan: Im Dezember arbeite ich <b>über Weihnachten</b>, weil dort die
-  vorlesungsfreie Zeit beginnt und dieselbe Arbeitszeit nur halb so viele Tage kostet. Und ich
-  nehme <b>eine Woche in der Vorlesungszeit</b> frei, weil dort jede eingesparte Woche 5,0 Tage
-  bringt statt nur 2,5.
+<p style="font-size:9.5pt;color:#5a6672">
+  Entscheidend für den Dezember: Ab dem <b>21.12.</b> ist vorlesungsfreie Zeit. Dort kostet eine
+  ganze Woche pauschal 2,5 Tage — egal wie viele Stunden. Weil mein Konto vorher aufgebraucht ist,
+  nehme ich <b>zwei volle Wochen unbezahlt frei (07.–20.12.)</b> und arbeite danach durchgehend
+  Vollzeit; in der vorlesungsfreien Zeit kosten zusätzliche Tage nichts.
 </p>
 
-<div class="box">
-  <b>Entscheidend ist die Wochengrenze, nicht die einzelne Schicht:</b> In der Vorlesungszeit
-  bitte <b>höchstens 20 Stunden pro Woche</b>. Dann greift die Pauschale und die Woche kostet
-  2,5 Tage — unabhängig davon, wie die Stunden auf die Schichten verteilt sind.
-  <table class="rule" style="margin:6pt 0 5pt">
-    <tr><td>4 Schichten à 5 h = 20 Stunden</td><td>2,5 Tage</td></tr>
-    <tr><td>5 Schichten à 4 h = 20 Stunden</td><td>2,5 Tage</td></tr>
-    <tr><td>4 Schichten à 6 h = 24 Stunden</td><td>5,0 Tage</td></tr>
+<h2 class="avoid">Die Termine</h2>
+<div class="termine">
+  <table>
+    <tr><td>Vollzeit, 40 Stunden</td><td><b>02. – 06.11.2026</b></td></tr>
+    <tr><td>Teilzeit, je 20 Stunden pro Woche</td><td><b>09. – 20.11.2026</b></td></tr>
+    <tr><td>Urlaub</td><td><b>22.11. – 05.12.2026</b></td></tr>
+    <tr><td>unbezahlt frei — zwei volle Wochen</td><td><b>07. – 20.12.2026</b></td></tr>
+    <tr><td>Vollzeit, durchgehend bis Jahresende</td><td><b>21.12.2026 – 03.01.2027</b></td></tr>
   </table>
-  <b>Über 20 Stunden verdoppeln sich die Kosten der Woche</b>: Die Pauschale entfällt, und dann
-  zählt jeder einzelne Tag über 4 Stunden als ganzer Tag.
+</div>
+<div class="start">
+  <b>Ich bin ab Montag, dem 21. Dezember 2026, wieder im Dienst.</b>
+  <span>Von da an arbeite ich durchgehend in Vollzeit — auch zwischen Weihnachten und Neujahr
+  (21.–24.12. und 28.–31.12., Feiertage ausgenommen).</span>
 </div>
 
-<h2 class="avoid">3. Das Jahr nach Monaten</h2>
+<h2 class="avoid">Alle Wochen im Detail</h2>
 <table>
-  <tr><th>Monat</th><th>Tätigkeit</th><th class="n">Tage</th><th class="n">Kumuliert</th><th class="n">Rest von 140</th></tr>
-  <tr class="start"><td>Januar – Oktober</td><td>laut eigener Aufstellung</td>
-      <td class="n">120,5</td><td class="n">120,5</td><td class="n rest">19,5</td></tr>
-  <tr><td>November</td><td>1 Woche Vollzeit · 2 Wochen Teilzeit à 20 h · 2 Wochen Urlaub</td>
-      <td class="n">10,0</td><td class="n">130,5</td><td class="n rest">9,5</td></tr>
-  <tr><td>Dezember</td><td>unbezahlt frei 7.–17.12. · ab 18.12. wieder Vollzeit</td>
-      <td class="n">6,0</td><td class="n">136,5</td><td class="n rest">3,5</td></tr>
-  <tr class="sum"><td colspan="2">Gesamt 2026</td><td class="n">136,5</td><td class="n">136,5</td><td class="n">3,5</td></tr>
-</table>
-
-<h2 class="avoid">4. Alle Wochen im Detail</h2>
-<table>
-  <tr><th>Zeitraum</th><th>Tätigkeit</th><th>Berechnung</th>
-      <th class="n">Tage</th><th class="n">Verbraucht</th><th class="n">Rest von 140</th></tr>
-  <tr class="start"><td>Januar – Oktober</td><td>laut eigener Aufstellung</td><td>Summe aller Arbeitswochen</td>
-      <td class="n">120,5</td><td class="n">120,5</td><td class="n rest">19,5</td></tr>
+  <thead><tr><th>Zeitraum</th><th>Tätigkeit</th><th>Berechnung</th>
+      <th class="n">Tage</th><th class="n">Verbraucht</th><th class="n">Rest von 140</th></tr></thead>
+  <tbody>
+  <tr class="basis"><td>Januar – Oktober</td>
+      <td colspan="2">Summe aller Arbeitswochen</td>
+      <td class="n">120,5</td><td class="n">120,5</td>
+      <td class="n rest">19,5</td></tr>
   <tr class="voll"><td>KW 45 · 02.11.–08.11.</td><td>Vollzeit · 5&nbsp;×&nbsp;8&nbsp;h</td><td>taggenau 1+1+1+1+1 — über 20&nbsp;h in der Vorlesungszeit</td>
       <td class="n tage">5,0</td><td class="n">125,5</td><td class="n rest">14,5</td></tr>
   <tr><td>KW 46 · 09.11.–15.11.</td><td>Teilzeit · 4&nbsp;×&nbsp;5&nbsp;h</td><td>Pauschale 2,5 (max. 20&nbsp;h)</td>
@@ -160,100 +118,44 @@ tr.sum td{border-top:1.4pt solid #15202b;border-bottom:0;font-weight:700;padding
       <td class="n">0,0</td><td class="n">130,5</td><td class="n rest">9,5</td></tr>
   <tr class="frei"><td>KW 50 · 07.12.–13.12.</td><td>unbezahlt frei</td><td>kein Arbeitstag</td>
       <td class="n">0,0</td><td class="n">130,5</td><td class="n rest">9,5</td></tr>
-  <tr><td>KW 51 · 14.12.–20.12.</td><td>Vollzeit · 1 Tag (Fr 18.12.)</td><td>taggenau 1 — erster Tag nach der freien Zeit</td>
-      <td class="n">1,0</td><td class="n">131,5</td><td class="n rest">8,5</td></tr>
-  <tr><td>KW 52 · 21.12.–27.12.</td><td>Vollzeit · 4&nbsp;×&nbsp;8&nbsp;h</td><td>Pauschale 2,5 — vorlesungsfreie Zeit</td>
-      <td class="n">2,5</td><td class="n">134,0</td><td class="n rest">6,0</td></tr>
-  <tr><td>KW 53 · 28.12.–03.01.</td><td>Vollzeit · 6&nbsp;×&nbsp;8&nbsp;h</td><td>Pauschale 2,5 — vorlesungsfreie Zeit</td>
-      <td class="n">2,5</td><td class="n">136,5</td><td class="n rest">3,5</td></tr>
-  <tr class="sum"><td colspan="3">Gesamt 2026</td><td class="n">136,5</td><td class="n">136,5</td><td class="n">3,5</td></tr>
+  <tr class="frei"><td>KW 51 · 14.12.–20.12.</td><td>unbezahlt frei</td><td>kein Arbeitstag</td>
+      <td class="n">0,0</td><td class="n">130,5</td><td class="n rest">9,5</td></tr>
+  <tr><td>KW 52 · 21.12.–27.12.</td><td>Vollzeit · 4&nbsp;×&nbsp;8&nbsp;h</td><td><b>erster Arbeitstag: Mo 21.12.</b> — Pauschale 2,5, vorlesungsfrei</td>
+      <td class="n">2,5</td><td class="n">133,0</td><td class="n rest">7,0</td></tr>
+  <tr><td>KW 53 · 28.12.–03.01.</td><td>Vollzeit · 4&nbsp;×&nbsp;8&nbsp;h</td><td>Pauschale 2,5 — vorlesungsfreie Zeit</td>
+      <td class="n">2,5</td><td class="n">135,5</td><td class="n rest">4,5</td></tr>
+  <tr class="sum"><td colspan="3">Gesamt 2026</td><td class="n">135,5</td>
+      <td class="n">135,5</td><td class="n">4,5</td></tr>
+  </tbody>
 </table>
-
 <p style="font-size:8.5pt;color:#5a6672;margin-top:-2pt">
-  Urlaub: 22.11.–05.12.2026 (10 Werktage). Vorlesungsfreie Zeit ab 21.12.2026 — deshalb kosten
-  KW 52 und 53 nur je 2,5 statt 5,0 Tage.
+  Urlaub 22.11.–05.12.2026 (10 Werktage), danach zwei Wochen unbezahlt frei (07.–20.12.).
+  Vorlesungsfreie Zeit ab 21.12.2026 — deshalb kosten die KW 52 und 53 nur je 2,5 statt 5,0 Tage.
 </p>
 
-<h2 class="avoid">5. Ergebnis</h2>
+<h2 class="avoid">Ergebnis</h2>
 <div class="calc">120,5 Tage   Januar bis Oktober
-+ 16,0 Tage   November und Dezember
++ 15,0 Tage   November und Dezember
 ─────────────
- 136,5 Tage   von 140 erlaubten Tagen
-   3,5 Tage   Puffer</div>
+135,5 Tage   von 140 erlaubten Tagen
+  4,5 Tage   Puffer</div>
 <div class="box">
-  <b>Ich plane bewusst mit 136,5 statt 140,0.</b> Die Zählung ist nicht ganz einfach: Sie läuft
-  wochenweise, nicht monatsweise, jede Woche wird auf zwei Arten gerechnet, und ob eine Woche in
-  der Vorlesungszeit liegt, entscheidet über 2,5 oder 5,0 Tage. Schon ein zusätzlicher Arbeitstag,
-  eine anders bewertete Woche oder ein kleiner Fehler in meiner Aufstellung verschiebt das
-  Ergebnis. Die <b>3,5 Tage Puffer</b> sind deshalb Absicht — ein Überschreiten des Limits wäre
-  ein Verstoß gegen meine Aufenthaltserlaubnis.
+  <b>Ich plane bewusst mit 135,5 statt 140,0.</b> Die Zählung läuft wochenweise und reagiert
+  empfindlich auf kurzfristige Änderungen im Dienstplan — ein zusätzlicher Arbeitstag oder eine
+  anders bewertete Woche verschiebt das Ergebnis sofort. Die <b>4,5 Tage Puffer</b> sind deshalb
+  Absicht; ein Überschreiten des Limits wäre ein Verstoß gegen meine Aufenthaltserlaubnis.
 </div>
 
-<h2 class="avoid">6. November und Dezember im Einzelnen</h2>
+<h2 class="avoid">Ab Januar 2027</h2>
 <p>
-  <b>November.</b> Für die KW 45 (2.–8.11.) bin ich in Vollzeit eingeplant — eine Woche in der
-  Vorlesungszeit, die 5,0 statt 2,5 Tage kostet. In den beiden Wochen vom <b>9. bis 22.11.</b>
-  arbeite ich regulär <b>4 Schichten à 5 Stunden, also 20 Stunden pro Woche</b>. Damit greift
-  die Wochenpauschale: Jede der beiden Wochen kostet 2,5 statt 5,0 Tage. Ab <b>Montag, 23.11.</b>
-  beginnt mein Urlaub.
-</p>
-<p>
-  <b>Dezember.</b> Vom <b>7. bis 17.12.</b> bin ich unbezahlt frei. Ab <b>Freitag, 18.12.</b>
-  arbeite ich wieder in Vollzeit — dann ist vorlesungsfreie Zeit, und dort gilt die Pauschale von
-  2,5 Tagen pro Woche <b>unabhängig von der Stundenzahl</b>.
-</p>
-<div class="box">
-  <b>Deshalb arbeite ich zwischen Weihnachten und Neujahr so viel wie möglich.</b>
-  In der vorlesungsfreien Zeit kostet die Woche pauschal 2,5 Tage — ob ich 24 oder 48 Stunden
-  arbeite, ändert daran nichts. Zusätzliche Tage und auch <b>Samstage sind dort für mein Konto
-  gratis</b>:
-  <table class="rule" style="margin:6pt 0 5pt">
-    <tr><td>KW 53 mit 5 Tagen (Mo–Fr) = 40 Stunden</td><td>2,5 Tage</td></tr>
-    <tr><td>KW 53 mit 6 Tagen (Mo–Sa) = 48 Stunden</td><td>2,5 Tage</td></tr>
-  </table>
-  Ich stehe deshalb gerne auch samstags zur Verfügung, solange es in die vorlesungsfreie Zeit
-  fällt. In der Vorlesungszeit ist es genau umgekehrt — dort kostet jeder Samstag über 4 Stunden
-  einen vollen Tag.
-</div>
-<div class="warn">
-  <b>Die freien Wochen müssen in der Vorlesungszeit liegen.</b> Nur dort kostet eine Vollzeitwoche
-  5,0 Tage, dort spare ich also am meisten. Über Weihnachten kostet eine Woche ohnehin nur 2,5 Tage
-  — sie frei zu nehmen würde kaum etwas bringen.
-</div>
-
-<h2 class="avoid">7. Warum Teilzeit im Dezember nichts bringt</h2>
-<p>
-  Ab dem 21.12. ist vorlesungsfreie Zeit. Dort gilt die Pauschale von 2,5 Tagen pro Woche —
-  <b>unabhängig von der Stundenzahl</b>:
-</p>
-<table class="rule">
-  <tr><td>KW 52/53 mit 20 Stunden (Teilzeit)</td><td>2,5 Tage</td></tr>
-  <tr><td>KW 52/53 mit 40 Stunden (Vollzeit)</td><td>2,5 Tage</td></tr>
-</table>
-<p>
-  Teilzeit würde dort also <b>genauso viele Tage verbrauchen</b> wie Vollzeit — nur bei halbem
-  Gehalt. Deshalb arbeite ich über Weihnachten voll. Tage spare ich nur über <b>ganze freie
-  Wochen in der Vorlesungszeit</b>, nicht über kürzere Arbeitszeiten im Dezember.
+  Am 1.&nbsp;Januar 2027 beginnt ein neues Konto mit 140 Arbeitstagen. Für das kommende Jahr lege
+  ich die Vollzeitphasen bevorzugt in die <b>vorlesungsfreie Zeit</b> — dort kostet eine volle
+  Arbeitswoche 2,5 statt 5,0 Tage, ich kann also bei gleichem Limit deutlich mehr arbeiten.
 </p>
 
-<h2 class="avoid">8. Ab Januar 2027</h2>
-<p>
-  Am 1. Januar 2027 beginnt ein neues Konto mit 140 Tagen; ab der ersten Januarwoche kann ich
-  wieder im vereinbarten Umfang arbeiten. Für 2027 lege ich die Vollzeitphasen möglichst in die
-  <b>vorlesungsfreie Zeit</b> — dort kostet eine volle Woche 2,5 statt 5,0 Tage, ich kann also bei
-  gleichem Limit doppelt so lange arbeiten.
-</p>
-
-<div class="sig">
-  <div>Datum, Unterschrift Studierende/r</div>
-  <div>Zur Kenntnis genommen</div>
-</div>
-
+<div class="sig"><div>Datum, Unterschrift Studierende/r</div><div>Zur Kenntnis genommen</div></div>
 <p class="foot">
-  Zählung je Kalenderwoche (Montag bis Sonntag) nach der Günstigkeitsprüfung. Die Summe
-  Januar–Oktober beruht auf meiner eigenen Aufstellung. Grundlage für KW 52 und 53 ist eine
-  vorlesungsfreie Zeit ab dem 21.12.2026. Arbeitsplanung, keine Rechtsauskunft.
+  Zählung je Kalenderwoche (Montag bis Sonntag) nach der Günstigkeitsprüfung.
+  Arbeitsplanung, keine Rechtsauskunft.
 </p>
-
-</body>
-</html>
+</body></html>
